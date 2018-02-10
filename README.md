@@ -30,6 +30,7 @@ $ make install
 
 Contribute
 ----------
+- Read [How to submit an issue or feature request into tracker](https://github.com/souryogurt/topdax/wiki/How-to-submit-an-issue-or-feature-request)
 - Issue Tracker: https://github.com/souryogurt/topdax/issues
 - Source Code: https://github.com/souryogurt/topdax
 
