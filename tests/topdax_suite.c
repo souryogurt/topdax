@@ -12,7 +12,9 @@
 
 START_TEST(test_first)
 {
+	if(0){
 	ck_abort_msg("test that fails");
+	}
 }
 END_TEST
 

@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([topdax],[0.1],[Egor Artemov<egor.artemov@gmail.com>],[topdax],[https://github.com/souryogurt/topdax])
+AC_INIT([topdax],[0.1.0],[Egor Artemov <egor.artemov@gmail.com>],[topdax],[https://github.com/souryogurt/topdax])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_SRCDIR([src/topdax.c])
 AC_CONFIG_HEADERS([src/config.h])
