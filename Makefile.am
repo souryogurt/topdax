@@ -5,7 +5,7 @@ EXTRA_DIST = README.md LICENSE
 
 bin_PROGRAMS = topdax
 topdax_SOURCES = src/topdax.c\
-				 include/topdax.h
+				 include/topdax/topdax.h
 
 if HAVE_CHECK
 TESTS = topdax_unittests

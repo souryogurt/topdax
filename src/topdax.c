@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "topdax.h"
+#include "topdax/topdax.h"
 
 /** Program version */
 const char *argp_program_version = PACKAGE_STRING;
@@ -59,5 +59,9 @@ int main(int argc, char **argv)
 	struct arguments args = {
 		.verbose = false,
 	};
-	argp_parse(&argp, argc, argv, 0, NULL, &args);
+	error_t parse_err = argp_parse(&argp, argc, argv, 0, NULL, &args);
+	if (parse_err)
+		return EXIT_FAILURE;
+
+	return EXIT_SUCCESS;
 }

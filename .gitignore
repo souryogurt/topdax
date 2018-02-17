@@ -174,3 +174,5 @@ ltmain.sh
 m4/
 libtool
 src/stamp-h1
+topdax
+topdax_unittests
