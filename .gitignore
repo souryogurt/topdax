@@ -175,4 +175,6 @@ m4/
 libtool
 src/stamp-h1
 topdax
-topdax_unittests
+topdax_test
+test-driver
+*.trs
