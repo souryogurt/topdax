@@ -16,6 +16,7 @@ PKG_PROG_PKG_CONFIG
 
 # Checks for typedefs, structures, and compiler characteristics.
 
+AX_CODE_COVERAGE
 AC_ARG_WITH([unit-tests],
     AS_HELP_STRING([--without-unit-tests], [Ignore presence of check and disable unit tests]))
 

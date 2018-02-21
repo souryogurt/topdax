@@ -171,10 +171,12 @@ src/config.h.in
 compile
 configure
 ltmain.sh
-m4/
 libtool
 src/stamp-h1
 topdax
 topdax_test
 test-driver
 *.trs
+*.gcno
+*.gcda
+*-coverage*
