@@ -13,24 +13,22 @@ AC_PROG_CC
 PKG_PROG_PKG_CONFIG
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
 
 AC_ARG_WITH([unit-tests],
-    AS_HELP_STRING([--without-unit-tests], [Ignore presence of cmocka and disable unit tests]))
+    AS_HELP_STRING([--without-unit-tests], [Ignore presence of check and disable unit tests]))
 
 AS_IF([test "x$with_unit_tests" != "xno"],
-      [PKG_CHECK_MODULES([CMOCKA], [cmocka >= 1.0.0], [have_cmocka=yes], [have_cmocka=no])],
-      [have_cmocka=no])
+      [PKG_CHECK_MODULES([CHECK], [check >= 0.11.0], [have_check=yes], [have_check=no])],
+      [have_check=no])
 
-AS_IF([test "x$have_cmocka" != "xyes"],
+AS_IF([test "x$have_check" != "xyes"],
       [AS_IF([test "x$with_unit_tests" = "xyes"],
-             [AC_MSG_ERROR([unit tests requested but libcmocka not found])])
+             [AC_MSG_ERROR([unit tests requested but libcheck not found])])
 ])
 
-AM_CONDITIONAL([HAVE_CMOCKA], [test "x$have_cmocka" != "xno"])
+AM_CONDITIONAL([HAVE_CHECK], [test "x$have_check" != "xno"])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
