@@ -7,11 +7,10 @@ bin_PROGRAMS = topdax
 topdax_SOURCES = src/topdax.c\
 				 include/topdax/topdax.h
 
-if HAVE_CMOCKA
+if HAVE_CHECK
 TESTS = topdax_test
 check_PROGRAMS = topdax_test
-topdax_test_SOURCES = tests/topdax_test.c
-topdax_test_CFLAGS = $(CMOCKA_CFLAGS)
-topdax_test_LDADD = $(CMOCKA_LIBS)
-#topdax_test_LDFLAGS = -Wl,--wrap=symbol
+topdax_test_SOURCES = tests/topdax_suite.c
+topdax_test_CFLAGS = $(CHECK_CFLAGS)
+topdax_test_LDADD = $(CHECK_LIBS)
 endif
