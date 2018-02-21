@@ -18,10 +18,9 @@ Install topdax from sources, by running:
 $ apt install autoconf
 $ apt install gcc
 $ apt install pkg-config
-$ apt install libtool
 $ git clone https://github.com/souryogurt/topdax.git
 $ cd topdax
-$ autoreconf -if
+$ autoreconf -i
 $ ./configure
 $ make
 $ make install
