@@ -7,7 +7,6 @@
 #endif
 
 #include <argp.h>
-#include <stdbool.h>
 #include <stdlib.h>
 
 #include "topdax/topdax.h"
@@ -53,8 +52,7 @@ static const struct argp argp = {
 	.doc = description,
 };
 
-/** Entry point */
-int main(int argc, char **argv)
+int topdax_run(int argc, char **argv)
 {
 	struct arguments args = {
 		.verbose = false,

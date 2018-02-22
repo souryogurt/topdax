@@ -10,12 +10,14 @@ AM_MAINTAINER_MODE([enable])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_RANLIB
 PKG_PROG_PKG_CONFIG
 
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.
 
+AX_CODE_COVERAGE
 AC_ARG_WITH([unit-tests],
     AS_HELP_STRING([--without-unit-tests], [Ignore presence of check and disable unit tests]))
 
