@@ -10,6 +10,7 @@ AM_MAINTAINER_MODE([enable])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_RANLIB
 PKG_PROG_PKG_CONFIG
 
 # Checks for header files.
