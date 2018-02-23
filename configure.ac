@@ -22,7 +22,7 @@ AC_ARG_WITH([unit-tests],
     AS_HELP_STRING([--without-unit-tests], [Ignore presence of check and disable unit tests]))
 
 AS_IF([test "x$with_unit_tests" != "xno"],
-      [PKG_CHECK_MODULES([CHECK], [check >= 0.11.0], [have_check=yes], [have_check=no])],
+      [PKG_CHECK_MODULES([CHECK], [check >= 0.9.8], [have_check=yes], [have_check=no])],
       [have_check=no])
 
 AS_IF([test "x$have_check" != "xyes"],
