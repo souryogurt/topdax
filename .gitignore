@@ -175,7 +175,7 @@ libtool
 src/stamp-h1
 libtopdax.a
 topdax
-topdax_test
+topdax_suite
 test-driver
 *.trs
 *.gcno
