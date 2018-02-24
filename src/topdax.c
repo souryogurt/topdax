@@ -57,8 +57,8 @@ int topdax_run(int argc, char **argv)
 	struct arguments args = {
 		.verbose = false,
 	};
-	error_t parse_err = argp_parse(&argp, argc, argv, 0, NULL, &args);
-	if (parse_err)
+	error_t err = argp_parse(&argp, argc, argv, ARGP_NO_EXIT, NULL, &args);
+	if (err)
 		return EXIT_FAILURE;
 
 	return EXIT_SUCCESS;

@@ -19,18 +19,18 @@ PKG_PROG_PKG_CONFIG
 
 AX_CODE_COVERAGE
 AC_ARG_WITH([unit-tests],
-    AS_HELP_STRING([--without-unit-tests], [Ignore presence of check and disable unit tests]))
+    AS_HELP_STRING([--without-unit-tests], [Ignore presence of cgreen and disable unit tests]))
 
 AS_IF([test "x$with_unit_tests" != "xno"],
-      [PKG_CHECK_MODULES([CHECK], [check >= 0.9.8], [have_check=yes], [have_check=no])],
-      [have_check=no])
+      [PKG_CHECK_MODULES([CGREEN], [cgreen >= 1.0.0], [have_cgreen=yes], [have_cgreen=no])],
+      [have_cgreen=no])
 
-AS_IF([test "x$have_check" != "xyes"],
+AS_IF([test "x$have_cgreen" != "xyes"],
       [AS_IF([test "x$with_unit_tests" = "xyes"],
-             [AC_MSG_ERROR([unit tests requested but libcheck not found])])
+             [AC_MSG_ERROR([unit tests requested but libcgreen not found])])
 ])
 
-AM_CONDITIONAL([HAVE_CHECK], [test "x$have_check" != "xno"])
+AM_CONDITIONAL([HAVE_CGREEN], [test "x$have_cgreen" != "xno"])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

@@ -13,10 +13,10 @@ topdax_SOURCES = src/entry.c
 topdax_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 topdax_LDADD = libtopdax.a $(CODE_COVERAGE_LIBS)
 
-if HAVE_CHECK
-TESTS = topdax_test
-check_PROGRAMS = topdax_test
-topdax_test_SOURCES = tests/topdax_suite.c
-topdax_test_CFLAGS = $(CHECK_CFLAGS) $(CODE_COVERAGE_CFLAGS)
-topdax_test_LDADD = libtopdax.a $(CHECK_LIBS) $(CODE_COVERAGE_LIBS)
+if HAVE_CGREEN
+TESTS = topdax_suite
+check_PROGRAMS = topdax_suite
+topdax_suite_SOURCES = tests/topdax_suite.c
+topdax_suite_CFLAGS = $(CGREEN_CFLAGS) $(CODE_COVERAGE_CFLAGS)
+topdax_suite_LDADD = libtopdax.a $(CGREEN_LIBS) $(CODE_COVERAGE_LIBS)
 endif
