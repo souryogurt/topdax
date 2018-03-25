@@ -4,8 +4,8 @@ AM_CPPFLAGS = -I$(srcdir)/include
 EXTRA_DIST = README.md LICENSE
 
 noinst_LIBRARIES = libtopdax.a
-libtopdax_a_SOURCES = src/topdax.c\
-					  include/topdax/topdax.h
+libtopdax_a_SOURCES = src/topdax.c
+libtopdax_a_SOURCES += include/topdax/topdax.h
 libtopdax_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 bin_PROGRAMS = topdax
