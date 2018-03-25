@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "topdax/topdax.h"
+#include "topdax/application.h"
 #include <GLFW/glfw3.h>
 
 GLFWAPI int glfwInit(void)
@@ -104,9 +105,11 @@ int main(int argc, char **argv)
 	(void)(argc);
 	(void)(argv);
 	TestSuite *suite = create_named_test_suite("Topdax");
-	add_test(suite, topdax_exit_with_error_on_glfw_failure);
-	add_test(suite, topdax_exit_with_error_on_window_failure);
-	add_test(suite, topdax_exit_with_error_on_unknown_flag);
-	add_test(suite, topdax_shows_window);
+	TestSuite *tpx = create_named_test_suite("Topdax");
+	add_test(tpx, topdax_exit_with_error_on_glfw_failure);
+	add_test(tpx, topdax_exit_with_error_on_window_failure);
+	add_test(tpx, topdax_exit_with_error_on_unknown_flag);
+	add_test(tpx, topdax_shows_window);
+	add_suite(suite, tpx);
 	return run_test_suite(suite, create_text_reporter());
 }
