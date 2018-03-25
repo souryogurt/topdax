@@ -73,6 +73,7 @@ Ensure(topdax, exit_with_error_on_window_failure)
 	expect(glfwInit, will_return(GLFW_TRUE));
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow, will_return(NULL));
+	expect(glfwTerminate);
 	int exit_code = topdax_run(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }

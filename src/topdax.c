@@ -53,8 +53,10 @@ int topdax_run(int argc, char **argv)
 		return EXIT_FAILURE;
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	GLFWwindow *window = glfwCreateWindow(960, 540, "Topdax", NULL, NULL);
-	if (!window)
+	if (!window) {
+		glfwTerminate();
 		return EXIT_FAILURE;
+	}
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 	}
