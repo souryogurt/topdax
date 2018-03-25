@@ -14,15 +14,6 @@
 #include "topdax/topdax.h"
 #include <GLFW/glfw3.h>
 
-Describe(topdax);
-BeforeEach(topdax)
-{
-}
-
-AfterEach(topdax)
-{
-}
-
 GLFWAPI int glfwInit(void)
 {
 	return mock();
@@ -59,7 +50,7 @@ GLFWAPI void glfwWindowHint(int hint, int value)
 	mock(hint, value);
 }
 
-Ensure(topdax, exit_with_error_on_glfw_failure)
+Ensure(topdax_exit_with_error_on_glfw_failure)
 {
 	char *argv[] = { "./topdax", NULL };
 	expect(glfwInit, will_return(GLFW_FALSE));
@@ -67,7 +58,7 @@ Ensure(topdax, exit_with_error_on_glfw_failure)
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
-Ensure(topdax, exit_with_error_on_window_failure)
+Ensure(topdax_exit_with_error_on_window_failure)
 {
 	char *argv[] = { "./topdax", NULL };
 	expect(glfwInit, will_return(GLFW_TRUE));
@@ -78,7 +69,7 @@ Ensure(topdax, exit_with_error_on_window_failure)
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
-Ensure(topdax, shows_window)
+Ensure(topdax_shows_window)
 {
 	char *argv[] = { "./topdax", NULL };
 	GLFWwindow *window = (GLFWwindow *) 1;
@@ -99,7 +90,7 @@ Ensure(topdax, shows_window)
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
-Ensure(topdax, exit_with_error_on_unknown_flag)
+Ensure(topdax_exit_with_error_on_unknown_flag)
 {
 	char *argv[] = { "./topdax", "--unsupported", NULL };
 	/* Suppress stderr */
@@ -113,9 +104,9 @@ int main(int argc, char **argv)
 	(void)(argc);
 	(void)(argv);
 	TestSuite *suite = create_named_test_suite("Topdax");
-	add_test_with_context(suite, topdax, exit_with_error_on_glfw_failure);
-	add_test_with_context(suite, topdax, exit_with_error_on_window_failure);
-	add_test_with_context(suite, topdax, exit_with_error_on_unknown_flag);
-	add_test_with_context(suite, topdax, shows_window);
+	add_test(suite, topdax_exit_with_error_on_glfw_failure);
+	add_test(suite, topdax_exit_with_error_on_window_failure);
+	add_test(suite, topdax_exit_with_error_on_unknown_flag);
+	add_test(suite, topdax_shows_window);
 	return run_test_suite(suite, create_text_reporter());
 }
