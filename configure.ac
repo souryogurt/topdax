@@ -17,6 +17,8 @@ PKG_PROG_PKG_CONFIG
 
 # Checks for typedefs, structures, and compiler characteristics.
 
+PKG_CHECK_MODULES([GLFW], [glfw3 >= 3.2.1])
+
 AX_CODE_COVERAGE
 AC_ARG_WITH([unit-tests],
     AS_HELP_STRING([--without-unit-tests], [Ignore presence of cgreen and disable unit tests]))
