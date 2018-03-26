@@ -42,10 +42,36 @@ static const struct argp argp = {
 	.options = options,
 	.parser = parse_opt,
 	/*
-	 * TODO: Define this in subclass 
+	 * TODO: Define this in subclass
 	 */
 	.doc = "The program that renders triangle using Vulkan API",
 };
+
+static void close_callback(GLFWwindow * window)
+{
+	struct app_window *win =
+	    (struct app_window *)glfwGetWindowUserPointer(window);
+	if (win && win->ops->close)
+		win->ops->close(win);
+
+}
+
+int app_window_init(struct app_window *win)
+{
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	win->id =
+	    glfwCreateWindow(win->width, win->height, win->caption, NULL, NULL);
+	if (!win->id)
+		return 1;
+	glfwSetWindowUserPointer(win->id, win);
+	glfwSetWindowCloseCallback(win->id, close_callback);
+	return 0;
+}
+
+void app_window_close(struct app_window *win)
+{
+	close_callback(win->id);
+}
 
 int application_run(struct application *app, int argc, char **argv)
 {

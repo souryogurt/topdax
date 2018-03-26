@@ -168,6 +168,7 @@ src/config.h.in
 /configure
 src/stamp-h1
 /libtopdax.a
+/libapplication.a
 /topdax
 /topdax_suite
 /glfw_suite
