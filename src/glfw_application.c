@@ -47,6 +47,10 @@ static const struct argp argp = {
 	.doc = "The program that renders triangle using Vulkan API",
 };
 
+/**
+ * Call app_window's close callback
+ * @param window Specifies GLFW window that must be closed
+ */
 static void close_callback(GLFWwindow * window)
 {
 	struct app_window *win =

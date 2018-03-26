@@ -1,6 +1,6 @@
 /**
  * @file
- * Topdax entrypoint
+ * Topdax application
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -20,14 +20,17 @@ void topdax_close_window(struct app_window *obj)
 	application_quit(&app->app);
 }
 
+/** Implementation of main Topdax window */
 static const struct app_window_ops topdax_window_ops = {
 	.close = topdax_close_window,
 };
 
+/** Implementation of Topdax application */
 static const struct application_ops topdax_ops = {
 	.activate = topdax_activate,
 };
 
+/** Topdax application instance */
 static struct topdax app = {
 	.app = {
 		.ops = &topdax_ops,

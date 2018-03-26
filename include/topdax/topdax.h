@@ -15,8 +15,11 @@
 #define container_of(ptr, type, member) ((type *)( \
     (char *)(void*)(member_type(type, member) *){ ptr } - offsetof(type, member)))
 
+/** Topdax Application */
 struct topdax {
+	/** Implements base application */
 	struct application app;
+	/** Main window */
 	struct app_window win;
 };
 
@@ -40,8 +43,8 @@ void topdax_close_window(struct app_window *obj);
 
 /**
  * Runs the application
- * @param @a argc from main() function
- * @param @a argv from main() function
+ * @param argc @a argc from main() function
+ * @param argv @a argv from main() function
  * @return exit code
  */
 int topdax_run(int argc, char **argv);
