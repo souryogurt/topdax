@@ -14,7 +14,15 @@ void topdax_activate(struct application *obj)
 	app_window_init(&app->win);
 }
 
-static const struct app_window_ops topdax_window_ops;
+void topdax_close_window(struct app_window *obj)
+{
+	struct topdax *app = container_of(obj, struct topdax, win);
+	application_quit(&app->app);
+}
+
+static const struct app_window_ops topdax_window_ops = {
+	.close = topdax_close_window,
+};
 
 static const struct application_ops topdax_ops = {
 	.activate = topdax_activate,

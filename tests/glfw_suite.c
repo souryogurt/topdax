@@ -64,7 +64,7 @@ static void mock_startup(struct application *obj)
 static void mock_activate(struct application *obj)
 {
 	mock(obj);
-	obj->is_running = 0;
+	obj->must_quit = 1;
 }
 
 static void mock_shutdown(struct application *obj)
@@ -122,6 +122,27 @@ Ensure(app_exit_with_error_on_unknown_flag)
 	never_expect(mock_shutdown);
 	int exit_code = application_run(&app, 2, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
+}
+
+Ensure(app_quit_ends_the_main_loop)
+{
+	char *argv[] = { "./topdax", NULL };
+	const struct application_ops quit_ops = {
+		.startup = mock_startup,
+		/* call quit on activation */
+		.activate = application_quit,
+		.shutdown = mock_shutdown,
+	};
+	struct application app = {
+		.ops = &quit_ops,
+	};
+	expect(glfwInit, will_return(GLFW_TRUE));
+	expect(mock_startup, when(obj, is_equal_to(&app)));
+	expect(glfwPollEvents);
+	expect(mock_shutdown, when(obj, is_equal_to(&app)));
+	expect(glfwTerminate);
+	int exit_code = application_run(&app, 1, &argv[0]);
+	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
 static void mock_close_request(struct app_window *obj)
@@ -198,6 +219,7 @@ int main(int argc, char **argv)
 	add_test(app, app_calls_callbacks);
 	add_test(app, app_exit_with_error_on_glfw_failure);
 	add_test(app, app_exit_with_error_on_unknown_flag);
+	add_test(app, app_quit_ends_the_main_loop);
 	add_suite(suite, app);
 
 	TestSuite *win = create_named_test_suite("Window");

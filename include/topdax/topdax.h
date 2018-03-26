@@ -33,6 +33,12 @@ extern "C" {
 void topdax_activate(struct application *obj);
 
 /**
+ * Close application window
+ * @param obj Specifies pointer to topdax window
+ */
+void topdax_close_window(struct app_window *obj);
+
+/**
  * Runs the application
  * @param @a argc from main() function
  * @param @a argv from main() function

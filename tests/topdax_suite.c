@@ -23,6 +23,11 @@ int app_window_init(struct app_window *win)
 	return (int)mock(win);
 }
 
+void application_quit(struct application *app)
+{
+	mock(app);
+}
+
 Ensure(topdax_run_calls_application_run)
 {
 	char *argv[] = { "./topdax", NULL };
@@ -39,6 +44,13 @@ Ensure(topdax_activate_creates_window)
 	topdax_activate(&tpx.app);
 }
 
+Ensure(topdax_close_main_window_ends_application)
+{
+	struct topdax tpx;
+	expect(application_quit, when(app, is_equal_to(&tpx.app)));
+	topdax_close_window(&tpx.win);
+}
+
 int main(int argc, char **argv)
 {
 	(void)(argc);
@@ -46,5 +58,6 @@ int main(int argc, char **argv)
 	TestSuite *tpx = create_named_test_suite("Topdax");
 	add_test(tpx, topdax_run_calls_application_run);
 	add_test(tpx, topdax_activate_creates_window);
+	add_test(tpx, topdax_close_main_window_ends_application);
 	return run_test_suite(tpx, create_text_reporter());
 }

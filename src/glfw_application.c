@@ -82,15 +82,19 @@ int application_run(struct application *app, int argc, char **argv)
 	const struct application_ops *ops = app->ops;
 	if (ops->startup)
 		ops->startup(app);
-	app->is_running = 1;
 	if (ops->activate)
 		ops->activate(app);
 	do {
 		glfwPollEvents();
-	} while (app->is_running);
+	} while (!app->must_quit);
 
 	if (ops->shutdown)
 		ops->shutdown(app);
 	glfwTerminate();
 	return EXIT_SUCCESS;
+}
+
+void application_quit(struct application *app)
+{
+	app->must_quit = 1;
 }

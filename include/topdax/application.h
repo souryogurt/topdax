@@ -19,8 +19,8 @@ struct application_ops {
 
 /** Abstract application class */
 struct application {
-	/** Non-zero if application is running, zero otherwise */
-	int is_running;
+	/** zero if application is running, non-zero otherwise */
+	int must_quit;
 	/** Specifies application implementation */
 	const struct application_ops *ops;
 };
@@ -63,6 +63,12 @@ extern "C" {
  * @return exit code
  */
 int application_run(struct application *app, int argc, char **argv);
+
+/**
+ * Quits the application
+ * @param app Specifies pointer to application to quit
+ */
+void application_quit(struct application *app);
 
 /**
  * Initializes and shows top-level window
