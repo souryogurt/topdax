@@ -6,11 +6,12 @@ EXTRA_DIST = README.md LICENSE
 noinst_LIBRARIES = libtopdax.a
 libtopdax_a_SOURCES = src/topdax.c
 libtopdax_a_SOURCES += include/topdax/topdax.h
-libtopdax_a_CFLAGS = $(CODE_COVERAGE_CFLAGS) $(GLFW_CFLAGS)
+libtopdax_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 noinst_LIBRARIES += libapplication.a
 libapplication_a_SOURCES = include/topdax/application.h
 libapplication_a_SOURCES += src/glfw_application.c
+libapplication_a_CFLAGS = $(CODE_COVERAGE_CFLAGS) $(GLFW_CFLAGS)
 
 bin_PROGRAMS = topdax
 topdax_SOURCES = src/entry.c
@@ -29,4 +30,5 @@ check_PROGRAMS += glfw_suite
 glfw_suite_SOURCES = tests/glfw_suite.c
 glfw_suite_CFLAGS = $(CGREEN_CFLAGS) $(CODE_COVERAGE_CFLAGS) $(GLFW_CFLAGS)
 glfw_suite_LDADD = libapplication.a $(CGREEN_LIBS) $(CODE_COVERAGE_LIBS)
+glfw_suite_LDFLAGS = -Wl,--wrap=argp_parse
 endif

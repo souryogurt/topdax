@@ -13,18 +13,13 @@
 #include <GLFW/glfw3.h>
 
 /** Program version */
-const char *argp_program_version = PACKAGE_STRING;
+const char *argp_program_version;
 
 /** Bug address */
-const char *argp_program_bug_address = PACKAGE_BUGREPORT;
+const char *argp_program_bug_address;
 
 /** Arguments parser */
-static const struct argp argp = {
-	/**
-	 * TODO: Define this in subclass
-	 */
-	.doc = "The program that renders triangle using Vulkan API",
-};
+static struct argp argp;
 
 /**
  * Call app_window's close callback
@@ -32,9 +27,9 @@ static const struct argp argp = {
  */
 static void close_callback(GLFWwindow * window)
 {
-	struct app_window *win =
-	    (struct app_window *)glfwGetWindowUserPointer(window);
-	if (win && win->ops->close)
+	struct app_window *win;
+	win = (struct app_window *)glfwGetWindowUserPointer(window);
+	if (win->ops->close)
 		win->ops->close(win);
 
 }
@@ -58,6 +53,12 @@ void app_window_close(struct app_window *win)
 
 int application_run(struct application *app, int argc, char **argv)
 {
+	const struct application_info *app_info = app->info;
+	if (app_info) {
+		argp.doc = app_info->summary;
+		argp_program_version = app_info->version;
+		argp_program_bug_address = app_info->bug_address;
+	}
 	if (argp_parse(&argp, argc, argv, 0, NULL, NULL))
 		return EXIT_FAILURE;
 	if (!glfwInit())

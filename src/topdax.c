@@ -30,10 +30,17 @@ static const struct application_ops topdax_ops = {
 	.activate = topdax_activate,
 };
 
+static const struct application_info topdax_info = {
+	.version = PACKAGE_STRING,
+	.bug_address = PACKAGE_BUGREPORT,
+	.summary = "The program that renders triangle using Vulkan API",
+};
+
 /** Topdax application instance */
 static struct topdax app = {
 	.app = {
 		.ops = &topdax_ops,
+		.info = &topdax_info,
 		},
 	.win = {
 		.width = 960,

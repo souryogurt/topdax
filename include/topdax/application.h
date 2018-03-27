@@ -17,12 +17,24 @@ struct application_ops {
 	void (*shutdown) (struct application *);
 };
 
+/** Application information */
+struct application_info {
+	/** Version string */
+	const char *version;
+	/** Name and email of person responsible for issues */
+	const char *bug_address;
+	/** Application summary */
+	const char *summary;
+};
+
 /** Abstract application class */
 struct application {
-	/** zero if application is running, non-zero otherwise */
-	int must_quit;
 	/** Specifies application implementation */
 	const struct application_ops *ops;
+	/** Information about application */
+	const struct application_info *info;
+	/** zero if application is running, non-zero otherwise */
+	int must_quit;
 };
 
 struct app_window;
@@ -54,6 +66,8 @@ struct app_window {
 extern "C" {
 /* *INDENT-ON* */
 #endif
+
+const char *const application_version;
 
 /**
  * Runs the application
