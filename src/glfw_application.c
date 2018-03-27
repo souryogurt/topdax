@@ -39,11 +39,12 @@ int app_window_init(struct app_window *win)
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	win->id = glfwCreateWindow(win->width, win->height, win->caption,
 				   NULL, NULL);
-	if (!win->id)
-		return 1;
-	glfwSetWindowUserPointer(win->id, win);
-	glfwSetWindowCloseCallback(win->id, close_callback);
-	return 0;
+	if (win->id){
+		glfwSetWindowUserPointer(win->id, win);
+		glfwSetWindowCloseCallback(win->id, close_callback);
+		return 0;
+	}
+	return 1;
 }
 
 void app_window_close(struct app_window *win)
@@ -55,9 +56,9 @@ int application_run(struct application *app, int argc, char **argv)
 {
 	const struct application_info *app_info = app->info;
 	if (app_info) {
-		argp.doc = app_info->summary;
 		argp_program_version = app_info->version;
 		argp_program_bug_address = app_info->bug_address;
+		argp.doc = app_info->summary;
 	}
 	if (argp_parse(&argp, argc, argv, 0, NULL, NULL))
 		return EXIT_FAILURE;

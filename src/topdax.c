@@ -39,8 +39,8 @@ static const struct application_info topdax_info = {
 /** Topdax application instance */
 static struct topdax app = {
 	.app = {
-		.ops = &topdax_ops,
 		.info = &topdax_info,
+		.ops = &topdax_ops,
 		},
 	.win = {
 		.width = 960,
