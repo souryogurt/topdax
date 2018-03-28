@@ -67,8 +67,6 @@ extern "C" {
 /* *INDENT-ON* */
 #endif
 
-const char *const application_version;
-
 /**
  * Runs the application
  * @param app Specifies pointer to application to run

@@ -4,10 +4,10 @@ AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR([src/topdax.c])
 AC_CONFIG_HEADERS([src/config.h])
-AM_INIT_AUTOMAKE([1.11.1 foreign subdir-objects])
+AM_INIT_AUTOMAKE([-Wall -Werror 1.11.1 foreign subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AM_MAINTAINER_MODE([enable])
-
+AM_PROG_AR
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_RANLIB

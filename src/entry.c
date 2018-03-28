@@ -6,7 +6,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
 #include "topdax/topdax.h"
 
 /** Entry point */

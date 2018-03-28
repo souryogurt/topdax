@@ -39,7 +39,7 @@ int app_window_init(struct app_window *win)
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	win->id = glfwCreateWindow(win->width, win->height, win->caption,
 				   NULL, NULL);
-	if (win->id){
+	if (win->id) {
 		glfwSetWindowUserPointer(win->id, win);
 		glfwSetWindowCloseCallback(win->id, close_callback);
 		return 0;

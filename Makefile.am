@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = -I$(srcdir)/include
 @CODE_COVERAGE_RULES@
-EXTRA_DIST = README.md LICENSE
+dist_doc_DATA = README.md LICENSE
 
 noinst_LIBRARIES = libtopdax.a
 libtopdax_a_SOURCES = src/topdax.c
