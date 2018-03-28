@@ -12,110 +12,52 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "topdax/topdax.h"
-#include <GLFW/glfw3.h>
 
-Describe(topdax);
-BeforeEach(topdax)
+int application_run(struct application *app, int argc, char **argv)
 {
+	return (int)mock(app, argc, argv);
 }
 
-AfterEach(topdax)
+int app_window_init(struct app_window *win)
 {
+	return (int)mock(win);
 }
 
-GLFWAPI int glfwInit(void)
+void application_quit(struct application *app)
 {
-	return mock();
+	mock(app);
 }
 
-GLFWAPI GLFWwindow *glfwCreateWindow(int width, int height, const char *title,
-				     GLFWmonitor * monitor, GLFWwindow * share)
-{
-	return (GLFWwindow *) mock(width, height, title, monitor, share);
-}
-
-GLFWAPI int glfwWindowShouldClose(GLFWwindow * window)
-{
-	return mock(window);
-}
-
-GLFWAPI void glfwPollEvents(void)
-{
-	mock();
-}
-
-GLFWAPI void glfwTerminate(void)
-{
-	mock();
-}
-
-GLFWAPI void glfwDestroyWindow(GLFWwindow * window)
-{
-	mock(window);
-}
-
-GLFWAPI void glfwWindowHint(int hint, int value)
-{
-	mock(hint, value);
-}
-
-Ensure(topdax, exit_with_error_on_glfw_failure)
+Ensure(topdax_run_calls_application_run)
 {
 	char *argv[] = { "./topdax", NULL };
-	expect(glfwInit, will_return(GLFW_FALSE));
+	expect(application_run, will_return(0), when(argc, is_equal_to(1)),
+	       when(argv, is_equal_to(&argv[0])));
 	int exit_code = topdax_run(1, &argv[0]);
-	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
+	assert_that(exit_code, is_equal_to(0));
 }
 
-Ensure(topdax, exit_with_error_on_window_failure)
+Ensure(topdax_activate_creates_window)
 {
-	char *argv[] = { "./topdax", NULL };
-	expect(glfwInit, will_return(GLFW_TRUE));
-	expect(glfwWindowHint);
-	expect(glfwCreateWindow, will_return(NULL));
-	expect(glfwTerminate);
-	int exit_code = topdax_run(1, &argv[0]);
-	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
+	struct topdax tpx;
+	expect(app_window_init, when(win, is_equal_to(&tpx.win)));
+	topdax_activate(&tpx.app);
 }
 
-Ensure(topdax, shows_window)
+Ensure(topdax_close_main_window_ends_application)
 {
-	char *argv[] = { "./topdax", NULL };
-	GLFWwindow *window = (GLFWwindow *) 1;
-	expect(glfwInit, will_return(GLFW_TRUE));
-	expect(glfwWindowHint);
-	expect(glfwCreateWindow, will_return(window),
-	       when(width, is_equal_to(960)),
-	       when(height, is_equal_to(540)),
-	       when(title, is_equal_to_string("Topdax")));
-	expect(glfwWindowShouldClose, will_return(GLFW_FALSE),
-	       when(window, is_equal_to(window)));
-	expect(glfwPollEvents);
-	expect(glfwWindowShouldClose, will_return(GLFW_TRUE),
-	       when(window, is_equal_to(window)));
-	expect(glfwDestroyWindow, when(window, is_equal_to(window)));
-	expect(glfwTerminate);
-	int exit_code = topdax_run(1, &argv[0]);
-	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
-}
-
-Ensure(topdax, exit_with_error_on_unknown_flag)
-{
-	char *argv[] = { "./topdax", "--unsupported", NULL };
-	/* Suppress stderr */
-	close(2);
-	int exit_code = topdax_run(2, &argv[0]);
-	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
+	struct topdax tpx;
+	expect(application_quit, when(app, is_equal_to(&tpx.app)));
+	topdax_close_window(&tpx.win);
 }
 
 int main(int argc, char **argv)
 {
 	(void)(argc);
 	(void)(argv);
-	TestSuite *suite = create_named_test_suite("Topdax");
-	add_test_with_context(suite, topdax, exit_with_error_on_glfw_failure);
-	add_test_with_context(suite, topdax, exit_with_error_on_window_failure);
-	add_test_with_context(suite, topdax, exit_with_error_on_unknown_flag);
-	add_test_with_context(suite, topdax, shows_window);
-	return run_test_suite(suite, create_text_reporter());
+	TestSuite *tpx = create_named_test_suite("Topdax");
+	add_test(tpx, topdax_run_calls_application_run);
+	add_test(tpx, topdax_activate_creates_window);
+	add_test(tpx, topdax_close_main_window_ends_application);
+	return run_test_suite(tpx, create_text_reporter());
 }

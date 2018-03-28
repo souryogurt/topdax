@@ -1,66 +1,56 @@
 /**
  * @file
- * Topdax entrypoint
+ * Topdax application
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <argp.h>
-#include <stdlib.h>
-
 #include "topdax/topdax.h"
-#include <GLFW/glfw3.h>
 
-/** Program version */
-const char *argp_program_version = PACKAGE_STRING;
-
-/** Bug address */
-const char *argp_program_bug_address = PACKAGE_BUGREPORT;
-
-/** Option flags and variables */
-static const struct argp_option options[] = {
-	{0}
-};
-
-/** Parse a single option */
-static error_t parse_opt(int key, char *arg, struct argp_state *state)
+void topdax_activate(struct application *obj)
 {
-	UNUSED(arg);
-	UNUSED(state);
-	switch (key) {
-	case ARGP_KEY_END:
-		break;
-	default:
-		return ARGP_ERR_UNKNOWN;
-	}
-	return 0;
+	struct topdax *app = container_of(obj, struct topdax, app);
+	app_window_init(&app->win);
 }
 
-/** Arguments parser */
-static const struct argp argp = {
-	.options = options,
-	.parser = parse_opt,
-	.doc = "The program that renders triangle using Vulkan API",
+void topdax_close_window(struct app_window *obj)
+{
+	struct topdax *app = container_of(obj, struct topdax, win);
+	application_quit(&app->app);
+}
+
+/** Implementation of main Topdax window */
+static const struct app_window_ops topdax_window_ops = {
+	.close = topdax_close_window,
+};
+
+/** Implementation of Topdax application */
+static const struct application_ops topdax_ops = {
+	.activate = topdax_activate,
+};
+
+static const struct application_info topdax_info = {
+	.version = PACKAGE_STRING,
+	.bug_address = PACKAGE_BUGREPORT,
+	.summary = "The program that renders triangle using Vulkan API",
+};
+
+/** Topdax application instance */
+static struct topdax app = {
+	.app = {
+		.info = &topdax_info,
+		.ops = &topdax_ops,
+		},
+	.win = {
+		.width = 960,
+		.height = 540,
+		.caption = "Topdax",
+		.ops = &topdax_window_ops,
+		},
 };
 
 int topdax_run(int argc, char **argv)
 {
-	error_t err = argp_parse(&argp, argc, argv, ARGP_NO_EXIT, NULL, NULL);
-	if (err)
-		return EXIT_FAILURE;
-	if (!glfwInit())
-		return EXIT_FAILURE;
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	GLFWwindow *window = glfwCreateWindow(960, 540, "Topdax", NULL, NULL);
-	if (!window) {
-		glfwTerminate();
-		return EXIT_FAILURE;
-	}
-	while (!glfwWindowShouldClose(window)) {
-		glfwPollEvents();
-	}
-	glfwDestroyWindow(window);
-	glfwTerminate();
-	return EXIT_SUCCESS;
+	return application_run(&app.app, argc, argv);
 }

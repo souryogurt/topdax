@@ -19,6 +19,8 @@ PKG_PROG_PKG_CONFIG
 
 PKG_CHECK_MODULES([GLFW], [glfw3 >= 3.2.1])
 
+AC_DEFINE([TOPDAX_USE_PLATFORM_GLFW], [1], [Use GLFW for application and window])
+
 AX_CODE_COVERAGE
 AC_ARG_WITH([unit-tests],
     AS_HELP_STRING([--without-unit-tests], [Ignore presence of cgreen and disable unit tests]))
