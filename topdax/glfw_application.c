@@ -70,7 +70,7 @@ int application_run(struct application *app, int argc, char **argv)
 	if (ops->activate)
 		ops->activate(app);
 	do {
-		glfwPollEvents();
+		glfwWaitEvents();
 	} while (!app->must_quit);
 
 	if (ops->shutdown)

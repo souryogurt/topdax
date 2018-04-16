@@ -20,7 +20,7 @@ GLFWAPI int glfwInit(void)
 	return mock();
 }
 
-GLFWAPI void glfwPollEvents(void)
+GLFWAPI void glfwWaitEvents(void)
 {
 	mock();
 }
@@ -102,7 +102,7 @@ Ensure(app_calls_callbacks)
 	expect(glfwInit, will_return(GLFW_TRUE));
 	expect(mock_startup, when(obj, is_equal_to(&app)));
 	expect(mock_activate, when(obj, is_equal_to(&app)));
-	expect(glfwPollEvents);
+	expect(glfwWaitEvents);
 	expect(mock_shutdown, when(obj, is_equal_to(&app)));
 	expect(glfwTerminate);
 	int exit_code = application_run(&app, 1, &argv[0]);
@@ -159,7 +159,7 @@ Ensure(app_quit_ends_the_main_loop)
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(GLFW_TRUE));
 	expect(mock_startup, when(obj, is_equal_to(&app)));
-	expect(glfwPollEvents);
+	expect(glfwWaitEvents);
 	expect(mock_shutdown, when(obj, is_equal_to(&app)));
 	expect(glfwTerminate);
 	int exit_code = application_run(&app, 1, &argv[0]);
