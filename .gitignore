@@ -163,10 +163,10 @@ Makefile.in
 /aclocal.m4
 autom4te.cache/
 /config.status
-src/config.h
-src/config.h.in
+/config.h
+/config.h.in
 /configure
-src/stamp-h1
+/stamp-h1
 /libtopdax.a
 /libapplication.a
 /topdax
