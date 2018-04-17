@@ -1,5 +1,5 @@
 topdax
-=====
+======
 
 Topdax is the simple Linux application that renders triangle using Vulkan API.
 
