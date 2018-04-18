@@ -11,14 +11,13 @@ AM_PROG_AR
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_RANLIB
-PKG_PROG_PKG_CONFIG
 
-# Checks for header files.
-
-# Checks for typedefs, structures, and compiler characteristics.
-
-PKG_CHECK_MODULES([GLFW], [glfw3 >= 3.2.1])
-
+AC_CHECK_HEADER([GLFW/glfw3.h], [], [
+  AC_MSG_ERROR([GLFW/glfw3.h not found])
+])
+AC_CHECK_LIB([glfw], [glfwInit], [], [
+  AC_MSG_ERROR([libglfw not found])
+])
 AC_DEFINE([TOPDAX_USE_PLATFORM_GLFW], [1], [Use GLFW for application and window])
 
 AX_CODE_COVERAGE
@@ -26,14 +25,15 @@ AC_ARG_WITH([unit-tests],
     AS_HELP_STRING([--without-unit-tests], [Ignore presence of cgreen and disable unit tests]))
 
 AS_IF([test "x$with_unit_tests" != "xno"],
-      [PKG_CHECK_MODULES([CGREEN], [cgreen >= 1.0.0], [have_cgreen=yes], [have_cgreen=no])],
+      [AC_CHECK_HEADER([cgreen/cgreen.h],
+       [AC_CHECK_LIB([cgreen], [run_test_suite], [have_cgreen=yes], [have_cgreen=no])],
+       [have_cgreen=no])],
       [have_cgreen=no])
 
 AS_IF([test "x$have_cgreen" != "xyes"],
       [AS_IF([test "x$with_unit_tests" = "xyes"],
-             [AC_MSG_ERROR([unit tests requested but libcgreen not found])])
+             [AC_MSG_ERROR([unit tests requested but cgreen/cgreen.h not found])])
 ])
-
 AM_CONDITIONAL([HAVE_CGREEN], [test "x$have_cgreen" != "xno"])
 
 AC_CONFIG_FILES([Makefile])
