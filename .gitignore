@@ -169,9 +169,11 @@ autom4te.cache/
 /stamp-h1
 /libtopdax.a
 /libapplication.a
+/libvkrenderer.a
 /topdax
 /topdax_suite
 /glfw_suite
+/vkrenderer_suite
 /test-driver
 *.trs
 *.gcno

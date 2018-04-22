@@ -1,6 +1,5 @@
 #ifndef TOPDAX_H
 #define TOPDAX_H
-
 #include "topdax/application.h"
 
 /** Readable macro to placate compiler */
@@ -15,8 +14,12 @@
 #define container_of(ptr, type, member) ((type *)( \
     (char *)(void*)(member_type(type, member) *){ ptr } - offsetof(type, member)))
 
+struct vkrenderer;
+
 /** Topdax Application */
 struct topdax {
+	/** Pointer to renderer */
+	struct vkrenderer *rdr;
 	/** Implements base application */
 	struct application app;
 	/** Main window */
@@ -28,6 +31,18 @@ struct topdax {
 extern "C" {
 /* *INDENT-ON* */
 #endif
+
+/**
+ * Starts up application components
+ * @param obj Specifies pointer to application base instance
+ */
+void topdax_startup(struct application *obj);
+
+/**
+ * Shuts down application components
+ * @param obj Specifies pointer to application base instance
+ */
+void topdax_shutdown(struct application *obj);
 
 /**
  * Activate application

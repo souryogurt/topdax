@@ -20,6 +20,13 @@ AC_CHECK_LIB([glfw], [glfwInit], [], [
 ])
 AC_DEFINE([TOPDAX_USE_PLATFORM_GLFW], [1], [Use GLFW for application and window])
 
+AC_CHECK_HEADER([vulkan/vulkan.h], [], [
+  AC_MSG_ERROR([vulkan/vulkan.h not found])
+])
+AC_CHECK_LIB([vulkan], [vkCreateInstance], [], [
+  AC_MSG_ERROR([libvulkan not found])
+])
+
 AX_CODE_COVERAGE
 AC_ARG_WITH([unit-tests],
     AS_HELP_STRING([--without-unit-tests], [Ignore presence of cgreen and disable unit tests]))

@@ -6,7 +6,20 @@
 #include <config.h>
 #endif
 
+#include "topdax/vkrenderer.h"
 #include "topdax/topdax.h"
+
+void topdax_startup(struct application *obj)
+{
+	struct topdax *app = container_of(obj, struct topdax, app);
+	vkrenderer_init(app->rdr);
+}
+
+void topdax_shutdown(struct application *obj)
+{
+	struct topdax *app = container_of(obj, struct topdax, app);
+	vkrenderer_terminate(app->rdr);
+}
 
 void topdax_activate(struct application *obj)
 {
@@ -27,7 +40,9 @@ static const struct app_window_ops topdax_window_ops = {
 
 /** Implementation of Topdax application */
 static const struct application_ops topdax_ops = {
+	.startup = topdax_startup,
 	.activate = topdax_activate,
+	.shutdown = topdax_shutdown,
 };
 
 static const struct application_info topdax_info = {
@@ -36,8 +51,12 @@ static const struct application_info topdax_info = {
 	.summary = "The program that renders triangle using Vulkan API",
 };
 
+/** Renderer instance */
+static struct vkrenderer renderer;
+
 /** Topdax application instance */
 static struct topdax app = {
+	.rdr = &renderer,
 	.app = {
 		.info = &topdax_info,
 		.ops = &topdax_ops,

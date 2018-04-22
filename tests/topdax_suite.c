@@ -28,6 +28,16 @@ void application_quit(struct application *app)
 	mock(app);
 }
 
+int vkrenderer_init(struct vkrenderer *rdr)
+{
+	return mock(rdr);
+}
+
+int vkrenderer_terminate(struct vkrenderer *rdr)
+{
+	return mock(rdr);
+}
+
 Ensure(topdax_run_calls_application_run)
 {
 	char *argv[] = { "./topdax", NULL };
@@ -51,6 +61,20 @@ Ensure(topdax_close_main_window_ends_application)
 	topdax_close_window(&tpx.win);
 }
 
+Ensure(topdax_startup_initializes_components)
+{
+	struct topdax tpx = { 0 };
+	expect(vkrenderer_init, when(rdr, is_equal_to(tpx.rdr)));
+	topdax_startup(&tpx.app);
+}
+
+Ensure(topdax_shutdown_terminates_components)
+{
+	struct topdax tpx = { 0 };
+	expect(vkrenderer_terminate, when(rdr, is_equal_to(tpx.rdr)));
+	topdax_shutdown(&tpx.app);
+}
+
 int main(int argc, char **argv)
 {
 	(void)(argc);
@@ -59,5 +83,7 @@ int main(int argc, char **argv)
 	add_test(tpx, topdax_run_calls_application_run);
 	add_test(tpx, topdax_activate_creates_window);
 	add_test(tpx, topdax_close_main_window_ends_application);
+	add_test(tpx, topdax_startup_initializes_components);
+	add_test(tpx, topdax_shutdown_terminates_components);
 	return run_test_suite(tpx, create_text_reporter());
 }
