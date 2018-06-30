@@ -19,7 +19,7 @@ int application_run(struct application *app, int argc, char **argv)
 	return (int)mock(app, argc, argv);
 }
 
-int app_window_init(struct app_window *win)
+int window_init(struct window *win)
 {
 	return (int)mock(win);
 }
@@ -67,7 +67,7 @@ Ensure(topdax_run_calls_application_run)
 Ensure(topdax_activate_creates_window)
 {
 	struct topdax tpx;
-	expect(app_window_init, when(win, is_equal_to(&tpx.win)));
+	expect(window_init, when(win, is_equal_to(&tpx.win)));
 	expect(vkrenderer_init, when(rdr, is_equal_to(tpx.rdr)));
 	topdax_activate(&tpx.app);
 }

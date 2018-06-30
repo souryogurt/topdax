@@ -26,7 +26,7 @@ struct topdax {
 	/** Implements base application */
 	struct application app;
 	/** Main window */
-	struct app_window win;
+	struct window win;
 };
 
 #ifdef __cplusplus
@@ -57,7 +57,7 @@ void topdax_activate(struct application *obj);
  * Close application window
  * @param obj Specifies pointer to topdax window
  */
-void topdax_close_window(struct app_window *obj);
+void topdax_close_window(struct window *obj);
 
 /**
  * Runs the application

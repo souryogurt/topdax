@@ -166,18 +166,18 @@ Ensure(app_quit_ends_the_main_loop)
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
-static void mock_close_request(struct app_window *obj)
+static void mock_close_request(struct window *obj)
 {
 	mock(obj);
 }
 
-static const struct app_window_ops win_ops = {
+static const struct window_ops win_ops = {
 	.close = mock_close_request,
 };
 
 Ensure(win_init_shows_window)
 {
-	struct app_window win = {
+	struct window win = {
 		.width = 960,
 		.height = 540,
 		.caption = "Topdax",
@@ -191,13 +191,13 @@ Ensure(win_init_shows_window)
 	       when(title, is_equal_to_string(win.caption)));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwSetWindowCloseCallback);
-	int error = app_window_init(&win);
+	int error = window_init(&win);
 	assert_that(error, is_equal_to(0));
 }
 
 Ensure(win_init_returns_non_zero_on_fail)
 {
-	struct app_window win = {
+	struct window win = {
 		.width = 960,
 		.height = 540,
 		.caption = "Topdax",
@@ -208,13 +208,13 @@ Ensure(win_init_returns_non_zero_on_fail)
 	       when(width, is_equal_to(win.width)),
 	       when(height, is_equal_to(win.height)),
 	       when(title, is_equal_to_string(win.caption)));
-	int error = app_window_init(&win);
+	int error = window_init(&win);
 	assert_that(error, is_not_equal_to(0));
 }
 
 Ensure(win_close_calls_callback)
 {
-	struct app_window win = {
+	struct window win = {
 		.width = 960,
 		.height = 540,
 		.caption = "Topdax",
@@ -225,10 +225,10 @@ Ensure(win_close_calls_callback)
 	expect(glfwCreateWindow, will_return(window));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwSetWindowCloseCallback);
-	app_window_init(&win);
+	window_init(&win);
 	expect(glfwGetWindowUserPointer, will_return(&win));
 	expect(mock_close_request, when(obj, is_equal_to(&win)));
-	app_window_close(&win);
+	window_close(&win);
 }
 
 int main(int argc, char **argv)

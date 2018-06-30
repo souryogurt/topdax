@@ -22,19 +22,19 @@ const char *argp_program_bug_address;
 static struct argp argp;
 
 /**
- * Call app_window's close callback
- * @param window Specifies GLFW window that must be closed
+ * Call window's close callback
+ * @param glfw_window Specifies GLFW window that must be closed
  */
-static void close_callback(GLFWwindow * window)
+static void close_callback(GLFWwindow * glfw_window)
 {
-	struct app_window *win;
-	win = (struct app_window *)glfwGetWindowUserPointer(window);
+	struct window *win;
+	win = (struct window *)glfwGetWindowUserPointer(glfw_window);
 	if (win->ops->close)
 		win->ops->close(win);
 
 }
 
-int app_window_init(struct app_window *win)
+int window_init(struct window *win)
 {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	win->id = glfwCreateWindow(win->width, win->height, win->caption,
@@ -47,7 +47,7 @@ int app_window_init(struct app_window *win)
 	return 1;
 }
 
-void app_window_close(struct app_window *win)
+void window_close(struct window *win)
 {
 	close_callback(win->id);
 }

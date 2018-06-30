@@ -37,18 +37,18 @@ struct application {
 	int must_quit;
 };
 
-struct app_window;
+struct window;
 
 /** Abstract application interface */
-struct app_window_ops {
+struct window_ops {
 	/** Specifies callback called when user closes window */
-	void (*close) (struct app_window *);
+	void (*close) (struct window *);
 };
 
 /** Abstract application window class */
-struct app_window {
+struct window {
 	/** Specifies window implementation */
-	const struct app_window_ops *ops;
+	const struct window_ops *ops;
 	/** Specifies window width */
 	int width;
 	/** Specifies window height */
@@ -87,14 +87,14 @@ void application_quit(struct application *app);
  * @param win Specifies pointer to window to initialize
  * @return zero on success, non-zero otherwise
  */
-int app_window_init(struct app_window *win);
+int window_init(struct window *win);
 
 /**
  * Requests that the window is closed, similar to what happens when a window
  * manager close button is clicked.
  * @param win Specifies pointer to window to close
  */
-void app_window_close(struct app_window *win);
+void window_close(struct window *win);
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */
