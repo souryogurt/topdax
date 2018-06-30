@@ -17,16 +17,24 @@
 
 struct vkrenderer;
 
+/** Topdax main window */
+struct topdax_window {
+	/** Implements window */
+	struct window win;
+	/** Pointer to application */
+	struct application *app;
+};
+
 /** Topdax Application */
 struct topdax {
 	/** Vulkan instance */
 	VkInstance vk;
 	/** Pointer to renderer */
-	struct vkrenderer *rdr;
+	struct vkrenderer *const rdr;
 	/** Implements base application */
 	struct application app;
 	/** Main window */
-	struct window win;
+	struct topdax_window *const main_window;
 };
 
 #ifdef __cplusplus

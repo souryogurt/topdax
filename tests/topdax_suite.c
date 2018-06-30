@@ -66,17 +66,24 @@ Ensure(topdax_run_calls_application_run)
 
 Ensure(topdax_activate_creates_window)
 {
-	struct topdax tpx;
-	expect(window_init, when(win, is_equal_to(&tpx.win)));
+	struct topdax_window main_window;
+	struct topdax tpx= {
+		.main_window = &main_window,
+	};
+	expect(window_init, when(win, is_equal_to(&tpx.main_window->win)));
 	expect(vkrenderer_init, when(rdr, is_equal_to(tpx.rdr)));
 	topdax_activate(&tpx.app);
 }
 
 Ensure(topdax_close_main_window_ends_application)
 {
-	struct topdax tpx = { 0 };
+	struct topdax_window main_window;
+	struct topdax tpx= {
+		.main_window = &main_window,
+	};
+	main_window.app = &tpx.app;
 	expect(application_quit, when(app, is_equal_to(&tpx.app)));
-	topdax_close_window(&tpx.win);
+	topdax_close_window(&tpx.main_window->win);
 }
 
 Ensure(topdax_startup_initializes_components)

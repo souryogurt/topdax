@@ -40,18 +40,21 @@ void topdax_shutdown(struct application *obj)
 
 void topdax_activate(struct application *obj)
 {
-	struct topdax *app = container_of(obj, struct topdax, app);
-	window_init(&app->win);
+	struct topdax *topdax = container_of(obj, struct topdax, app);
+	struct topdax_window *main_window = topdax->main_window;
+	main_window->app = &topdax->app;
+	window_init(&main_window->win);
 	/* TODO: Must be initialized using vulkan instance and window (after
 	 * window creation) since window WILL enforce selection of supported
 	 * device */
-	vkrenderer_init(app->rdr);
+	vkrenderer_init(topdax->rdr);
 }
 
 void topdax_close_window(struct window *obj)
 {
-	struct topdax *app = container_of(obj, struct topdax, win);
-	application_quit(&app->app);
+	struct topdax_window *win =
+	    container_of(obj, struct topdax_window, win);
+	application_quit(win->app);
 }
 
 /** Implementation of main Topdax window */
@@ -75,6 +78,16 @@ static const struct application_info topdax_info = {
 /** Renderer instance */
 static struct vkrenderer renderer;
 
+/** Main topdax window */
+static struct topdax_window main_window = {
+	.win = {
+		.width = 960,
+		.height = 540,
+		.caption = "Topdax",
+		.ops = &topdax_window_ops,
+		},
+};
+
 /** Topdax application instance */
 static struct topdax app = {
 	.rdr = &renderer,
@@ -82,15 +95,7 @@ static struct topdax app = {
 		.info = &topdax_info,
 		.ops = &topdax_ops,
 		},
-	/* TODO: win must not be embedded into topdax application structure.
-	 * Instead topdax struct must contain pointer to some struct that embeds
-	 * struct window and pointer to topdax application instance. */
-	.win = {
-		.width = 960,
-		.height = 540,
-		.caption = "Topdax",
-		.ops = &topdax_window_ops,
-		},
+	.main_window = &main_window,
 };
 
 int topdax_run(int argc, char **argv)
