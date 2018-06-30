@@ -29,10 +29,6 @@ void topdax_startup(struct application *obj)
 {
 	struct topdax *app = container_of(obj, struct topdax, app);
 	vulkan_initialize(&app->vk);
-	/* TODO: Must be initialized using vulkan instance and window (after
-	 * window creation) since window WILL enforce selection of supported
-	 * device */
-	vkrenderer_init(app->rdr);
 }
 
 void topdax_shutdown(struct application *obj)
@@ -46,6 +42,10 @@ void topdax_activate(struct application *obj)
 {
 	struct topdax *app = container_of(obj, struct topdax, app);
 	app_window_init(&app->win);
+	/* TODO: Must be initialized using vulkan instance and window (after
+	 * window creation) since window WILL enforce selection of supported
+	 * device */
+	vkrenderer_init(app->rdr);
 }
 
 void topdax_close_window(struct app_window *obj)

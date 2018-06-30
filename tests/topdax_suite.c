@@ -68,6 +68,7 @@ Ensure(topdax_activate_creates_window)
 {
 	struct topdax tpx;
 	expect(app_window_init, when(win, is_equal_to(&tpx.win)));
+	expect(vkrenderer_init, when(rdr, is_equal_to(tpx.rdr)));
 	topdax_activate(&tpx.app);
 }
 
@@ -83,7 +84,6 @@ Ensure(topdax_startup_initializes_components)
 	struct vkrenderer renderer;
 	struct topdax tpx = {.rdr = &renderer };
 	expect(vkCreateInstance, when(pInstance, is_equal_to(&tpx.vk)));
-	expect(vkrenderer_init, when(rdr, is_equal_to(tpx.rdr)));
 	topdax_startup(&tpx.app);
 }
 
