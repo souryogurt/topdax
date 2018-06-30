@@ -10,26 +10,9 @@
 #include <cgreen/mocks.h>
 #include "topdax/vkrenderer.h"
 
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo *
-						pCreateInfo,
-						const VkAllocationCallbacks *
-						pAllocator,
-						VkInstance * pInstance)
-{
-	return mock(pCreateInfo, pAllocator, pInstance);
-}
-
-VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance,
-					     const VkAllocationCallbacks *
-					     pAllocator)
-{
-	mock(instance, pAllocator);
-}
-
 Ensure(vkrenderer_init_returns_zero_on_success)
 {
 	struct vkrenderer vkr;
-	expect(vkCreateInstance);
 	int error = vkrenderer_init(&vkr);
 	assert_that(error, is_equal_to(0));
 }
@@ -37,7 +20,6 @@ Ensure(vkrenderer_init_returns_zero_on_success)
 Ensure(vkrenderer_terminate_destroys_all_resources)
 {
 	struct vkrenderer vkr;
-	expect(vkDestroyInstance);
 	vkrenderer_terminate(&vkr);
 }
 

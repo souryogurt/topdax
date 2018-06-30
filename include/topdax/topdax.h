@@ -1,6 +1,7 @@
 #ifndef TOPDAX_H
 #define TOPDAX_H
 #include "topdax/application.h"
+#include <vulkan/vulkan.h>
 
 /** Readable macro to placate compiler */
 #define UNUSED(x) (void)(x)
@@ -18,6 +19,8 @@ struct vkrenderer;
 
 /** Topdax Application */
 struct topdax {
+	/** Vulkan instance */
+	VkInstance vk;
 	/** Pointer to renderer */
 	struct vkrenderer *rdr;
 	/** Implements base application */

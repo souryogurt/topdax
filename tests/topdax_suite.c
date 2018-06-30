@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "topdax/topdax.h"
+#include "topdax/vkrenderer.h"
 
 int application_run(struct application *app, int argc, char **argv)
 {
@@ -28,14 +29,30 @@ void application_quit(struct application *app)
 	mock(app);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo *
+						pCreateInfo,
+						const VkAllocationCallbacks *
+						pAllocator,
+						VkInstance * pInstance)
+{
+	return mock(pCreateInfo, pAllocator, pInstance);
+}
+
+VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance,
+					     const VkAllocationCallbacks *
+					     pAllocator)
+{
+	mock(instance, pAllocator);
+}
+
 int vkrenderer_init(struct vkrenderer *rdr)
 {
 	return mock(rdr);
 }
 
-int vkrenderer_terminate(struct vkrenderer *rdr)
+void vkrenderer_terminate(struct vkrenderer *rdr)
 {
-	return mock(rdr);
+	mock(rdr);
 }
 
 Ensure(topdax_run_calls_application_run)
@@ -56,22 +73,26 @@ Ensure(topdax_activate_creates_window)
 
 Ensure(topdax_close_main_window_ends_application)
 {
-	struct topdax tpx;
+	struct topdax tpx = { 0 };
 	expect(application_quit, when(app, is_equal_to(&tpx.app)));
 	topdax_close_window(&tpx.win);
 }
 
 Ensure(topdax_startup_initializes_components)
 {
-	struct topdax tpx = { 0 };
+	struct vkrenderer renderer;
+	struct topdax tpx = {.rdr = &renderer };
+	expect(vkCreateInstance, when(pInstance, is_equal_to(&tpx.vk)));
 	expect(vkrenderer_init, when(rdr, is_equal_to(tpx.rdr)));
 	topdax_startup(&tpx.app);
 }
 
 Ensure(topdax_shutdown_terminates_components)
 {
-	struct topdax tpx = { 0 };
+	struct vkrenderer renderer;
+	struct topdax tpx = {.rdr = &renderer };
 	expect(vkrenderer_terminate, when(rdr, is_equal_to(tpx.rdr)));
+	expect(vkDestroyInstance, when(instance, is_equal_to(tpx.vk)));
 	topdax_shutdown(&tpx.app);
 }
 
