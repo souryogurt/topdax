@@ -14,7 +14,8 @@
 #include "topdax/topdax.h"
 #include "topdax/vkrenderer.h"
 
-int application_run(struct application *app, int argc, char **argv)
+int application_run(struct application *app,
+		    const struct application_info *info, int argc, char **argv)
 {
 	return (int)mock(app, argc, argv);
 }
@@ -67,7 +68,7 @@ Ensure(topdax_run_calls_application_run)
 Ensure(topdax_activate_creates_window)
 {
 	struct topdax_window main_window;
-	struct topdax tpx= {
+	struct topdax tpx = {
 		.main_window = &main_window,
 	};
 	expect(window_init, when(win, is_equal_to(&tpx.main_window->win)));
@@ -78,7 +79,7 @@ Ensure(topdax_activate_creates_window)
 Ensure(topdax_close_main_window_ends_application)
 {
 	struct topdax_window main_window;
-	struct topdax tpx= {
+	struct topdax tpx = {
 		.main_window = &main_window,
 	};
 	main_window.app = &tpx.app;

@@ -105,7 +105,7 @@ Ensure(app_calls_callbacks)
 	expect(glfwWaitEvents);
 	expect(mock_shutdown, when(obj, is_equal_to(&app)));
 	expect(glfwTerminate);
-	int exit_code = application_run(&app, 1, &argv[0]);
+	int exit_code = application_run(&app, NULL, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
@@ -120,7 +120,7 @@ Ensure(app_exit_with_error_on_glfw_failure)
 	never_expect(mock_startup);
 	never_expect(mock_activate);
 	never_expect(mock_shutdown);
-	int exit_code = application_run(&app, 1, &argv[0]);
+	int exit_code = application_run(&app, NULL, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
@@ -134,13 +134,12 @@ Ensure(app_accepts_help_argument_when_summary_provided)
 	};
 	struct application app = {
 		.ops = &test_ops,
-		.info = &info,
 	};
 	expect(__wrap_argp_parse, will_return(EXIT_FAILURE),
 	       when(argp_doc, is_equal_to_string(info.summary)),
 	       when(argp_version, is_equal_to_string(info.version)),
 	       when(argp_bug_address, is_equal_to_string(info.bug_address)));
-	int exit_code = application_run(&app, 1, &argv[0]);
+	int exit_code = application_run(&app, &info, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
@@ -162,7 +161,7 @@ Ensure(app_quit_ends_the_main_loop)
 	expect(glfwWaitEvents);
 	expect(mock_shutdown, when(obj, is_equal_to(&app)));
 	expect(glfwTerminate);
-	int exit_code = application_run(&app, 1, &argv[0]);
+	int exit_code = application_run(&app, NULL, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 

@@ -52,13 +52,13 @@ void window_close(struct window *win)
 	close_callback(win->id);
 }
 
-int application_run(struct application *app, int argc, char **argv)
+int application_run(struct application *app,
+		    const struct application_info *info, int argc, char **argv)
 {
-	const struct application_info *app_info = app->info;
-	if (app_info) {
-		argp_program_version = app_info->version;
-		argp_program_bug_address = app_info->bug_address;
-		argp.doc = app_info->summary;
+	if (info) {
+		argp_program_version = info->version;
+		argp_program_bug_address = info->bug_address;
+		argp.doc = info->summary;
 	}
 	if (argp_parse(&argp, argc, argv, 0, NULL, NULL))
 		return EXIT_FAILURE;

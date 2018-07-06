@@ -31,8 +31,6 @@ struct application_info {
 struct application {
 	/** Specifies application implementation */
 	const struct application_ops *ops;
-	/** Information about application */
-	const struct application_info *info;
 	/** zero if application is running, non-zero otherwise */
 	int must_quit;
 };
@@ -70,11 +68,13 @@ extern "C" {
 /**
  * Runs the application
  * @param app Specifies pointer to application to run
+ * @param info Specifies pointer to application info
  * @param argc Specifies @a argc from main() function
  * @param argv Specifies @a argv from main() function
  * @return exit code
  */
-int application_run(struct application *app, int argc, char **argv);
+int application_run(struct application *app,
+		    const struct application_info *info, int argc, char **argv);
 
 /**
  * Quits the application

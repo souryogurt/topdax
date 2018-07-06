@@ -92,7 +92,6 @@ static struct topdax_window main_window = {
 static struct topdax app = {
 	.rdr = &renderer,
 	.app = {
-		.info = &topdax_info,
 		.ops = &topdax_ops,
 		},
 	.main_window = &main_window,
@@ -100,5 +99,5 @@ static struct topdax app = {
 
 int topdax_run(int argc, char **argv)
 {
-	return application_run(&app.app, argc, argv);
+	return application_run(&app.app, &topdax_info, argc, argv);
 }
