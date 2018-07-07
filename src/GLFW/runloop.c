@@ -12,11 +12,14 @@
 #include "GLFW/runloop.h"
 #include <GLFW/glfw3.h>
 
-/** Program version */
-const char *argp_program_version;
+/** Version string */
+const char *application_version;
 
-/** Bug address */
-const char *argp_program_bug_address;
+/** Name and email of person responsible for issues */
+const char *application_bug_address;
+
+/** Application description */
+const char *application_description;
 
 /** Arguments parser */
 static struct argp argp;
@@ -32,14 +35,11 @@ static const struct runloop_ops glfw_ops = {
 	.quit = &glfw_quit
 };
 
-int glfw_runloop_run(struct glfw_runloop *loop,
-		     const struct application_info *info, int argc, char **argv)
+int glfw_runloop_run(struct glfw_runloop *loop, int argc, char **argv)
 {
-	if (info) {
-		argp_program_version = info->version;
-		argp_program_bug_address = info->bug_address;
-		argp.doc = info->summary;
-	}
+	argp_program_version = application_version;
+	argp_program_bug_address = application_bug_address;
+	argp.doc = application_description;
 	if (argp_parse(&argp, argc, argv, 0, NULL, NULL))
 		return EXIT_FAILURE;
 	if (!glfwInit())

@@ -88,15 +88,19 @@ void application_activate(void)
 	vkrenderer_init(app.rdr);
 }
 
-static const struct application_info topdax_info = {
-	.version = PACKAGE_STRING,
-	.bug_address = PACKAGE_BUGREPORT,
-	.summary = "The program that renders triangle using Vulkan API",
-};
+/** Version string */
+const char *application_version = PACKAGE_STRING;
+
+/** Name and email of person responsible for issues */
+const char *application_bug_address = PACKAGE_BUGREPORT;
+
+/** Application description */
+const char *application_description =
+    "The program that renders triangle using Vulkan API";
 
 int topdax_run(int argc, char **argv)
 {
 	struct glfw_runloop g_mainloop;
 
-	return glfw_runloop_run(&g_mainloop, &topdax_info, argc, argv);
+	return glfw_runloop_run(&g_mainloop, argc, argv);
 }

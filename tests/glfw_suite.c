@@ -16,6 +16,15 @@
 #include <GLFW/runloop.h>
 #include <argp.h>
 
+/** Version string */
+const char *application_version = "TestApplicationVersionString";
+
+/** Name and email of person responsible for issues */
+const char *application_bug_address = "TestApplicationBugAddress";
+
+/** Application description */
+const char *application_description = "TestApplicationSummaryString";
+
 GLFWAPI int glfwInit(void)
 {
 	return mock();
@@ -101,7 +110,7 @@ Ensure(app_calls_callbacks)
 	expect(glfwWaitEvents);
 	expect(application_shutdown);
 	expect(glfwTerminate);
-	int exit_code = glfw_runloop_run(&loop, NULL, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(&loop, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
@@ -114,24 +123,20 @@ Ensure(app_exit_with_error_on_glfw_failure)
 	never_expect(application_startup);
 	never_expect(application_activate);
 	never_expect(application_shutdown);
-	int exit_code = glfw_runloop_run(&loop, NULL, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(&loop, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
 Ensure(app_accepts_help_argument_when_summary_provided)
 {
 	char *argv[] = { "./topdax", "--help", NULL };
-	const struct application_info info = {
-		.summary = "TestApplicationSummaryString",
-		.bug_address = "TestApplicationBugAddress",
-		.version = "TestApplicationVersionString",
-	};
 	struct glfw_runloop loop;
 	expect(__wrap_argp_parse, will_return(EXIT_FAILURE),
-	       when(argp_doc, is_equal_to_string(info.summary)),
-	       when(argp_version, is_equal_to_string(info.version)),
-	       when(argp_bug_address, is_equal_to_string(info.bug_address)));
-	int exit_code = glfw_runloop_run(&loop, &info, 1, &argv[0]);
+	       when(argp_doc, is_equal_to_string(application_description)),
+	       when(argp_version, is_equal_to_string(application_version)),
+	       when(argp_bug_address,
+		    is_equal_to_string(application_bug_address)));
+	int exit_code = glfw_runloop_run(&loop, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 

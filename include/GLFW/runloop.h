@@ -20,14 +20,11 @@ extern "C" {
 /**
  * Runs the application
  * @param loop Specifies pointer to runloop to start
- * @param info Specifies pointer to application info
  * @param argc Specifies @a argc from main() function
  * @param argv Specifies @a argv from main() function
  * @return exit code
  */
-int glfw_runloop_run(struct glfw_runloop *loop,
-		     const struct application_info *info, int argc,
-		     char **argv);
+int glfw_runloop_run(struct glfw_runloop *loop, int argc, char **argv);
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */

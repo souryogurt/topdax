@@ -16,10 +16,9 @@
 #include <GLFW/runloop.h>
 #include "topdax/vkrenderer.h"
 
-int glfw_runloop_run(struct glfw_runloop *loop,
-		     const struct application_info *info, int argc, char **argv)
+int glfw_runloop_run(struct glfw_runloop *loop, int argc, char **argv)
 {
-	return (int)mock(loop, info, argc, argv);
+	return (int)mock(loop, argc, argv);
 }
 
 int glfw_window_init(struct glfw_window *win, int width, int height,

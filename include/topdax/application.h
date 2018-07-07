@@ -27,16 +27,6 @@ struct runloop {
 	const struct runloop_ops *ops;
 };
 
-/** Application information */
-struct application_info {
-	/** Version string */
-	const char *version;
-	/** Name and email of person responsible for issues */
-	const char *bug_address;
-	/** Application summary */
-	const char *summary;
-};
-
 struct window;
 
 /** Window operations */
@@ -70,6 +60,15 @@ struct window_handler {
 extern "C" {
 /* *INDENT-ON* */
 #endif
+
+/** Version string */
+extern const char *application_version;
+
+/** Name and email of person responsible for issues */
+extern const char *application_bug_address;
+
+/** Application description */
+extern const char *application_description;
 
 /**
  * Starts up application components

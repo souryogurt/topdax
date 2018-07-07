@@ -26,7 +26,7 @@ static void close_callback(GLFWwindow * glfw_window)
 /**
  * Requests that the window is closed, similar to what happens when a window
  * manager close button is clicked.
- * @param win Specifies pointer to window to close
+ * @param obj Specifies pointer to window to close
  */
 static void window_close(struct window *obj)
 {
