@@ -11,10 +11,10 @@ struct topdax {
 	VkInstance vk;
 	/** Pointer to renderer */
 	struct vkrenderer *rdr;
-	/** Implements base application */
-	struct application app;
 	/** Implements window handler */
 	struct window_handler handler;
+	/** Pointer to mainloop */
+	struct runloop *mainloop;
 };
 
 #ifdef __cplusplus
@@ -25,21 +25,18 @@ extern "C" {
 
 /**
  * Starts up application components
- * @param obj Specifies pointer to application base instance
  */
-void topdax_startup(struct application *obj);
+void topdax_startup(struct runloop *loop);
 
 /**
  * Shuts down application components
- * @param obj Specifies pointer to application base instance
  */
-void topdax_shutdown(struct application *obj);
+void topdax_shutdown(void);
 
 /**
  * Activate application
- * @param obj Specifies pointer to application base instance
  */
-void topdax_activate(struct application *obj);
+void topdax_activate(void);
 
 /**
  * Close application window

@@ -10,7 +10,10 @@ libtopdax_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 noinst_LIBRARIES += libapplication.a
 libapplication_a_SOURCES = include/topdax/application.h
-libapplication_a_SOURCES += src/glfw_application.c
+libapplication_a_SOURCES += include/GLFW/runloop.h
+libapplication_a_SOURCES += src/GLFW/runloop.c
+libapplication_a_SOURCES += include/GLFW/window.h
+libapplication_a_SOURCES += src/GLFW/window.c
 libapplication_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 noinst_LIBRARIES += libvkrenderer.a

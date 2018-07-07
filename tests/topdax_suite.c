@@ -12,12 +12,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "topdax/topdax.h"
+#include <GLFW/window.h>
+#include <GLFW/runloop.h>
 #include "topdax/vkrenderer.h"
 
-int application_run(struct application *app,
-		    const struct application_info *info, int argc, char **argv)
+int glfw_runloop_run(struct glfw_runloop *loop,
+		     const struct application_ops *app,
+		     const struct application_info *info, int argc, char **argv)
 {
-	return (int)mock(app, argc, argv);
+	return (int)mock(loop, app, info, argc, argv);
 }
 
 int glfw_window_init(struct glfw_window *win, int width, int height,
@@ -26,9 +29,9 @@ int glfw_window_init(struct glfw_window *win, int width, int height,
 	return (int)mock(win, width, height, caption, wh);
 }
 
-void application_quit(struct application *app)
+void runloop_quit(struct runloop *loop)
 {
-	mock(app);
+	mock(loop);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo *
@@ -60,7 +63,7 @@ void vkrenderer_terminate(struct vkrenderer *rdr)
 Ensure(topdax_run_calls_application_run)
 {
 	char *argv[] = { "./topdax", NULL };
-	expect(application_run, will_return(0), when(argc, is_equal_to(1)),
+	expect(glfw_runloop_run, will_return(0), when(argc, is_equal_to(1)),
 	       when(argv, is_equal_to(&argv[0])));
 	int exit_code = topdax_run(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(0));
@@ -68,37 +71,41 @@ Ensure(topdax_run_calls_application_run)
 
 Ensure(topdax_activate_creates_window)
 {
-	struct topdax tpx;
 	expect(glfw_window_init,
 	       when(width, is_equal_to(960)),
 	       when(height, is_equal_to(540)),
 	       when(caption, is_equal_to_string("Topdax")));
-	expect(vkrenderer_init, when(rdr, is_equal_to(tpx.rdr)));
-	topdax_activate(&tpx.app);
+	expect(vkrenderer_init);
+	topdax_activate();
 }
 
 Ensure(topdax_close_main_window_ends_application)
 {
-	struct topdax tpx;
-	expect(application_quit, when(app, is_equal_to(&tpx.app)));
+	struct runloop_ops loop_ops = {
+		.quit = &runloop_quit,
+	};
+	struct runloop loop = {
+		.ops = &loop_ops,
+	};
+	struct topdax tpx = {
+		.mainloop = &loop,
+	};
+	expect(runloop_quit, when(loop, is_equal_to(tpx.mainloop)));
 	topdax_close_window(&tpx.handler, NULL);
 }
 
 Ensure(topdax_startup_initializes_components)
 {
-	struct vkrenderer renderer;
-	struct topdax tpx = {.rdr = &renderer };
-	expect(vkCreateInstance, when(pInstance, is_equal_to(&tpx.vk)));
-	topdax_startup(&tpx.app);
+	struct runloop loop;
+	expect(vkCreateInstance);
+	topdax_startup(&loop);
 }
 
 Ensure(topdax_shutdown_terminates_components)
 {
-	struct vkrenderer renderer;
-	struct topdax tpx = {.rdr = &renderer };
-	expect(vkrenderer_terminate, when(rdr, is_equal_to(tpx.rdr)));
-	expect(vkDestroyInstance, when(instance, is_equal_to(tpx.vk)));
-	topdax_shutdown(&tpx.app);
+	expect(vkrenderer_terminate);
+	expect(vkDestroyInstance);
+	topdax_shutdown();
 }
 
 int main(int argc, char **argv)

@@ -12,7 +12,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "topdax/application.h"
-#include <GLFW/glfw3.h>
+#include <GLFW/window.h>
+#include <GLFW/runloop.h>
 #include <argp.h>
 
 GLFWAPI int glfwInit(void)
@@ -70,20 +71,23 @@ error_t __wrap_argp_parse(const struct argp *__restrict __argp,
 			      argp_bug_address);
 }
 
-static void mock_startup(struct application *obj)
+static struct runloop *g_loop;
+
+static void mock_startup(struct runloop *obj)
 {
 	mock(obj);
+	g_loop = obj;
 }
 
-static void mock_activate(struct application *obj)
+static void mock_activate()
 {
-	mock(obj);
-	obj->must_quit = 1;
+	mock();
+	g_loop->ops->quit(g_loop);
 }
 
-static void mock_shutdown(struct application *obj)
+static void mock_shutdown()
 {
-	mock(obj);
+	mock();
 }
 
 static const struct application_ops test_ops = {
@@ -94,33 +98,29 @@ static const struct application_ops test_ops = {
 
 Ensure(app_calls_callbacks)
 {
+	struct glfw_runloop loop;
 	char *argv[] = { "./topdax", NULL };
-	struct application app = {
-		.ops = &test_ops,
-	};
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(GLFW_TRUE));
-	expect(mock_startup, when(obj, is_equal_to(&app)));
-	expect(mock_activate, when(obj, is_equal_to(&app)));
+	expect(mock_startup, when(obj, is_equal_to(&loop)));
+	expect(mock_activate);
 	expect(glfwWaitEvents);
-	expect(mock_shutdown, when(obj, is_equal_to(&app)));
+	expect(mock_shutdown);
 	expect(glfwTerminate);
-	int exit_code = application_run(&app, NULL, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(&loop, &test_ops, NULL, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
 Ensure(app_exit_with_error_on_glfw_failure)
 {
+	struct glfw_runloop loop;
 	char *argv[] = { "./topdax", NULL };
-	struct application app = {
-		.ops = &test_ops,
-	};
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(GLFW_FALSE));
 	never_expect(mock_startup);
 	never_expect(mock_activate);
 	never_expect(mock_shutdown);
-	int exit_code = application_run(&app, NULL, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(&loop, &test_ops, NULL, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
@@ -132,37 +132,13 @@ Ensure(app_accepts_help_argument_when_summary_provided)
 		.bug_address = "TestApplicationBugAddress",
 		.version = "TestApplicationVersionString",
 	};
-	struct application app = {
-		.ops = &test_ops,
-	};
+	struct glfw_runloop loop;
 	expect(__wrap_argp_parse, will_return(EXIT_FAILURE),
 	       when(argp_doc, is_equal_to_string(info.summary)),
 	       when(argp_version, is_equal_to_string(info.version)),
 	       when(argp_bug_address, is_equal_to_string(info.bug_address)));
-	int exit_code = application_run(&app, &info, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(&loop, &test_ops, &info, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
-}
-
-Ensure(app_quit_ends_the_main_loop)
-{
-	char *argv[] = { "./topdax", NULL };
-	const struct application_ops quit_ops = {
-		.startup = mock_startup,
-		/* call quit on activation */
-		.activate = application_quit,
-		.shutdown = mock_shutdown,
-	};
-	struct application app = {
-		.ops = &quit_ops,
-	};
-	expect(__wrap_argp_parse);
-	expect(glfwInit, will_return(GLFW_TRUE));
-	expect(mock_startup, when(obj, is_equal_to(&app)));
-	expect(glfwWaitEvents);
-	expect(mock_shutdown, when(obj, is_equal_to(&app)));
-	expect(glfwTerminate);
-	int exit_code = application_run(&app, NULL, 1, &argv[0]);
-	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
 static void mock_close_request(struct window_handler *obj, struct window *win)
@@ -220,7 +196,7 @@ Ensure(win_close_calls_callback)
 	expect(glfwGetWindowUserPointer, will_return(&win));
 	expect(mock_close_request,
 	       when(obj, is_equal_to(&wh)), when(win, is_equal_to(&win)));
-	window_close(&win.win);
+	win.win.ops->close(&win.win);
 }
 
 int main(int argc, char **argv)
@@ -232,7 +208,6 @@ int main(int argc, char **argv)
 	add_test(app, app_calls_callbacks);
 	add_test(app, app_exit_with_error_on_glfw_failure);
 	add_test(app, app_accepts_help_argument_when_summary_provided);
-	add_test(app, app_quit_ends_the_main_loop);
 	add_suite(suite, app);
 
 	TestSuite *win = create_named_test_suite("Window");
