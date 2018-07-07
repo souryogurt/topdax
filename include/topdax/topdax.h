@@ -1,21 +1,6 @@
 #ifndef TOPDAX_H
 #define TOPDAX_H
 #include "topdax/application.h"
-#include <vulkan/vulkan.h>
-
-struct vkrenderer;
-
-/** Topdax Application */
-struct topdax {
-	/** Vulkan instance */
-	VkInstance vk;
-	/** Pointer to renderer */
-	struct vkrenderer *rdr;
-	/** Implements window handler */
-	struct window_handler handler;
-	/** Pointer to mainloop */
-	struct runloop *mainloop;
-};
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */
@@ -23,20 +8,8 @@ extern "C" {
 /* *INDENT-ON* */
 #endif
 
-/**
- * Starts up application components
- */
-void topdax_startup(struct runloop *loop);
-
-/**
- * Shuts down application components
- */
-void topdax_shutdown(void);
-
-/**
- * Activate application
- */
-void topdax_activate(void);
+/** Implementation of Topdax application operations */
+const struct application_ops topdax_ops;
 
 /**
  * Close application window

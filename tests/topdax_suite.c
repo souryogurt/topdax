@@ -76,7 +76,7 @@ Ensure(topdax_activate_creates_window)
 	       when(height, is_equal_to(540)),
 	       when(caption, is_equal_to_string("Topdax")));
 	expect(vkrenderer_init);
-	topdax_activate();
+	topdax_ops.activate();
 }
 
 Ensure(topdax_close_main_window_ends_application)
@@ -87,25 +87,24 @@ Ensure(topdax_close_main_window_ends_application)
 	struct runloop loop = {
 		.ops = &loop_ops,
 	};
-	struct topdax tpx = {
-		.mainloop = &loop,
-	};
-	expect(runloop_quit, when(loop, is_equal_to(tpx.mainloop)));
-	topdax_close_window(&tpx.handler, NULL);
+	expect(vkCreateInstance);
+	expect(runloop_quit, when(loop, is_equal_to(&loop)));
+	topdax_ops.startup(&loop);
+	topdax_close_window(NULL, NULL);
 }
 
 Ensure(topdax_startup_initializes_components)
 {
 	struct runloop loop;
 	expect(vkCreateInstance);
-	topdax_startup(&loop);
+	topdax_ops.startup(&loop);
 }
 
 Ensure(topdax_shutdown_terminates_components)
 {
 	expect(vkrenderer_terminate);
 	expect(vkDestroyInstance);
-	topdax_shutdown();
+	topdax_ops.shutdown();
 }
 
 int main(int argc, char **argv)
