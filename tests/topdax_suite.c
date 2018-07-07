@@ -17,10 +17,9 @@
 #include "topdax/vkrenderer.h"
 
 int glfw_runloop_run(struct glfw_runloop *loop,
-		     const struct application_ops *app,
 		     const struct application_info *info, int argc, char **argv)
 {
-	return (int)mock(loop, app, info, argc, argv);
+	return (int)mock(loop, info, argc, argv);
 }
 
 int glfw_window_init(struct glfw_window *win, int width, int height,
@@ -76,7 +75,7 @@ Ensure(topdax_activate_creates_window)
 	       when(height, is_equal_to(540)),
 	       when(caption, is_equal_to_string("Topdax")));
 	expect(vkrenderer_init);
-	topdax_ops.activate();
+	application_activate();
 }
 
 Ensure(topdax_close_main_window_ends_application)
@@ -89,7 +88,7 @@ Ensure(topdax_close_main_window_ends_application)
 	};
 	expect(vkCreateInstance);
 	expect(runloop_quit, when(loop, is_equal_to(&loop)));
-	topdax_ops.startup(&loop);
+	application_startup(&loop);
 	topdax_close_window(NULL, NULL);
 }
 
@@ -97,14 +96,14 @@ Ensure(topdax_startup_initializes_components)
 {
 	struct runloop loop;
 	expect(vkCreateInstance);
-	topdax_ops.startup(&loop);
+	application_startup(&loop);
 }
 
 Ensure(topdax_shutdown_terminates_components)
 {
 	expect(vkrenderer_terminate);
 	expect(vkDestroyInstance);
-	topdax_ops.shutdown();
+	application_shutdown();
 }
 
 int main(int argc, char **argv)

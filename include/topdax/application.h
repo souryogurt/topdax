@@ -27,16 +27,6 @@ struct runloop {
 	const struct runloop_ops *ops;
 };
 
-/** Application operations */
-struct application_ops {
-	/** Specifies callback called when application is started */
-	void (*startup) (struct runloop *);
-	/** Specifies callback called when application is activated */
-	void (*activate) (void);
-	/** Specifies callback called when application is terminated */
-	void (*shutdown) (void);
-};
-
 /** Application information */
 struct application_info {
 	/** Version string */
@@ -80,6 +70,22 @@ struct window_handler {
 extern "C" {
 /* *INDENT-ON* */
 #endif
+
+/**
+ * Starts up application components
+ * @param loop Specfies loop this application is running on
+ */
+void application_startup(struct runloop *loop);
+
+/**
+ * Shuts down application components
+ */
+void application_shutdown(void);
+
+/**
+ * Activate application
+ */
+void application_activate(void);
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */

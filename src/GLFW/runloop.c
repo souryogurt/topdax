@@ -33,7 +33,6 @@ static const struct runloop_ops glfw_ops = {
 };
 
 int glfw_runloop_run(struct glfw_runloop *loop,
-		     const struct application_ops *app,
 		     const struct application_info *info, int argc, char **argv)
 {
 	if (info) {
@@ -48,16 +47,12 @@ int glfw_runloop_run(struct glfw_runloop *loop,
 
 	loop->loop.ops = &glfw_ops;
 	loop->must_quit = 0;
-	if (app->startup)
-		app->startup(&loop->loop);
-	if (app->activate)
-		app->activate();
+	application_startup(&loop->loop);
+	application_activate();
 	do {
 		glfwWaitEvents();
 	} while (!loop->must_quit);
-
-	if (app->shutdown)
-		app->shutdown();
+	application_shutdown();
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }

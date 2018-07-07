@@ -62,10 +62,7 @@ static const struct window_handler_ops topdax_window_ops = {
 	.close = topdax_close_window,
 };
 
-/**
- * Starts up application components
- */
-static void topdax_startup(struct runloop *loop)
+void application_startup(struct runloop *loop)
 {
 	app.rdr = &renderer;
 	app.handler.ops = &topdax_window_ops;
@@ -73,10 +70,7 @@ static void topdax_startup(struct runloop *loop)
 	vulkan_initialize(&app.vk);
 }
 
-/**
- * Shuts down application components
- */
-static void topdax_shutdown(void)
+void application_shutdown(void)
 {
 	vkrenderer_terminate(app.rdr);
 	vkDestroyInstance(app.vk, NULL);
@@ -85,10 +79,7 @@ static void topdax_shutdown(void)
 /** Main topdax window */
 static struct glfw_window main_window;
 
-/**
- * Activate application
- */
-static void topdax_activate(void)
+void application_activate(void)
 {
 	glfw_window_init(&main_window, 960, 540, "Topdax", &app.handler);
 	/* TODO: Must be initialized using vulkan instance and window (after
@@ -96,12 +87,6 @@ static void topdax_activate(void)
 	 * device */
 	vkrenderer_init(app.rdr);
 }
-
-const struct application_ops topdax_ops = {
-	.startup = topdax_startup,
-	.activate = topdax_activate,
-	.shutdown = topdax_shutdown,
-};
 
 static const struct application_info topdax_info = {
 	.version = PACKAGE_STRING,
@@ -113,6 +98,5 @@ int topdax_run(int argc, char **argv)
 {
 	struct glfw_runloop g_mainloop;
 
-	return glfw_runloop_run(&g_mainloop, &topdax_ops, &topdax_info, argc,
-				argv);
+	return glfw_runloop_run(&g_mainloop, &topdax_info, argc, argv);
 }

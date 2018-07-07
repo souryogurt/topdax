@@ -8,9 +8,6 @@ extern "C" {
 /* *INDENT-ON* */
 #endif
 
-/** Implementation of Topdax application operations */
-const struct application_ops topdax_ops;
-
 /**
  * Close application window
  * @param obj Specifies pointer to topdax window

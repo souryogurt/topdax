@@ -73,28 +73,22 @@ error_t __wrap_argp_parse(const struct argp *__restrict __argp,
 
 static struct runloop *g_loop;
 
-static void mock_startup(struct runloop *obj)
+void application_startup(struct runloop *obj)
 {
 	mock(obj);
 	g_loop = obj;
 }
 
-static void mock_activate()
+void application_activate()
 {
 	mock();
 	g_loop->ops->quit(g_loop);
 }
 
-static void mock_shutdown()
+void application_shutdown()
 {
 	mock();
 }
-
-static const struct application_ops test_ops = {
-	.startup = mock_startup,
-	.activate = mock_activate,
-	.shutdown = mock_shutdown,
-};
 
 Ensure(app_calls_callbacks)
 {
@@ -102,12 +96,12 @@ Ensure(app_calls_callbacks)
 	char *argv[] = { "./topdax", NULL };
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(GLFW_TRUE));
-	expect(mock_startup, when(obj, is_equal_to(&loop)));
-	expect(mock_activate);
+	expect(application_startup, when(obj, is_equal_to(&loop)));
+	expect(application_activate);
 	expect(glfwWaitEvents);
-	expect(mock_shutdown);
+	expect(application_shutdown);
 	expect(glfwTerminate);
-	int exit_code = glfw_runloop_run(&loop, &test_ops, NULL, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(&loop, NULL, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
@@ -117,10 +111,10 @@ Ensure(app_exit_with_error_on_glfw_failure)
 	char *argv[] = { "./topdax", NULL };
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(GLFW_FALSE));
-	never_expect(mock_startup);
-	never_expect(mock_activate);
-	never_expect(mock_shutdown);
-	int exit_code = glfw_runloop_run(&loop, &test_ops, NULL, 1, &argv[0]);
+	never_expect(application_startup);
+	never_expect(application_activate);
+	never_expect(application_shutdown);
+	int exit_code = glfw_runloop_run(&loop, NULL, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
@@ -137,7 +131,7 @@ Ensure(app_accepts_help_argument_when_summary_provided)
 	       when(argp_doc, is_equal_to_string(info.summary)),
 	       when(argp_version, is_equal_to_string(info.version)),
 	       when(argp_bug_address, is_equal_to_string(info.bug_address)));
-	int exit_code = glfw_runloop_run(&loop, &test_ops, &info, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(&loop, &info, 1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
