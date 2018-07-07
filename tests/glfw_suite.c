@@ -101,42 +101,39 @@ void application_shutdown()
 
 Ensure(app_calls_callbacks)
 {
-	struct glfw_runloop loop;
 	char *argv[] = { "./topdax", NULL };
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(GLFW_TRUE));
-	expect(application_startup, when(obj, is_equal_to(&loop)));
+	expect(application_startup);
 	expect(application_activate);
 	expect(glfwWaitEvents);
 	expect(application_shutdown);
 	expect(glfwTerminate);
-	int exit_code = glfw_runloop_run(&loop, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
 Ensure(app_exit_with_error_on_glfw_failure)
 {
-	struct glfw_runloop loop;
 	char *argv[] = { "./topdax", NULL };
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(GLFW_FALSE));
 	never_expect(application_startup);
 	never_expect(application_activate);
 	never_expect(application_shutdown);
-	int exit_code = glfw_runloop_run(&loop, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
 Ensure(app_accepts_help_argument_when_summary_provided)
 {
 	char *argv[] = { "./topdax", "--help", NULL };
-	struct glfw_runloop loop;
 	expect(__wrap_argp_parse, will_return(EXIT_FAILURE),
 	       when(argp_doc, is_equal_to_string(application_description)),
 	       when(argp_version, is_equal_to_string(application_version)),
 	       when(argp_bug_address,
 		    is_equal_to_string(application_bug_address)));
-	int exit_code = glfw_runloop_run(&loop, 1, &argv[0]);
+	int exit_code = glfw_runloop_run(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 

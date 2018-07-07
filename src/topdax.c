@@ -100,7 +100,6 @@ const char *application_description =
 
 int topdax_run(int argc, char **argv)
 {
-	struct glfw_runloop g_mainloop;
 
-	return glfw_runloop_run(&g_mainloop, argc, argv);
+	return glfw_runloop_run(argc, argv);
 }

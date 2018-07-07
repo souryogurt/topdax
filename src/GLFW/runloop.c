@@ -10,7 +10,16 @@
 #include <stdlib.h>
 
 #include "GLFW/runloop.h"
+#include <topdax/application.h>
 #include <GLFW/glfw3.h>
+
+/** Runloop implementation using GLFW API */
+struct glfw_runloop {
+	/** Implements runloop interface */
+	struct runloop loop;
+	/** zero if application is running, non-zero otherwise */
+	int must_quit;
+};
 
 /** Version string */
 const char *application_version;
@@ -35,7 +44,7 @@ static const struct runloop_ops glfw_ops = {
 	.quit = &glfw_quit
 };
 
-int glfw_runloop_run(struct glfw_runloop *loop, int argc, char **argv)
+int glfw_runloop_run(int argc, char **argv)
 {
 	argp_program_version = application_version;
 	argp_program_bug_address = application_bug_address;
@@ -45,13 +54,17 @@ int glfw_runloop_run(struct glfw_runloop *loop, int argc, char **argv)
 	if (!glfwInit())
 		return EXIT_FAILURE;
 
-	loop->loop.ops = &glfw_ops;
-	loop->must_quit = 0;
-	application_startup(&loop->loop);
+	struct glfw_runloop glfw_loop = {
+		.loop = {
+			 .ops = &glfw_ops,
+			 },
+		.must_quit = 0,
+	};
+	application_startup(&glfw_loop.loop);
 	application_activate();
 	do {
 		glfwWaitEvents();
-	} while (!loop->must_quit);
+	} while (!glfw_loop.must_quit);
 	application_shutdown();
 	glfwTerminate();
 	return EXIT_SUCCESS;
