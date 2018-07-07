@@ -38,27 +38,27 @@ void topdax_shutdown(struct application *obj)
 	vkDestroyInstance(app->vk, NULL);
 }
 
+/** Main topdax window */
+static struct glfw_window main_window;
+
 void topdax_activate(struct application *obj)
 {
 	struct topdax *topdax = container_of(obj, struct topdax, app);
-	struct topdax_window *main_window = topdax->main_window;
-	main_window->app = &topdax->app;
-	window_init(&main_window->win, 960, 540, "Topdax");
+	glfw_window_init(&main_window, 960, 540, "Topdax", &topdax->handler);
 	/* TODO: Must be initialized using vulkan instance and window (after
 	 * window creation) since window WILL enforce selection of supported
 	 * device */
 	vkrenderer_init(topdax->rdr);
 }
 
-void topdax_close_window(struct window *obj)
+void topdax_close_window(struct window_handler *obj, struct window *win)
 {
-	struct topdax_window *win =
-	    container_of(obj, struct topdax_window, win);
-	application_quit(win->app);
+	struct topdax *topdax = container_of(obj, struct topdax, handler);
+	application_quit(&topdax->app);
 }
 
 /** Implementation of main Topdax window */
-static const struct window_ops topdax_window_ops = {
+static const struct window_handler_ops topdax_window_ops = {
 	.close = topdax_close_window,
 };
 
@@ -78,23 +78,13 @@ static const struct application_info topdax_info = {
 /** Renderer instance */
 static struct vkrenderer renderer;
 
-/** Main topdax window */
-static struct topdax_window main_window = {
-	.win = {
-		.ops = &topdax_window_ops,
-		},
-};
-
 /** Topdax application instance */
-static struct topdax app = {
-	.rdr = &renderer,
-	.app = {
-		.ops = &topdax_ops,
-		},
-	.main_window = &main_window,
-};
+static struct topdax app;
 
 int topdax_run(int argc, char **argv)
 {
+	app.rdr = &renderer;
+	app.app.ops = &topdax_ops;
+	app.handler.ops = &topdax_window_ops;
 	return application_run(&app.app, &topdax_info, argc, argv);
 }

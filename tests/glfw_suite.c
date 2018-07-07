@@ -165,60 +165,62 @@ Ensure(app_quit_ends_the_main_loop)
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
-static void mock_close_request(struct window *obj)
+static void mock_close_request(struct window_handler *obj, struct window *win)
 {
-	mock(obj);
+	mock(obj, win);
 }
 
-static const struct window_ops win_ops = {
+static const struct window_handler_ops win_ops = {
 	.close = mock_close_request,
 };
 
 Ensure(win_init_shows_window)
 {
-	struct window win = {
+	struct window_handler wh = {
 		.ops = &win_ops,
 	};
+	struct glfw_window win;
 	GLFWwindow *window = (GLFWwindow *) 1;
 	expect(glfwWindowHint);
-	expect(glfwCreateWindow, will_return(window),
+	expect(glfwCreateWindow,
+	       will_return(window),
 	       when(width, is_equal_to(960)),
 	       when(height, is_equal_to(540)),
 	       when(title, is_equal_to_string("Topdax")));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwSetWindowCloseCallback);
-	int error = window_init(&win, 960, 540, "Topdax");
+	int error = glfw_window_init(&win, 960, 540, "Topdax", &wh);
 	assert_that(error, is_equal_to(0));
 }
 
 Ensure(win_init_returns_non_zero_on_fail)
 {
-	struct window win = {
+	struct window_handler wh = {
 		.ops = &win_ops,
 	};
+	struct glfw_window win;
 	expect(glfwWindowHint);
-	expect(glfwCreateWindow, will_return(NULL),
-	       when(width, is_equal_to(960)),
-	       when(height, is_equal_to(540)),
-	       when(title, is_equal_to_string("Topdax")));
-	int error = window_init(&win, 960, 540, "Topdax");
+	expect(glfwCreateWindow, will_return(NULL));
+	int error = glfw_window_init(&win, 960, 540, "Topdax", &wh);
 	assert_that(error, is_not_equal_to(0));
 }
 
 Ensure(win_close_calls_callback)
 {
-	struct window win = {
+	struct window_handler wh = {
 		.ops = &win_ops,
 	};
+	struct glfw_window win;
 	GLFWwindow *window = (GLFWwindow *) 1;
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow, will_return(window));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwSetWindowCloseCallback);
-	window_init(&win, 960, 540, "Topdax");
+	glfw_window_init(&win, 960, 540, "Topdax", &wh);
 	expect(glfwGetWindowUserPointer, will_return(&win));
-	expect(mock_close_request, when(obj, is_equal_to(&win)));
-	window_close(&win);
+	expect(mock_close_request,
+	       when(obj, is_equal_to(&wh)), when(win, is_equal_to(&win)));
+	window_close(&win.win);
 }
 
 int main(int argc, char **argv)

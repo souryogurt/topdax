@@ -5,6 +5,18 @@
 #include <GLFW/glfw3.h>
 #endif
 
+/** Readable macro to placate compiler */
+#define UNUSED(x) (void)(x)
+
+#ifdef __GNUC__
+#define member_type(type, member) __typeof__ (((type *)0)->member)
+#else
+#define member_type(type, member) const void
+#endif
+
+#define container_of(ptr, type, member) ((type *)( \
+    (char *)(void*)(member_type(type, member) *){ ptr } - offsetof(type, member)))
+
 struct application;
 
 /** Abstract application interface */
@@ -37,20 +49,40 @@ struct application {
 
 struct window;
 
-/** Abstract application interface */
+/** Window operations */
 struct window_ops {
-	/** Specifies callback called when user closes window */
+	/** Specifies pointer to function to request window close */
 	void (*close) (struct window *);
 };
 
-/** Abstract application window class */
+/** Abstract window interface */
 struct window {
 	/** Specifies window implementation */
 	const struct window_ops *ops;
-#ifdef TOPDAX_USE_PLATFORM_GLFW
+};
+
+struct window_handler;
+
+/** Window handler operations */
+struct window_handler_ops {
+	/** Specifies pointer to function that called when window is closed */
+	void (*close) (struct window_handler *, struct window *);
+};
+
+/** Abstract window handler interface */
+struct window_handler {
+	/** Specifies window handler implementation */
+	const struct window_handler_ops *ops;
+};
+
+/** Window implementation using GLFW API */
+struct glfw_window {
+	/** Implements window interface */
+	struct window win;
 	/** Instance of GLFW window */
 	GLFWwindow *id;
-#endif
+	/** Pointer to window handler implementation */
+	struct window_handler *handler;
 };
 
 #ifdef __cplusplus
@@ -77,14 +109,16 @@ int application_run(struct application *app,
 void application_quit(struct application *app);
 
 /**
- * Initializes and shows top-level window
- * @param win Specifies pointer to window to initialize
+ * Initializes and shows top-level window using GLFW
+ * @param win Specifies pointer to glfw_window to initialize
  * @param width Specifies initial width of window
  * @param height Specifies initial height of window
  * @param caption Specifies initial caption of window
+ * @param wh Specifies pointer to window handler that will respond to events
  * @return zero on success, non-zero otherwise
  */
-int window_init(struct window *win, int width, int height, const char *caption);
+int glfw_window_init(struct glfw_window *win, int width, int height,
+		     const char *caption, struct window_handler *wh);
 
 /**
  * Requests that the window is closed, similar to what happens when a window

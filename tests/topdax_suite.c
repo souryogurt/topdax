@@ -20,9 +20,10 @@ int application_run(struct application *app,
 	return (int)mock(app, argc, argv);
 }
 
-int window_init(struct window *win, int width, int height, const char *caption)
+int glfw_window_init(struct glfw_window *win, int width, int height,
+		     const char *caption, struct window_handler *wh)
 {
-	return (int)mock(win);
+	return (int)mock(win, width, height, caption, wh);
 }
 
 void application_quit(struct application *app)
@@ -67,24 +68,20 @@ Ensure(topdax_run_calls_application_run)
 
 Ensure(topdax_activate_creates_window)
 {
-	struct topdax_window main_window;
-	struct topdax tpx = {
-		.main_window = &main_window,
-	};
-	expect(window_init, when(win, is_equal_to(&tpx.main_window->win)));
+	struct topdax tpx;
+	expect(glfw_window_init,
+	       when(width, is_equal_to(960)),
+	       when(height, is_equal_to(540)),
+	       when(caption, is_equal_to_string("Topdax")));
 	expect(vkrenderer_init, when(rdr, is_equal_to(tpx.rdr)));
 	topdax_activate(&tpx.app);
 }
 
 Ensure(topdax_close_main_window_ends_application)
 {
-	struct topdax_window main_window;
-	struct topdax tpx = {
-		.main_window = &main_window,
-	};
-	main_window.app = &tpx.app;
+	struct topdax tpx;
 	expect(application_quit, when(app, is_equal_to(&tpx.app)));
-	topdax_close_window(&tpx.main_window->win);
+	topdax_close_window(&tpx.handler, NULL);
 }
 
 Ensure(topdax_startup_initializes_components)
