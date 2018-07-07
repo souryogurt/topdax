@@ -6,10 +6,10 @@
 #include <config.h>
 #endif
 
-#include "topdax/topdax.h"
+#include <GLFW/runloop.h>
 
 /** Entry point */
 int main(int argc, char **argv)
 {
-	return topdax_run(argc, argv);
+	return glfw_runloop_run(argc, argv);
 }

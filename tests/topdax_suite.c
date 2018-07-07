@@ -16,11 +16,6 @@
 #include <GLFW/runloop.h>
 #include "topdax/vkrenderer.h"
 
-int glfw_runloop_run(int argc, char **argv)
-{
-	return (int)mock(argc, argv);
-}
-
 int glfw_window_init(struct glfw_window *win, int width, int height,
 		     const char *caption, struct window_handler *wh)
 {
@@ -56,15 +51,6 @@ int vkrenderer_init(struct vkrenderer *rdr)
 void vkrenderer_terminate(struct vkrenderer *rdr)
 {
 	mock(rdr);
-}
-
-Ensure(topdax_run_calls_application_run)
-{
-	char *argv[] = { "./topdax", NULL };
-	expect(glfw_runloop_run, will_return(0), when(argc, is_equal_to(1)),
-	       when(argv, is_equal_to(&argv[0])));
-	int exit_code = topdax_run(1, &argv[0]);
-	assert_that(exit_code, is_equal_to(0));
 }
 
 Ensure(topdax_activate_creates_window)
@@ -110,7 +96,6 @@ int main(int argc, char **argv)
 	(void)(argc);
 	(void)(argv);
 	TestSuite *tpx = create_named_test_suite("Topdax");
-	add_test(tpx, topdax_run_calls_application_run);
 	add_test(tpx, topdax_activate_creates_window);
 	add_test(tpx, topdax_close_main_window_ends_application);
 	add_test(tpx, topdax_startup_initializes_components);

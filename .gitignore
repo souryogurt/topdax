@@ -168,6 +168,8 @@ autom4te.cache/
 /configure
 /stamp-h1
 /libtopdax.a
+/librunloop.a
+/libwindow.a
 /libapplication.a
 /libvkrenderer.a
 /topdax

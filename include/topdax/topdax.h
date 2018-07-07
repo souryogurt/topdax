@@ -14,14 +14,6 @@ extern "C" {
  */
 void topdax_close_window(struct window_handler *obj, struct window *win);
 
-/**
- * Runs the application
- * @param argc @a argc from main() function
- * @param argv @a argv from main() function
- * @return exit code
- */
-int topdax_run(int argc, char **argv);
-
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }

@@ -8,7 +8,6 @@
 
 #ifdef TOPDAX_USE_PLATFORM_GLFW
 #include <GLFW/window.h>
-#include <GLFW/runloop.h>
 #endif
 
 #include "topdax/vkrenderer.h"
@@ -97,9 +96,3 @@ const char *application_bug_address = PACKAGE_BUGREPORT;
 /** Application description */
 const char *application_description =
     "The program that renders triangle using Vulkan API";
-
-int topdax_run(int argc, char **argv)
-{
-
-	return glfw_runloop_run(argc, argv);
-}
