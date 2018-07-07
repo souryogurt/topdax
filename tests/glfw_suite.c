@@ -177,46 +177,37 @@ static const struct window_ops win_ops = {
 Ensure(win_init_shows_window)
 {
 	struct window win = {
-		.width = 960,
-		.height = 540,
-		.caption = "Topdax",
 		.ops = &win_ops,
 	};
 	GLFWwindow *window = (GLFWwindow *) 1;
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow, will_return(window),
-	       when(width, is_equal_to(win.width)),
-	       when(height, is_equal_to(win.height)),
-	       when(title, is_equal_to_string(win.caption)));
+	       when(width, is_equal_to(960)),
+	       when(height, is_equal_to(540)),
+	       when(title, is_equal_to_string("Topdax")));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwSetWindowCloseCallback);
-	int error = window_init(&win);
+	int error = window_init(&win, 960, 540, "Topdax");
 	assert_that(error, is_equal_to(0));
 }
 
 Ensure(win_init_returns_non_zero_on_fail)
 {
 	struct window win = {
-		.width = 960,
-		.height = 540,
-		.caption = "Topdax",
 		.ops = &win_ops,
 	};
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow, will_return(NULL),
-	       when(width, is_equal_to(win.width)),
-	       when(height, is_equal_to(win.height)),
-	       when(title, is_equal_to_string(win.caption)));
-	int error = window_init(&win);
+	       when(width, is_equal_to(960)),
+	       when(height, is_equal_to(540)),
+	       when(title, is_equal_to_string("Topdax")));
+	int error = window_init(&win, 960, 540, "Topdax");
 	assert_that(error, is_not_equal_to(0));
 }
 
 Ensure(win_close_calls_callback)
 {
 	struct window win = {
-		.width = 960,
-		.height = 540,
-		.caption = "Topdax",
 		.ops = &win_ops,
 	};
 	GLFWwindow *window = (GLFWwindow *) 1;
@@ -224,7 +215,7 @@ Ensure(win_close_calls_callback)
 	expect(glfwCreateWindow, will_return(window));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwSetWindowCloseCallback);
-	window_init(&win);
+	window_init(&win, 960, 540, "Topdax");
 	expect(glfwGetWindowUserPointer, will_return(&win));
 	expect(mock_close_request, when(obj, is_equal_to(&win)));
 	window_close(&win);

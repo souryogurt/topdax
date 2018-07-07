@@ -34,11 +34,10 @@ static void close_callback(GLFWwindow * glfw_window)
 
 }
 
-int window_init(struct window *win)
+int window_init(struct window *win, int width, int height, const char *caption)
 {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	win->id = glfwCreateWindow(win->width, win->height, win->caption,
-				   NULL, NULL);
+	win->id = glfwCreateWindow(width, height, caption, NULL, NULL);
 	if (win->id) {
 		glfwSetWindowUserPointer(win->id, win);
 		glfwSetWindowCloseCallback(win->id, close_callback);

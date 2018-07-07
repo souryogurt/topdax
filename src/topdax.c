@@ -43,7 +43,7 @@ void topdax_activate(struct application *obj)
 	struct topdax *topdax = container_of(obj, struct topdax, app);
 	struct topdax_window *main_window = topdax->main_window;
 	main_window->app = &topdax->app;
-	window_init(&main_window->win);
+	window_init(&main_window->win, 960, 540, "Topdax");
 	/* TODO: Must be initialized using vulkan instance and window (after
 	 * window creation) since window WILL enforce selection of supported
 	 * device */
@@ -81,9 +81,6 @@ static struct vkrenderer renderer;
 /** Main topdax window */
 static struct topdax_window main_window = {
 	.win = {
-		.width = 960,
-		.height = 540,
-		.caption = "Topdax",
 		.ops = &topdax_window_ops,
 		},
 };

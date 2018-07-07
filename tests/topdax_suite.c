@@ -20,7 +20,7 @@ int application_run(struct application *app,
 	return (int)mock(app, argc, argv);
 }
 
-int window_init(struct window *win)
+int window_init(struct window *win, int width, int height, const char *caption)
 {
 	return (int)mock(win);
 }

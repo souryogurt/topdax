@@ -47,12 +47,6 @@ struct window_ops {
 struct window {
 	/** Specifies window implementation */
 	const struct window_ops *ops;
-	/** Specifies window width */
-	int width;
-	/** Specifies window height */
-	int height;
-	/** Specifies caption of the window */
-	const char *caption;
 #ifdef TOPDAX_USE_PLATFORM_GLFW
 	/** Instance of GLFW window */
 	GLFWwindow *id;
@@ -85,9 +79,12 @@ void application_quit(struct application *app);
 /**
  * Initializes and shows top-level window
  * @param win Specifies pointer to window to initialize
+ * @param width Specifies initial width of window
+ * @param height Specifies initial height of window
+ * @param caption Specifies initial caption of window
  * @return zero on success, non-zero otherwise
  */
-int window_init(struct window *win);
+int window_init(struct window *win, int width, int height, const char *caption);
 
 /**
  * Requests that the window is closed, similar to what happens when a window
