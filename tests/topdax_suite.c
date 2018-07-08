@@ -14,7 +14,7 @@
 #include "topdax/topdax.h"
 #include <GLFW/window.h>
 #include <GLFW/runloop.h>
-#include "topdax/vkrenderer.h"
+#include "renderer/vkrenderer.h"
 
 int glfw_window_init(struct glfw_window *win, int width, int height,
 		     const char *caption, struct window_handler *wh)

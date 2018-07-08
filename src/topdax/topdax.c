@@ -10,7 +10,7 @@
 #include <GLFW/window.h>
 #endif
 
-#include "topdax/vkrenderer.h"
+#include "renderer/vkrenderer.h"
 #include "topdax/topdax.h"
 
 #include <vulkan/vulkan.h>

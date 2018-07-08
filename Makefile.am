@@ -4,7 +4,7 @@ AM_CPPFLAGS = -I$(srcdir)/include
 dist_doc_DATA = README.md LICENSE
 
 noinst_LIBRARIES = libtopdax.a
-libtopdax_a_SOURCES = src/topdax.c
+libtopdax_a_SOURCES = src/topdax/topdax.c
 libtopdax_a_SOURCES += include/topdax/topdax.h
 libtopdax_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
@@ -21,8 +21,8 @@ libwindow_a_SOURCES += src/GLFW/window.c
 libwindow_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 noinst_LIBRARIES += libvkrenderer.a
-libvkrenderer_a_SOURCES = include/topdax/vkrenderer.h
-libvkrenderer_a_SOURCES += src/vkrenderer.c
+libvkrenderer_a_SOURCES = include/renderer/vkrenderer.h
+libvkrenderer_a_SOURCES += src/renderer/vkrenderer.c
 libvkrenderer_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 bin_PROGRAMS = topdax
