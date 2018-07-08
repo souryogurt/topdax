@@ -173,9 +173,9 @@ autom4te.cache/
 /libapplication.a
 /libvkrenderer.a
 /topdax
-/topdax_suite
-/glfw_suite
-/vkrenderer_suite
+/topdax_test
+/glfw_test
+/vkrenderer_test
 /test-driver
 *.trs
 *.gcno
