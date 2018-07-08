@@ -17,17 +17,17 @@
 #include <argp.h>
 
 /** Version string */
-const char *application_version = "TestApplicationVersionString";
+const char *const application_version = "TestApplicationVersionString";
 
 /** Name and email of person responsible for issues */
-const char *application_bug_address = "TestApplicationBugAddress";
+const char *const application_bug_address = "TestApplicationBugAddress";
 
 /** Application description */
-const char *application_description = "TestApplicationSummaryString";
+const char *const application_description = "TestApplicationSummaryString";
 
 GLFWAPI int glfwInit(void)
 {
-	return mock();
+	return (int)mock();
 }
 
 GLFWAPI void glfwWaitEvents(void)
@@ -80,18 +80,10 @@ error_t __wrap_argp_parse(const struct argp *__restrict __argp,
 			      argp_bug_address);
 }
 
-static struct runloop *g_loop;
-
-void application_startup(struct runloop *obj)
+void application_startup(struct runloop *loop)
 {
-	mock(obj);
-	g_loop = obj;
-}
-
-void application_activate()
-{
-	mock();
-	g_loop->ops->quit(g_loop);
+	mock(loop);
+	loop->ops->quit(loop);
 }
 
 void application_shutdown()
@@ -105,7 +97,6 @@ Ensure(app_calls_callbacks)
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(GLFW_TRUE));
 	expect(application_startup);
-	expect(application_activate);
 	expect(glfwWaitEvents);
 	expect(application_shutdown);
 	expect(glfwTerminate);
@@ -119,7 +110,6 @@ Ensure(app_exit_with_error_on_glfw_failure)
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(GLFW_FALSE));
 	never_expect(application_startup);
-	never_expect(application_activate);
 	never_expect(application_shutdown);
 	int exit_code = glfw_runloop_run(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));

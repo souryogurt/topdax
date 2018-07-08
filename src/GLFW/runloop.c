@@ -22,13 +22,13 @@ struct glfw_runloop {
 };
 
 /** Version string */
-const char *application_version;
+const char *const application_version;
 
 /** Name and email of person responsible for issues */
-const char *application_bug_address;
+const char *const application_bug_address;
 
 /** Application description */
-const char *application_description;
+const char *const application_description;
 
 /** Arguments parser */
 static struct argp argp;
@@ -61,7 +61,6 @@ int glfw_runloop_run(int argc, char **argv)
 		.must_quit = 0,
 	};
 	application_startup(&glfw_loop.loop);
-	application_activate();
 	do {
 		glfwWaitEvents();
 	} while (!glfw_loop.must_quit);

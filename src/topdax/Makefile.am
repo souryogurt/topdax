@@ -5,6 +5,7 @@ topdax_LDADD = librunloop.a libtopdax.a libwindow.a libvkrenderer.a $(CODE_COVER
 
 noinst_LIBRARIES += libtopdax.a
 libtopdax_a_SOURCES = src/topdax/topdax.c
+libtopdax_a_SOURCES += src/topdax/window.c
 libtopdax_a_SOURCES += include/topdax/topdax.h
 libtopdax_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 

@@ -22,7 +22,7 @@ int glfw_window_init(struct glfw_window *win, int width, int height,
 	return (int)mock(win, width, height, caption, wh);
 }
 
-void runloop_quit(struct runloop *loop)
+static void runloop_quit(struct runloop *loop)
 {
 	mock(loop);
 }
@@ -33,7 +33,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo *
 						pAllocator,
 						VkInstance * pInstance)
 {
-	return mock(pCreateInfo, pAllocator, pInstance);
+	return (VkResult) mock(pCreateInfo, pAllocator, pInstance);
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance,
@@ -45,7 +45,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance,
 
 int vkrenderer_init(struct vkrenderer *rdr)
 {
-	return mock(rdr);
+	return (int)mock(rdr);
 }
 
 void vkrenderer_terminate(struct vkrenderer *rdr)
@@ -53,34 +53,15 @@ void vkrenderer_terminate(struct vkrenderer *rdr)
 	mock(rdr);
 }
 
-Ensure(topdax_activate_creates_window)
+Ensure(topdax_startup_initializes_components)
 {
+	struct runloop loop;
+	expect(vkCreateInstance);
 	expect(glfw_window_init,
 	       when(width, is_equal_to(960)),
 	       when(height, is_equal_to(540)),
 	       when(caption, is_equal_to_string("Topdax")));
 	expect(vkrenderer_init);
-	application_activate();
-}
-
-Ensure(topdax_close_main_window_ends_application)
-{
-	struct runloop_ops loop_ops = {
-		.quit = &runloop_quit,
-	};
-	struct runloop loop = {
-		.ops = &loop_ops,
-	};
-	expect(vkCreateInstance);
-	expect(runloop_quit, when(loop, is_equal_to(&loop)));
-	application_startup(&loop);
-	topdax_close_window(NULL, NULL);
-}
-
-Ensure(topdax_startup_initializes_components)
-{
-	struct runloop loop;
-	expect(vkCreateInstance);
 	application_startup(&loop);
 }
 
@@ -91,14 +72,37 @@ Ensure(topdax_shutdown_terminates_components)
 	application_shutdown();
 }
 
+Ensure(topdax_close_main_window_ends_application)
+{
+	struct runloop_ops loop_ops = {
+		.quit = &runloop_quit,
+	};
+	struct runloop loop = {
+		.ops = &loop_ops,
+	};
+	struct topdax app = {
+		.mainloop = &loop,
+		.window = {
+			   .app = &app,
+			   },
+	};
+	expect(runloop_quit, when(loop, is_equal_to(&loop)));
+	topdax_close_window(&app.window.handler, &app.window.window.win);
+}
+
 int main(int argc, char **argv)
 {
 	(void)(argc);
 	(void)(argv);
-	TestSuite *tpx = create_named_test_suite("Topdax");
-	add_test(tpx, topdax_activate_creates_window);
-	add_test(tpx, topdax_close_main_window_ends_application);
+	TestSuite *suite = create_named_test_suite("Topdax");
+	TestSuite *tpx = create_named_test_suite("Application");
 	add_test(tpx, topdax_startup_initializes_components);
 	add_test(tpx, topdax_shutdown_terminates_components);
-	return run_test_suite(tpx, create_text_reporter());
+	add_suite(suite, tpx);
+
+	TestSuite *win = create_named_test_suite("Window");
+	add_test(win, topdax_close_main_window_ends_application);
+	add_suite(suite, win);
+
+	return run_test_suite(suite, create_text_reporter());
 }

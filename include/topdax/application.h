@@ -62,13 +62,13 @@ extern "C" {
 #endif
 
 /** Version string */
-extern const char *application_version;
+extern const char *const application_version;
 
 /** Name and email of person responsible for issues */
-extern const char *application_bug_address;
+extern const char *const application_bug_address;
 
 /** Application description */
-extern const char *application_description;
+extern const char *const application_description;
 
 /**
  * Starts up application components
@@ -80,11 +80,6 @@ void application_startup(struct runloop *loop);
  * Shuts down application components
  */
 void application_shutdown(void);
-
-/**
- * Activate application
- */
-void application_activate(void);
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */
