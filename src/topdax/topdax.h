@@ -1,6 +1,6 @@
 #ifndef TOPDAX_H
 #define TOPDAX_H
-#include "topdax/application.h"
+#include <topdax/application.h>
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */

@@ -9,7 +9,7 @@
 #include <argp.h>
 #include <stdlib.h>
 
-#include "GLFW/runloop.h"
+#include <GLFW/runloop.h>
 #include <topdax/application.h>
 #include <GLFW/glfw3.h>
 

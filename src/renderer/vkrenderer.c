@@ -6,7 +6,7 @@
 #include <config.h>
 #endif
 
-#include "renderer/vkrenderer.h"
+#include <renderer/vkrenderer.h>
 
 int vkrenderer_init(struct vkrenderer *rdr)
 {

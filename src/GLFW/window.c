@@ -7,7 +7,7 @@
 #endif
 
 #include <assert.h>
-#include "GLFW/window.h"
+#include <GLFW/window.h>
 
 /**
  * Call window's close callback

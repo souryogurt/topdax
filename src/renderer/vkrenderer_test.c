@@ -8,7 +8,7 @@
 
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
-#include "renderer/vkrenderer.h"
+#include <renderer/vkrenderer.h>
 
 Ensure(vkrenderer_init_returns_zero_on_success)
 {
