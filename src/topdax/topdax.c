@@ -37,15 +37,19 @@ static int vulkan_initialize(VkInstance * vk)
 	return result != VK_SUCCESS;
 }
 
-void application_startup(struct runloop *loop)
+int application_startup(struct runloop *loop)
 {
+	if (!glfwInit())
+		return 1;
 	app.mainloop = loop;
 	vulkan_initialize(&app.vk);
 	topdax_window_init(&app.window, &app);
+	return 0;
 }
 
 void application_shutdown(void)
 {
 	topdax_window_destroy(&app.window);
 	vkDestroyInstance(app.vk, NULL);
+	glfwTerminate();
 }

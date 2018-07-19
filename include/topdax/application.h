@@ -73,8 +73,9 @@ extern const char *const application_description;
 /**
  * Starts up application components
  * @param loop Specfies loop this application is running on
+ * @returns zero on success or non-zero otherwise
  */
-void application_startup(struct runloop *loop);
+int application_startup(struct runloop *loop);
 
 /**
  * Shuts down application components

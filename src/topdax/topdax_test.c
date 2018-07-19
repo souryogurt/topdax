@@ -16,6 +16,16 @@
 #include <GLFW/runloop.h>
 #include <renderer/vkrenderer.h>
 
+GLFWAPI int glfwInit(void)
+{
+	return (int)mock();
+}
+
+GLFWAPI void glfwTerminate(void)
+{
+	mock();
+}
+
 int glfw_window_init(struct glfw_window *win, int width, int height,
 		     const char *caption, struct window_handler *wh)
 {
@@ -56,6 +66,7 @@ void vkrenderer_terminate(struct vkrenderer *rdr)
 Ensure(topdax_startup_initializes_components)
 {
 	struct runloop loop;
+	expect(glfwInit, will_return(1));
 	expect(vkCreateInstance);
 	expect(glfw_window_init,
 	       when(width, is_equal_to(960)),
@@ -65,10 +76,22 @@ Ensure(topdax_startup_initializes_components)
 	application_startup(&loop);
 }
 
+Ensure(topdax_startup_fails_on_glfw_fail)
+{
+	struct runloop loop;
+	expect(glfwInit, will_return(0));
+	never_expect(vkCreateInstance);
+	never_expect(glfw_window_init);
+	never_expect(vkrenderer_init);
+	int status = application_startup(&loop);
+	assert_that(status, is_not_equal_to(0));
+}
+
 Ensure(topdax_shutdown_terminates_components)
 {
 	expect(vkrenderer_terminate);
 	expect(vkDestroyInstance);
+	expect(glfwTerminate);
 	application_shutdown();
 }
 
@@ -97,6 +120,7 @@ int main(int argc, char **argv)
 	TestSuite *suite = create_named_test_suite("Topdax");
 	TestSuite *tpx = create_named_test_suite("Application");
 	add_test(tpx, topdax_startup_initializes_components);
+	add_test(tpx, topdax_startup_fails_on_glfw_fail);
 	add_test(tpx, topdax_shutdown_terminates_components);
 	add_suite(suite, tpx);
 

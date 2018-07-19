@@ -25,17 +25,7 @@ const char *const application_bug_address = "TestApplicationBugAddress";
 /** Application description */
 const char *const application_description = "TestApplicationSummaryString";
 
-GLFWAPI int glfwInit(void)
-{
-	return (int)mock();
-}
-
 GLFWAPI void glfwWaitEvents(void)
-{
-	mock();
-}
-
-GLFWAPI void glfwTerminate(void)
 {
 	mock();
 }
@@ -80,10 +70,11 @@ error_t __wrap_argp_parse(const struct argp *__restrict __argp,
 			      argp_bug_address);
 }
 
-void application_startup(struct runloop *loop)
+int application_startup(struct runloop *loop)
 {
-	mock(loop);
+	int result = mock(loop);
 	loop->ops->quit(loop);
+	return result;
 }
 
 void application_shutdown()
@@ -95,21 +86,18 @@ Ensure(app_calls_callbacks)
 {
 	char *argv[] = { "./topdax", NULL };
 	expect(__wrap_argp_parse);
-	expect(glfwInit, will_return(GLFW_TRUE));
 	expect(application_startup);
 	expect(glfwWaitEvents);
 	expect(application_shutdown);
-	expect(glfwTerminate);
 	int exit_code = glfw_runloop_run(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
-Ensure(app_exit_with_error_on_glfw_failure)
+Ensure(app_exit_with_error_on_startup_fail)
 {
 	char *argv[] = { "./topdax", NULL };
 	expect(__wrap_argp_parse);
-	expect(glfwInit, will_return(GLFW_FALSE));
-	never_expect(application_startup);
+	expect(application_startup, will_return(1));
 	never_expect(application_shutdown);
 	int exit_code = glfw_runloop_run(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
@@ -192,7 +180,7 @@ int main(int argc, char **argv)
 	TestSuite *suite = create_named_test_suite("GLFW");
 	TestSuite *app = create_named_test_suite("Application");
 	add_test(app, app_calls_callbacks);
-	add_test(app, app_exit_with_error_on_glfw_failure);
+	add_test(app, app_exit_with_error_on_startup_fail);
 	add_test(app, app_accepts_help_argument_when_summary_provided);
 	add_suite(suite, app);
 

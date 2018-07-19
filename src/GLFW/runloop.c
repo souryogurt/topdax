@@ -51,8 +51,6 @@ int glfw_runloop_run(int argc, char **argv)
 	argp.doc = application_description;
 	if (argp_parse(&argp, argc, argv, 0, NULL, NULL))
 		return EXIT_FAILURE;
-	if (!glfwInit())
-		return EXIT_FAILURE;
 
 	struct glfw_runloop glfw_loop = {
 		.loop = {
@@ -60,11 +58,12 @@ int glfw_runloop_run(int argc, char **argv)
 			 },
 		.must_quit = 0,
 	};
-	application_startup(&glfw_loop.loop);
+	if (application_startup(&glfw_loop.loop)) {
+		return EXIT_FAILURE;
+	}
 	do {
 		glfwWaitEvents();
 	} while (!glfw_loop.must_quit);
 	application_shutdown();
-	glfwTerminate();
 	return EXIT_SUCCESS;
 }
