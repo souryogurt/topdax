@@ -21,28 +21,19 @@ const char *const application_bug_address = PACKAGE_BUGREPORT;
 const char *const application_description =
     "The program that renders triangle using Vulkan API";
 
-static int vulkan_initialize(VkInstance * vk)
-{
-	const VkInstanceCreateInfo create_info = {
-		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.pApplicationInfo = NULL,
-		.enabledLayerCount = 0,
-		.ppEnabledLayerNames = NULL,
-		.enabledExtensionCount = 0,
-		.ppEnabledExtensionNames = NULL,
-	};
-	VkResult result = vkCreateInstance(&create_info, NULL, vk);
-	return result != VK_SUCCESS;
-}
+/** Topdax Vulkan Instance information */
+static const VkInstanceCreateInfo topdax_vk_info = {
+	.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
+};
 
 int application_startup(struct runloop *loop)
 {
 	if (!glfwInit())
 		return 1;
 	app.mainloop = loop;
-	vulkan_initialize(&app.vk);
+	if (vkCreateInstance(&topdax_vk_info, NULL, &app.vk) != VK_SUCCESS) {
+		return 1;
+	}
 	topdax_window_init(&app.window, &app);
 	return 0;
 }
