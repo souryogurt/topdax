@@ -26,11 +26,11 @@ extern "C" {
  * @param width Specifies initial width of window
  * @param height Specifies initial height of window
  * @param caption Specifies initial caption of window
- * @param wh Specifies pointer to window handler that will respond to events
+ * @param winh Specifies pointer to window handler that will respond to events
  * @return zero on success, non-zero otherwise
  */
 int glfw_window_init(struct glfw_window *win, int width, int height,
-		     const char *caption, struct window_handler *wh);
+		     const char *caption, struct window_handler *winh);
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */

@@ -22,13 +22,13 @@ struct glfw_runloop {
 };
 
 /** Version string */
-const char *const application_version;
+const char *const g_app_version;
 
 /** Name and email of person responsible for issues */
-const char *const application_bug_address;
+const char *const g_app_bug_address;
 
 /** Application description */
-const char *const application_description;
+const char *const g_app_description;
 
 /** Arguments parser */
 static struct argp argp;
@@ -46,9 +46,9 @@ static const struct runloop_ops glfw_ops = {
 
 int glfw_runloop_run(int argc, char **argv)
 {
-	argp_program_version = application_version;
-	argp_program_bug_address = application_bug_address;
-	argp.doc = application_description;
+	argp_program_version = g_app_version;
+	argp_program_bug_address = g_app_bug_address;
+	argp.doc = g_app_description;
 	if (argp_parse(&argp, argc, argv, 0, NULL, NULL))
 		return EXIT_FAILURE;
 

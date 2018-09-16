@@ -17,13 +17,13 @@
 #include <argp.h>
 
 /** Version string */
-const char *const application_version = "TestApplicationVersionString";
+const char *const g_app_version = "TestApplicationVersionString";
 
 /** Name and email of person responsible for issues */
-const char *const application_bug_address = "TestApplicationBugAddress";
+const char *const g_app_bug_address = "TestApplicationBugAddress";
 
 /** Application description */
-const char *const application_description = "TestApplicationSummaryString";
+const char *const g_app_description = "TestApplicationSummaryString";
 
 GLFWAPI void glfwWaitEvents(void)
 {
@@ -107,10 +107,9 @@ Ensure(app_accepts_help_argument_when_summary_provided)
 {
 	char *argv[] = { "./topdax", "--help", NULL };
 	expect(__wrap_argp_parse, will_return(EXIT_FAILURE),
-	       when(argp_doc, is_equal_to_string(application_description)),
-	       when(argp_version, is_equal_to_string(application_version)),
-	       when(argp_bug_address,
-		    is_equal_to_string(application_bug_address)));
+	       when(argp_doc, is_equal_to_string(g_app_description)),
+	       when(argp_version, is_equal_to_string(g_app_version)),
+	       when(argp_bug_address, is_equal_to_string(g_app_bug_address)));
 	int exit_code = glfw_runloop_run(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }

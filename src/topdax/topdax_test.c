@@ -27,9 +27,9 @@ GLFWAPI void glfwTerminate(void)
 }
 
 int glfw_window_init(struct glfw_window *win, int width, int height,
-		     const char *caption, struct window_handler *wh)
+		     const char *caption, struct window_handler *winh)
 {
-	return (int)mock(win, width, height, caption, wh);
+	return (int)mock(win, width, height, caption, winh);
 }
 
 static void runloop_quit(struct runloop *loop)
@@ -69,14 +69,14 @@ GLFWAPI const char **glfwGetRequiredInstanceExtensions(uint32_t * count)
 }
 
 #ifndef NDEBUG
-void setup_debug_logger(VkInstance vk)
+void setup_debug_logger(VkInstance instance)
 {
-	mock(vk);
+	mock(instance);
 }
 
-void destroy_debug_logger(VkInstance vk)
+void destroy_debug_logger(VkInstance instance)
 {
-	mock(vk);
+	mock(instance);
 }
 #endif
 

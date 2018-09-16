@@ -17,7 +17,7 @@
 static VkDebugUtilsMessengerEXT vk_debug_messenger;
 
 VKAPI_ATTR VkBool32 VKAPI_CALL
-vk_debug_print(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+vk_debug_print(VkDebugUtilsMessageSeverityFlagBitsEXT sev,
 	       VkDebugUtilsMessageTypeFlagsEXT messageType,
 	       const VkDebugUtilsMessengerCallbackDataEXT * pCallbackData,
 	       void *pUserData)
@@ -25,24 +25,28 @@ vk_debug_print(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
 	UNUSED(pUserData);
 	UNUSED(messageType);
 	const char *prefix = "unknown: ";
-	if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+	int isverbose = sev & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+	int isinfo = sev & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+	int iswarning = sev & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+	int iserror = sev & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	if (isverbose) {
 		prefix = "verbose: ";
-	} else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+	} else if (isinfo) {
 		prefix = "info: ";
-	} else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+	} else if (iswarning) {
 		prefix = "warning: ";
-	} else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+	} else if (iserror) {
 		prefix = "error: ";
 	}
 	fprintf(stderr, "%s: %s\n", prefix, pCallbackData->pMessage);
 	return VK_FALSE;
 }
 
-void setup_debug_logger(VkInstance vk)
+void setup_debug_logger(VkInstance instance)
 {
-	PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
-	pfnVkCreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT)
-	    vkGetInstanceProcAddr(vk, "vkCreateDebugUtilsMessengerEXT");
+	PFN_vkCreateDebugUtilsMessengerEXT create_debug_msgr;
+	create_debug_msgr = (PFN_vkCreateDebugUtilsMessengerEXT)
+	    vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 	const VkDebugUtilsMessengerCreateInfoEXT msgr_info = {
 		.sType =
 		    VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
@@ -61,15 +65,13 @@ void setup_debug_logger(VkInstance vk)
 		.pfnUserCallback = vk_debug_print,
 		.pUserData = NULL
 	};
-	pfnVkCreateDebugUtilsMessengerEXT(vk, &msgr_info, NULL,
-					  &vk_debug_messenger);
+	create_debug_msgr(instance, &msgr_info, NULL, &vk_debug_messenger);
 }
 
-void destroy_debug_logger(VkInstance vk)
+void destroy_debug_logger(VkInstance instance)
 {
-	PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestoyDebugUtilsMessengerEXT;
-	pfnVkDestoyDebugUtilsMessengerEXT =
-	    (PFN_vkDestroyDebugUtilsMessengerEXT)
-	    vkGetInstanceProcAddr(vk, "vkDestroyDebugUtilsMessengerEXT");
-	pfnVkDestoyDebugUtilsMessengerEXT(vk, vk_debug_messenger, NULL);
+	PFN_vkDestroyDebugUtilsMessengerEXT destroy_debug_msgr;
+	destroy_debug_msgr = (PFN_vkDestroyDebugUtilsMessengerEXT)
+	    vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+	destroy_debug_msgr(instance, vk_debug_messenger, NULL);
 }

@@ -11,21 +11,21 @@ extern "C" {
 
 /**
  * Setup global debug logger for Vulkan instance
- * @param vk Vulkan instance handle on which logger must be set
+ * @param instance Vulkan instance handle on which logger must be set
  */
-void setup_debug_logger(VkInstance vk);
+void setup_debug_logger(VkInstance instance);
 
 /**
  * Destroy global debug logger on Vulkan instance
- * @param vk Vulkan instance handle on which logger must be destroyed
+ * @param instance Vulkan instance handle on which logger must be destroyed
  */
-void destroy_debug_logger(VkInstance vk);
+void destroy_debug_logger(VkInstance instance);
 
 /**
  * Prints Vulkan errors to stderr
  */
 VKAPI_ATTR VkBool32 VKAPI_CALL
-vk_debug_print(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+vk_debug_print(VkDebugUtilsMessageSeverityFlagBitsEXT sev,
 	       VkDebugUtilsMessageTypeFlagsEXT messageType,
 	       const VkDebugUtilsMessengerCallbackDataEXT * pCallbackData,
 	       void *pUserData);

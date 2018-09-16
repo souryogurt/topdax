@@ -64,13 +64,13 @@ extern "C" {
 #endif
 
 /** Version string */
-extern const char *const application_version;
+extern const char *const g_app_version;
 
 /** Name and email of person responsible for issues */
-extern const char *const application_bug_address;
+extern const char *const g_app_bug_address;
 
 /** Application description */
-extern const char *const application_description;
+extern const char *const g_app_description;
 
 /**
  * Starts up application components

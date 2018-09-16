@@ -17,9 +17,9 @@ static void close_callback(GLFWwindow * glfw_window)
 {
 	struct glfw_window *win;
 	win = (struct glfw_window *)glfwGetWindowUserPointer(glfw_window);
-	struct window_handler *wh = win->handler;
-	if (wh->ops->close)
-		wh->ops->close(wh, &win->win);
+	struct window_handler *winh = win->handler;
+	if (winh->ops->close)
+		winh->ops->close(winh, &win->win);
 
 }
 
@@ -40,14 +40,14 @@ static const struct window_ops glfw_window_ops = {
 };
 
 int glfw_window_init(struct glfw_window *win, int width, int height,
-		     const char *caption, struct window_handler *wh)
+		     const char *caption, struct window_handler *winh)
 {
-	assert(wh);
+	assert(winh);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	win->id = glfwCreateWindow(width, height, caption, NULL, NULL);
 	if (win->id) {
 		win->win.ops = &glfw_window_ops;
-		win->handler = wh;
+		win->handler = winh;
 		glfwSetWindowUserPointer(win->id, win);
 		glfwSetWindowCloseCallback(win->id, close_callback);
 		return 0;

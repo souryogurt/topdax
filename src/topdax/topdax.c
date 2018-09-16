@@ -16,13 +16,13 @@
 static struct topdax app;
 
 /** Version string */
-const char *const application_version = PACKAGE_STRING;
+const char *const g_app_version = PACKAGE_STRING;
 
 /** Name and email of person responsible for issues */
-const char *const application_bug_address = PACKAGE_BUGREPORT;
+const char *const g_app_bug_address = PACKAGE_BUGREPORT;
 
 /** Application description */
-const char *const application_description =
+const char *const g_app_description =
     "The program that renders triangle using Vulkan API";
 
 /** Topdax application information */
@@ -67,11 +67,11 @@ static int get_vk_extensions(const char **extensions, uint32_t * size)
 
 /**
  * Create Vulkan instance suitable for topdax application rendering
- * @param vk Specifies pointer to Vulkan handle in which the resulting instance
- *           is returned
+ * @param instance Specifies pointer to Vulkan handle in which the resulting
+ *                 instance is returned
  * @returns VK_SUCCESS on success
  */
-static VkResult vk_instance_create(VkInstance * vk)
+static VkResult vk_instance_create(VkInstance * instance)
 {
 	const char *extensions[100];
 	VkInstanceCreateInfo vk_info = {
@@ -83,7 +83,7 @@ static VkResult vk_instance_create(VkInstance * vk)
 		.ppEnabledExtensionNames = extensions
 	};
 	if (get_vk_extensions(extensions, &vk_info.enabledExtensionCount) == 0) {
-		return vkCreateInstance(&vk_info, NULL, vk);
+		return vkCreateInstance(&vk_info, NULL, instance);
 	}
 	return VK_ERROR_INITIALIZATION_FAILED;
 }
