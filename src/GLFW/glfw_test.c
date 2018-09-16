@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <application/runloop.h>
-#include <GLFW/window.h>
 #include <GLFW/runloop.h>
 #include <argp.h>
 
@@ -28,33 +27,6 @@ const char *const g_app_description = "TestApplicationSummaryString";
 GLFWAPI void glfwWaitEvents(void)
 {
 	mock();
-}
-
-GLFWAPI void glfwWindowHint(int hint, int value)
-{
-	mock(hint, value);
-}
-
-GLFWAPI GLFWwindow *glfwCreateWindow(int width, int height, const char *title,
-				     GLFWmonitor * monitor, GLFWwindow * share)
-{
-	return (GLFWwindow *) mock(width, height, title, monitor, share);
-}
-
-GLFWAPI GLFWwindowclosefun glfwSetWindowCloseCallback(GLFWwindow * window,
-						      GLFWwindowclosefun cbfun)
-{
-	return (GLFWwindowclosefun) mock(window, cbfun);
-}
-
-GLFWAPI void glfwSetWindowUserPointer(GLFWwindow * window, void *pointer)
-{
-	mock(window, pointer);
-}
-
-GLFWAPI void *glfwGetWindowUserPointer(GLFWwindow * window)
-{
-	return (void *)mock(window);
 }
 
 error_t __wrap_argp_parse(const struct argp *__restrict __argp,
@@ -114,79 +86,13 @@ Ensure(app_accepts_help_argument_when_summary_provided)
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
-static void mock_close_request(struct window_handler *obj, struct window *win)
-{
-	mock(obj, win);
-}
-
-static const struct window_handler_ops win_ops = {
-	.close = mock_close_request,
-};
-
-Ensure(win_init_shows_window)
-{
-	struct window_handler wh = {
-		.ops = &win_ops,
-	};
-	struct glfw_window win;
-	GLFWwindow *window = (GLFWwindow *) 1;
-	expect(glfwWindowHint);
-	expect(glfwCreateWindow,
-	       will_return(window),
-	       when(width, is_equal_to(960)),
-	       when(height, is_equal_to(540)),
-	       when(title, is_equal_to_string("Topdax")));
-	expect(glfwSetWindowUserPointer);
-	expect(glfwSetWindowCloseCallback);
-	int error = glfw_window_init(&win, 960, 540, "Topdax", &wh);
-	assert_that(error, is_equal_to(0));
-}
-
-Ensure(win_init_returns_non_zero_on_fail)
-{
-	struct window_handler wh = {
-		.ops = &win_ops,
-	};
-	struct glfw_window win;
-	expect(glfwWindowHint);
-	expect(glfwCreateWindow, will_return(NULL));
-	int error = glfw_window_init(&win, 960, 540, "Topdax", &wh);
-	assert_that(error, is_not_equal_to(0));
-}
-
-Ensure(win_close_calls_callback)
-{
-	struct window_handler wh = {
-		.ops = &win_ops,
-	};
-	struct glfw_window win;
-	GLFWwindow *window = (GLFWwindow *) 1;
-	expect(glfwWindowHint);
-	expect(glfwCreateWindow, will_return(window));
-	expect(glfwSetWindowUserPointer);
-	expect(glfwSetWindowCloseCallback);
-	glfw_window_init(&win, 960, 540, "Topdax", &wh);
-	expect(glfwGetWindowUserPointer, will_return(&win));
-	expect(mock_close_request,
-	       when(obj, is_equal_to(&wh)), when(win, is_equal_to(&win)));
-	win.win.ops->close(&win.win);
-}
-
 int main(int argc, char **argv)
 {
 	(void)(argc);
 	(void)(argv);
-	TestSuite *suite = create_named_test_suite("GLFW");
-	TestSuite *app = create_named_test_suite("Application");
-	add_test(app, app_calls_callbacks);
-	add_test(app, app_exit_with_error_on_startup_fail);
-	add_test(app, app_accepts_help_argument_when_summary_provided);
-	add_suite(suite, app);
-
-	TestSuite *win = create_named_test_suite("Window");
-	add_test(win, win_init_shows_window);
-	add_test(win, win_init_returns_non_zero_on_fail);
-	add_test(win, win_close_calls_callback);
-	add_suite(suite, win);
+	TestSuite *suite = create_named_test_suite("GLFW Runloop");
+	add_test(suite, app_calls_callbacks);
+	add_test(suite, app_exit_with_error_on_startup_fail);
+	add_test(suite, app_accepts_help_argument_when_summary_provided);
 	return run_test_suite(suite, create_text_reporter());
 }

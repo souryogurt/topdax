@@ -1,6 +1,8 @@
 #ifndef GLFW_RUNLOOP_H
 #define GLFW_RUNLOOP_H
 
+#include <GLFW/glfw3.h>
+
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 extern "C" {

@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "topdax.h"
-#include <GLFW/window.h>
 #include <GLFW/runloop.h>
 #include <renderer/vkrenderer.h>
 #include <application/utils.h>
@@ -61,9 +60,9 @@ void destroy_debug_logger(VkInstance instance)
 }
 #endif
 
-void topdax_window_init(struct topdax_window *win, struct topdax *app)
+int topdax_window_init(struct topdax_window *win, struct topdax *app)
 {
-	mock(win, app);
+	return (int)mock(win, app);
 }
 
 void topdax_window_destroy(struct topdax_window *win)
