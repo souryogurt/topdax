@@ -44,6 +44,14 @@ GLFWAPI void *glfwGetWindowUserPointer(GLFWwindow * window)
 	return (void *)mock(window);
 }
 
+GLFWAPI VkResult
+glfwCreateWindowSurface(VkInstance instance, GLFWwindow * window,
+			const VkAllocationCallbacks * allocator,
+			VkSurfaceKHR * surface)
+{
+	return (VkResult) mock(instance, window, allocator, surface);
+}
+
 static void runloop_quit(struct runloop *loop)
 {
 	mock(loop);
@@ -59,6 +67,13 @@ void vkrenderer_terminate(struct vkrenderer *rdr)
 	mock(rdr);
 }
 
+VKAPI_ATTR void VKAPI_CALL
+vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface,
+		    const VkAllocationCallbacks * pAllocator)
+{
+	mock(instance, surface, pAllocator);
+}
+
 Ensure(topdax_window_init_creates_window)
 {
 	GLFWwindow *window = (GLFWwindow *) 1;
@@ -72,6 +87,7 @@ Ensure(topdax_window_init_creates_window)
 	       when(title, is_equal_to_string("Topdax")));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwSetWindowCloseCallback);
+	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
 	expect(vkrenderer_init, when(rdr, is_equal_to(&win.renderer)));
 	int error = topdax_window_init(&win, &app);
 	assert_that(error, is_equal_to(0));
@@ -90,10 +106,27 @@ Ensure(topdax_window_init_returns_non_zero_on_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
+Ensure(topdax_window_init_returns_non_zero_on_surface_fail)
+{
+	GLFWwindow *window = (GLFWwindow *) 1;
+	struct topdax_window win;
+	struct topdax app;
+	expect(glfwWindowHint);
+	expect(glfwCreateWindow, will_return(window));
+	expect(glfwSetWindowUserPointer);
+	expect(glfwSetWindowCloseCallback);
+	expect(glfwCreateWindowSurface,
+	       will_return(VK_ERROR_INITIALIZATION_FAILED));
+	never_expect(vkrenderer_init);
+	int error = topdax_window_init(&win, &app);
+	assert_that(error, is_not_equal_to(0));
+}
+
 Ensure(topdax_window_destroy_destroys_window)
 {
 	struct topdax_window win;
 	expect(vkrenderer_terminate, when(rdr, is_equal_to(&win.renderer)));
+	expect(vkDestroySurfaceKHR, when(surface, is_equal_to(win.surface)));
 	topdax_window_destroy(&win);
 }
 
@@ -116,6 +149,7 @@ Ensure(topdax_window_ends_application_on_close_request)
 	expect(glfwCreateWindow, will_return(window));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwSetWindowCloseCallback);
+	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
 	expect(vkrenderer_init);
 	int error = topdax_window_init(&app.window, &app);
 	assert_that(error, is_equal_to(0));
@@ -133,6 +167,7 @@ int main(int argc, char **argv)
 	TestSuite *suite = create_named_test_suite("Topdax Window");
 	add_test(suite, topdax_window_init_creates_window);
 	add_test(suite, topdax_window_init_returns_non_zero_on_fail);
+	add_test(suite, topdax_window_init_returns_non_zero_on_surface_fail);
 	add_test(suite, topdax_window_destroy_destroys_window);
 	add_test(suite, topdax_window_ends_application_on_close_request);
 	return run_test_suite(suite, create_text_reporter());

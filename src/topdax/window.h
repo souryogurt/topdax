@@ -16,6 +16,9 @@ struct topdax_window {
 	/** Instance of GLFW window */
 	GLFWwindow *id;
 
+	/** Vulkan surface of this window */
+	VkSurfaceKHR surface;
+
 	/** Renderer implementation */
 	struct vkrenderer renderer;
 };
