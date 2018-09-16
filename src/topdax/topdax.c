@@ -7,6 +7,10 @@
 #endif
 
 #include "topdax.h"
+#include "logger.h"
+
+#include <string.h>
+#include <stdio.h>
 
 /** Topdax application instance */
 static struct topdax app;
@@ -31,20 +35,57 @@ static const VkApplicationInfo topdax_app_info = {
 	.apiVersion = VK_API_VERSION_1_1
 };
 
+/**
+ * Returns array of extensions required to create Vulkan instance
+ * @param extensions Specifies pointer to destination array into which required
+ *                   extensions will be copied
+ * @param size Specifies pointer to size of @a extensions array
+ * @returns zero on success or non-zero otherwise
+ */
+static int get_vk_extensions(const char **extensions, uint32_t * size)
+{
+	uint32_t wsi_count;
+	const char **wsi_exts = glfwGetRequiredInstanceExtensions(&wsi_count);
+	uint32_t all_count = wsi_count;
+#ifndef NDEBUG
+	const char *const debug_exts[] = { "VK_EXT_debug_utils" };
+	all_count += ARRAY_SIZE(debug_exts);
+#endif
+
+	if (all_count <= *size) {
+		memcpy(extensions, wsi_exts, sizeof(wsi_exts[0]) * wsi_count);
+
+#ifndef NDEBUG
+		memcpy(&extensions[wsi_count], debug_exts, sizeof(debug_exts));
+#endif
+		*size = all_count;
+		return 0;
+	}
+	*size = all_count;
+	return 1;
+}
+
+/**
+ * Create Vulkan instance suitable for topdax application rendering
+ * @param vk Specifies pointer to Vulkan handle in which the resulting instance
+ *           is returned
+ * @returns VK_SUCCESS on success
+ */
 static VkResult vk_instance_create(VkInstance * vk)
 {
-	uint32_t exts_count;
-	const char **exts = glfwGetRequiredInstanceExtensions(&exts_count);
-
-	const VkInstanceCreateInfo vk_info = {
+	const char *extensions[100];
+	VkInstanceCreateInfo vk_info = {
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		.pApplicationInfo = &topdax_app_info,
 		.enabledLayerCount = 0,
 		.ppEnabledLayerNames = NULL,
-		.enabledExtensionCount = exts_count,
-		.ppEnabledExtensionNames = exts
+		.enabledExtensionCount = ARRAY_SIZE(extensions),
+		.ppEnabledExtensionNames = extensions
 	};
-	return vkCreateInstance(&vk_info, NULL, vk);
+	if (get_vk_extensions(extensions, &vk_info.enabledExtensionCount) == 0) {
+		return vkCreateInstance(&vk_info, NULL, vk);
+	}
+	return VK_ERROR_INITIALIZATION_FAILED;
 }
 
 int application_startup(struct runloop *loop)
@@ -56,7 +97,9 @@ int application_startup(struct runloop *loop)
 	if (vk_instance_create(&app.vk) != VK_SUCCESS) {
 		return 1;
 	}
-
+#ifndef NDEBUG
+	setup_debug_logger(app.vk);
+#endif
 	topdax_window_init(&app.window, &app);
 	return 0;
 }
@@ -64,6 +107,9 @@ int application_startup(struct runloop *loop)
 void application_shutdown(void)
 {
 	topdax_window_destroy(&app.window);
+#ifndef NDEBUG
+	destroy_debug_logger(app.vk);
+#endif
 	vkDestroyInstance(app.vk, NULL);
 	glfwTerminate();
 }

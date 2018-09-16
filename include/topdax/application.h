@@ -13,6 +13,8 @@
 #define container_of(ptr, type, member) ((type *)( \
     (char *)(void*)(member_type(type, member) *){ ptr } - offsetof(type, member)))
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 struct runloop;
 
 /** Runloop operations */

@@ -63,11 +63,37 @@ void vkrenderer_terminate(struct vkrenderer *rdr)
 	mock(rdr);
 }
 
+GLFWAPI const char **glfwGetRequiredInstanceExtensions(uint32_t * count)
+{
+	return (const char **)mock(count);
+}
+
+#ifndef NDEBUG
+void setup_debug_logger(VkInstance vk)
+{
+	mock(vk);
+}
+
+void destroy_debug_logger(VkInstance vk)
+{
+	mock(vk);
+}
+#endif
+
 Ensure(topdax_startup_initializes_components)
 {
+	const char *wsi_exts[] = { "VK_KHR_surface" };
+	const uint32_t wsi_size = ARRAY_SIZE(wsi_exts);
 	struct runloop loop;
 	expect(glfwInit, will_return(1));
+	expect(glfwGetRequiredInstanceExtensions,
+	       will_return(wsi_exts),
+	       will_set_contents_of_parameter(count, &wsi_size,
+					      sizeof(uint32_t)));
 	expect(vkCreateInstance);
+#ifndef NDEBUG
+	expect(setup_debug_logger);
+#endif
 	expect(glfw_window_init,
 	       when(width, is_equal_to(960)),
 	       when(height, is_equal_to(540)),
@@ -87,9 +113,29 @@ Ensure(topdax_startup_fails_on_glfw_fail)
 	assert_that(status, is_not_equal_to(0));
 }
 
+Ensure(topdax_startup_fails_on_out_of_memory_for_extensions)
+{
+	struct runloop loop;
+	const char *wsi_exts[101];
+	const uint32_t wsi_count = ARRAY_SIZE(wsi_exts);
+	expect(glfwInit, will_return(1));
+	expect(glfwGetRequiredInstanceExtensions,
+	       will_return(wsi_exts),
+	       will_set_contents_of_parameter(count, &wsi_count,
+					      sizeof(uint32_t)));
+	never_expect(vkCreateInstance);
+	never_expect(glfw_window_init);
+	never_expect(vkrenderer_init);
+	int status = application_startup(&loop);
+	assert_that(status, is_not_equal_to(0));
+}
+
 Ensure(topdax_shutdown_terminates_components)
 {
 	expect(vkrenderer_terminate);
+#ifndef NDEBUG
+	expect(destroy_debug_logger);
+#endif
 	expect(vkDestroyInstance);
 	expect(glfwTerminate);
 	application_shutdown();
@@ -121,6 +167,7 @@ int main(int argc, char **argv)
 	TestSuite *tpx = create_named_test_suite("Application");
 	add_test(tpx, topdax_startup_initializes_components);
 	add_test(tpx, topdax_startup_fails_on_glfw_fail);
+	add_test(tpx, topdax_startup_fails_on_out_of_memory_for_extensions);
 	add_test(tpx, topdax_shutdown_terminates_components);
 	add_suite(suite, tpx);
 
