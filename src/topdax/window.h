@@ -40,12 +40,6 @@ int topdax_window_init(struct topdax_window *win, struct topdax *app);
  */
 void topdax_window_destroy(struct topdax_window *win);
 
-/**
- * Close application window
- * @param win Specifies pointer to window to close
- */
-void topdax_window_close(struct topdax_window *win);
-
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }

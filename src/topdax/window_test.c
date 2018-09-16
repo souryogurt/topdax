@@ -97,24 +97,6 @@ Ensure(topdax_window_destroy_destroys_window)
 	topdax_window_destroy(&win);
 }
 
-Ensure(topdax_close_main_window_ends_application)
-{
-	struct runloop_ops loop_ops = {
-		.quit = &runloop_quit,
-	};
-	struct runloop loop = {
-		.ops = &loop_ops,
-	};
-	struct topdax app = {
-		.mainloop = &loop,
-		.window = {
-			   .app = &app,
-			   },
-	};
-	expect(runloop_quit, when(loop, is_equal_to(&loop)));
-	topdax_window_close(&app.window);
-}
-
 Ensure(topdax_window_ends_application_on_close_request)
 {
 	GLFWwindow *window = (GLFWwindow *) 1;
@@ -152,7 +134,6 @@ int main(int argc, char **argv)
 	add_test(suite, topdax_window_init_creates_window);
 	add_test(suite, topdax_window_init_returns_non_zero_on_fail);
 	add_test(suite, topdax_window_destroy_destroys_window);
-	add_test(suite, topdax_close_main_window_ends_application);
 	add_test(suite, topdax_window_ends_application_on_close_request);
 	return run_test_suite(suite, create_text_reporter());
 }

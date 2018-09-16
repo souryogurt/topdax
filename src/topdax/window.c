@@ -14,15 +14,10 @@
  * Call window's close callback
  * @param glfw_window Specifies GLFW window that must be closed
  */
-static void close_callback(GLFWwindow * glfw_window)
+static void topdax_window_close(GLFWwindow * glfw_window)
 {
 	struct topdax_window *win;
 	win = (struct topdax_window *)glfwGetWindowUserPointer(glfw_window);
-	topdax_window_close(win);
-}
-
-void topdax_window_close(struct topdax_window *win)
-{
 	struct runloop *mainloop = win->app->mainloop;
 	mainloop->ops->quit(mainloop);
 }
@@ -34,7 +29,7 @@ int topdax_window_init(struct topdax_window *win, struct topdax *app)
 	win->id = glfwCreateWindow(960, 540, "Topdax", NULL, NULL);
 	if (win->id) {
 		glfwSetWindowUserPointer(win->id, win);
-		glfwSetWindowCloseCallback(win->id, close_callback);
+		glfwSetWindowCloseCallback(win->id, topdax_window_close);
 		/* TODO: Must be initialized using vulkan instance and window
 		 * surface (after window creation) since window surface WILL
 		 * enforce selection of supported device */
