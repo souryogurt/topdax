@@ -6,13 +6,9 @@
 #include <config.h>
 #endif
 
+#include <application/utils.h>
 #include "logger.h"
-
-#include <string.h>
 #include <stdio.h>
-
-/** Readable macro to placate compiler */
-#define UNUSED(x) (void)(x)
 
 static VkDebugUtilsMessengerEXT vk_debug_messenger;
 

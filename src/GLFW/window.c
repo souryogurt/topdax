@@ -6,8 +6,10 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
+#include <GLFW/glfw3.h>
 #include <GLFW/window.h>
+#include <assert.h>
+#include <application/utils.h>
 
 /**
  * Call window's close callback

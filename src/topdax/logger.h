@@ -1,7 +1,8 @@
 #ifndef TOPDAX_LOGGER_H
 #define TOPDAX_LOGGER_H
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vk_platform.h>
+#include <vulkan/vulkan_core.h>
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */

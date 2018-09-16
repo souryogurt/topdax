@@ -1,11 +1,11 @@
 noinst_LIBRARIES += librunloop.a
-librunloop_a_SOURCES = include/topdax/application.h
+librunloop_a_SOURCES = include/application/runloop.h
 librunloop_a_SOURCES += include/GLFW/runloop.h
 librunloop_a_SOURCES += src/GLFW/runloop.c
 librunloop_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 noinst_LIBRARIES += libwindow.a
-libwindow_a_SOURCES = include/topdax/application.h
+libwindow_a_SOURCES = include/application/runloop.h
 libwindow_a_SOURCES += include/GLFW/window.h
 libwindow_a_SOURCES += src/GLFW/window.c
 libwindow_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)

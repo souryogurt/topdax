@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#include <topdax/application.h>
+#include <application/runloop.h>
 #include <GLFW/window.h>
 #include <GLFW/runloop.h>
 #include <argp.h>

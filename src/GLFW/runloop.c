@@ -10,7 +10,8 @@
 #include <stdlib.h>
 
 #include <GLFW/runloop.h>
-#include <topdax/application.h>
+#include <application/runloop.h>
+#include <application/utils.h>
 #include <GLFW/glfw3.h>
 
 /** Runloop implementation using GLFW API */

@@ -6,6 +6,9 @@
 #include <config.h>
 #endif
 
+#include <application/utils.h>
+#include <application/runloop.h>
+#include "window.h"
 #include "topdax.h"
 
 void topdax_close_window(struct window_handler *obj, struct window *win)

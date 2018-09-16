@@ -1,7 +1,7 @@
 #ifndef GLFW_WINDOW_H
 #define GLFW_WINDOW_H
 
-#include <topdax/application.h>
+#include <application/window.h>
 #include <GLFW/glfw3.h>
 
 /** Window implementation using GLFW API */

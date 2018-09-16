@@ -7,10 +7,14 @@
 #endif
 
 #include "topdax.h"
-#include "logger.h"
-
-#include <string.h>
+#include <GLFW/glfw3.h>
+#include <application/runloop.h>
+#include <application/utils.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <string.h>
+#include "logger.h"
+#include "window.h"
 
 /** Topdax application instance */
 static struct topdax app;
