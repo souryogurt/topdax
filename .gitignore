@@ -174,12 +174,14 @@ autom4te.cache/
 /libvkrenderer.a
 /liblogger.a
 /libtopdax_window.a
+/libvkconfig.a
 /topdax
 /topdax_test
 /glfw_test
 /vkrenderer_test
 /logger_test
 /topdax_window_test
+/config_test
 /tags
 /test-driver
 *.trs

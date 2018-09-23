@@ -1,7 +1,7 @@
 bin_PROGRAMS += topdax
 topdax_SOURCES = src/GLFW/entry.c
 topdax_CFLAGS = $(CODE_COVERAGE_CFLAGS)
-topdax_LDADD = librunloop.a libtopdax.a libtopdax_window.a liblogger.a libvkrenderer.a $(CODE_COVERAGE_LIBS)
+topdax_LDADD = librunloop.a libtopdax.a libtopdax_window.a liblogger.a libvkrenderer.a libvkconfig.a $(CODE_COVERAGE_LIBS)
 
 noinst_LIBRARIES += libtopdax.a
 libtopdax_a_SOURCES = src/topdax/topdax.c

@@ -57,9 +57,10 @@ static void runloop_quit(struct runloop *loop)
 	mock(loop);
 }
 
-int vkrenderer_init(struct vkrenderer *rdr)
+int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
+		    VkSurfaceKHR surface)
 {
-	return (int)mock(rdr);
+	return (int)mock(rdr, instance, surface);
 }
 
 void vkrenderer_terminate(struct vkrenderer *rdr)
@@ -124,7 +125,10 @@ Ensure(topdax_window_init_returns_non_zero_on_surface_fail)
 
 Ensure(topdax_window_destroy_destroys_window)
 {
-	struct topdax_window win;
+	struct topdax app;
+	struct topdax_window win = {
+		.app = &app,
+	};
 	expect(vkrenderer_terminate, when(rdr, is_equal_to(&win.renderer)));
 	expect(vkDestroySurfaceKHR, when(surface, is_equal_to(win.surface)));
 	topdax_window_destroy(&win);
