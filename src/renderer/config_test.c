@@ -130,13 +130,14 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(VkInstance
 							  VkPhysicalDevice
 							  * pPhysicalDevices)
 {
-	mock(instance, pPhysicalDeviceCount, pPhysicalDevices);
+	VkResult result = (VkResult)
+	    mock(instance, pPhysicalDeviceCount, pPhysicalDevices);
 	size_t test_i = (size_t) instance;
 	struct test_instance_config *cfg = &instance_configs[test_i];
 	*pPhysicalDeviceCount = cfg->nphy;
 	memcpy(pPhysicalDevices, cfg->phy,
 	       sizeof(VkPhysicalDevice) * cfg->nphy);
-	return VK_SUCCESS;
+	return result;
 }
 
 VKAPI_ATTR void VKAPI_CALL
@@ -166,13 +167,27 @@ vkGetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice physicalDevice,
 	return result;
 }
 
+Ensure(not_enough_memory_for_devices)
+{
+	VkInstance instance = (VkInstance) 0;
+	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	struct device_config cfg;
+	expect(vkEnumeratePhysicalDevices,
+	       will_return(VK_INCOMPLETE),
+	       when(instance, is_equal_to(instance)));
+	never_expect(vkGetPhysicalDeviceQueueFamilyProperties);
+	never_expect(vkGetPhysicalDeviceSurfaceSupportKHR);
+	int result = choose_config(instance, &cfg, surface);
+	assert_that(result, is_not_equal_to(0));
+}
+
 Ensure(one_device_universal_family)
 {
 	VkInstance instance = (VkInstance) 0;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
 	struct device_config cfg;
 	expect(vkEnumeratePhysicalDevices,
-	       when(instance, is_equal_to(instance)));
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(vkGetPhysicalDeviceQueueFamilyProperties,
 	       when(physicalDevice, is_equal_to(0)));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
@@ -190,7 +205,7 @@ Ensure(one_device_separate_families)
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
 	struct device_config cfg;
 	expect(vkEnumeratePhysicalDevices,
-	       when(instance, is_equal_to(instance)));
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(vkGetPhysicalDeviceQueueFamilyProperties,
 	       when(physicalDevice, is_equal_to(1)));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
@@ -210,7 +225,7 @@ Ensure(no_devices)
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
 	struct device_config cfg;
 	expect(vkEnumeratePhysicalDevices,
-	       when(instance, is_equal_to(instance)));
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	never_expect(vkGetPhysicalDeviceQueueFamilyProperties);
 	never_expect(vkGetPhysicalDeviceSurfaceSupportKHR);
 	int result = choose_config(instance, &cfg, surface);
@@ -223,7 +238,7 @@ Ensure(no_suitable_families)
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
 	struct device_config cfg;
 	expect(vkEnumeratePhysicalDevices,
-	       when(instance, is_equal_to(instance)));
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(vkGetPhysicalDeviceQueueFamilyProperties,
 	       when(physicalDevice, is_equal_to(2)));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
@@ -239,6 +254,7 @@ int main(int argc, char **argv)
 	(void)(argc);
 	(void)(argv);
 	TestSuite *vkr = create_named_test_suite("VKRenderer Configuration");
+	add_test(vkr, not_enough_memory_for_devices);
 	add_test(vkr, one_device_universal_family);
 	add_test(vkr, one_device_separate_families);
 	add_test(vkr, no_devices);
