@@ -33,6 +33,8 @@ static int
 select_families(const struct family_properties *props, uint32_t * graph,
 		uint32_t * present)
 {
+	*graph = props->count;
+	*present = props->count;
 	for (uint32_t i = 0; i < props->count; i++) {
 		if (props->present[i]) {
 			*present = i;
@@ -89,15 +91,10 @@ set_family_properties(VkPhysicalDevice phy, VkSurfaceKHR srf,
 
 /**
  * Choose graphics and presentation families
- * @param phy Specifies physical device to choose families from
- * @param srf Specifies surface for presentation family
- * @param graph Specifies pointer where store graphics family index
- * @param present Specifies pointer where store presentation family index
+ * @param rdr Specifies renderer to choose families for
  * @returns non-zero if indices are found, and zero otherwise
  */
-static int
-choose_families(VkPhysicalDevice phy, VkSurfaceKHR srf, uint32_t * graph,
-		uint32_t * present)
+static int choose_families(struct vkrenderer *rdr)
 {
 	VkQueueFamilyProperties families[32];
 	VkBool32 is_present[ARRAY_SIZE(families)];
@@ -108,18 +105,18 @@ choose_families(VkPhysicalDevice phy, VkSurfaceKHR srf, uint32_t * graph,
 		.present = is_present,
 		.graphic = is_graphic,
 	};
-	vkGetPhysicalDeviceQueueFamilyProperties(phy, &props.count, props.fams);
+	vkGetPhysicalDeviceQueueFamilyProperties(rdr->phy, &props.count,
+						 props.fams);
 	for (uint32_t i = 0; i < props.count; i++) {
-		set_family_properties(phy, srf, &props, i);
+		set_family_properties(rdr->phy, rdr->srf, &props, i);
 	}
-	if (select_universal_families(&props, graph, present)) {
+	if (select_universal_families(&props, &rdr->graphic, &rdr->present)) {
 		return 1;
 	}
-	return select_families(&props, graph, present);
+	return select_families(&props, &rdr->graphic, &rdr->present);
 }
 
-int choose_config(VkInstance instance, struct device_config *cfg,
-		  VkSurfaceKHR surface)
+int choose_config(struct vkrenderer *rdr, VkInstance instance)
 {
 	static const char *const req_dev_extensions[] = {
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
@@ -130,12 +127,11 @@ int choose_config(VkInstance instance, struct device_config *cfg,
 		return 1;
 	}
 	for (size_t i = 0; i < nphy; i++) {
-		cfg->phy = phy[i];
-		memset(&cfg->features, 0, sizeof(VkPhysicalDeviceFeatures));
-		cfg->extensions = req_dev_extensions;
-		cfg->nextensions = ARRAY_SIZE(req_dev_extensions);
-		if (choose_families(phy[i], surface, &cfg->graph_family,
-				    &cfg->present_family)) {
+		rdr->phy = phy[i];
+		memset(&rdr->features, 0, sizeof(VkPhysicalDeviceFeatures));
+		rdr->extensions = req_dev_extensions;
+		rdr->nextensions = ARRAY_SIZE(req_dev_extensions);
+		if (choose_families(rdr)) {
 			return 0;
 		}
 	}

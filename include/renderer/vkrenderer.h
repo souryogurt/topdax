@@ -5,13 +5,25 @@
 
 /** Vulkan Renderer Instance */
 struct vkrenderer {
-	/** Vulkan instance */
-	VkInstance instance;
+	/** Target surface presenting rendered image */
+	VkSurfaceKHR srf;
+	/** Physical device */
+	VkPhysicalDevice phy;
+	/** Enabled device features */
+	VkPhysicalDeviceFeatures features;
+	/** Enabled logical device extensions */
+	const char *const *extensions;
+	/** Number of enabled logical device extensions */
+	uint32_t nextensions;
+	/** Queue family index that supports graphics operations */
+	uint32_t graphic;
+	/** Queue family index that supports presentation */
+	uint32_t present;
 	/** Vulkan device */
 	VkDevice device;
 	/** Graphics Queue */
 	VkQueue graphics_queue;
-	/** Predenting Queue */
+	/** Presenting Queue */
 	VkQueue present_queue;
 };
 

@@ -11,10 +11,9 @@
 #include <renderer/vkrenderer.h>
 #include "vkrenderer.h"
 
-int choose_config(VkInstance instance, struct device_config *cfg,
-		  VkSurfaceKHR surface)
+int choose_config(struct vkrenderer *rdr, VkInstance instance)
 {
-	return (int)mock(instance, cfg, surface);
+	return (int)mock(rdr, instance);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice,

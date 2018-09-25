@@ -171,13 +171,15 @@ Ensure(not_enough_memory_for_devices)
 {
 	VkInstance instance = (VkInstance) 0;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct device_config cfg;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
 	expect(vkEnumeratePhysicalDevices,
 	       will_return(VK_INCOMPLETE),
 	       when(instance, is_equal_to(instance)));
 	never_expect(vkGetPhysicalDeviceQueueFamilyProperties);
 	never_expect(vkGetPhysicalDeviceSurfaceSupportKHR);
-	int result = choose_config(instance, &cfg, surface);
+	int result = choose_config(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
 }
 
@@ -185,25 +187,29 @@ Ensure(one_device_universal_family)
 {
 	VkInstance instance = (VkInstance) 0;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct device_config cfg;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
 	expect(vkEnumeratePhysicalDevices,
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(vkGetPhysicalDeviceQueueFamilyProperties,
 	       when(physicalDevice, is_equal_to(0)));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(physicalDevice, is_equal_to(0)), will_return(VK_SUCCESS));
-	int result = choose_config(instance, &cfg, surface);
+	int result = choose_config(&rdr, instance);
 	assert_that(result, is_equal_to(0));
-	assert_that(cfg.phy, is_equal_to(0));
-	assert_that(cfg.graph_family, is_equal_to(0));
-	assert_that(cfg.present_family, is_equal_to(0));
+	assert_that(rdr.phy, is_equal_to(0));
+	assert_that(rdr.graphic, is_equal_to(0));
+	assert_that(rdr.present, is_equal_to(0));
 }
 
 Ensure(one_device_separate_families)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct device_config cfg;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
 	expect(vkEnumeratePhysicalDevices,
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(vkGetPhysicalDeviceQueueFamilyProperties,
@@ -212,23 +218,25 @@ Ensure(one_device_separate_families)
 	       when(physicalDevice, is_equal_to(1)), will_return(VK_SUCCESS));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(physicalDevice, is_equal_to(1)), will_return(VK_SUCCESS));
-	int result = choose_config(instance, &cfg, surface);
+	int result = choose_config(&rdr, instance);
 	assert_that(result, is_equal_to(0));
-	assert_that(cfg.phy, is_equal_to(1));
-	assert_that(cfg.graph_family, is_equal_to(0));
-	assert_that(cfg.present_family, is_equal_to(1));
+	assert_that(rdr.phy, is_equal_to(1));
+	assert_that(rdr.graphic, is_equal_to(0));
+	assert_that(rdr.present, is_equal_to(1));
 }
 
 Ensure(no_devices)
 {
 	VkInstance instance = (VkInstance) 2;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct device_config cfg;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
 	expect(vkEnumeratePhysicalDevices,
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	never_expect(vkGetPhysicalDeviceQueueFamilyProperties);
 	never_expect(vkGetPhysicalDeviceSurfaceSupportKHR);
-	int result = choose_config(instance, &cfg, surface);
+	int result = choose_config(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
 }
 
@@ -236,7 +244,9 @@ Ensure(no_suitable_families)
 {
 	VkInstance instance = (VkInstance) 3;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct device_config cfg;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
 	expect(vkEnumeratePhysicalDevices,
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(vkGetPhysicalDeviceQueueFamilyProperties,
@@ -245,7 +255,7 @@ Ensure(no_suitable_families)
 	       when(physicalDevice, is_equal_to(2)), will_return(VK_SUCCESS));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(physicalDevice, is_equal_to(2)), will_return(VK_SUCCESS));
-	int result = choose_config(instance, &cfg, surface);
+	int result = choose_config(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
 }
 
