@@ -1,5 +1,6 @@
 noinst_LIBRARIES += librunloop.a
-librunloop_a_SOURCES = include/application/runloop.h
+librunloop_a_SOURCES = include/application/utils.h
+librunloop_a_SOURCES += include/application/runloop.h
 librunloop_a_SOURCES += include/GLFW/runloop.h
 librunloop_a_SOURCES += src/GLFW/runloop.c
 librunloop_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
