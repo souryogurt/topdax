@@ -10,14 +10,13 @@
 #include <string.h>
 #include "vkrenderer.h"
 
-int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
-		    VkSurfaceKHR surface)
+/**
+ * Create Vulkan device for renderer
+ * @param rdr Specifies renderer to create device for
+ * @returns VK_SUCCESS on success, or VkResult error otherwise
+ */
+static VkResult vkrenderer_create_device(struct vkrenderer *rdr)
 {
-	rdr->srf = surface;
-	if (vkrenderer_configure(rdr, instance)) {
-		return 1;
-	}
-
 	float queue_priorities = 1.0f;
 	VkDeviceQueueCreateInfo qinfos[2] = {
 		{
@@ -48,9 +47,18 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 		.ppEnabledExtensionNames = rdr->extensions,
 		.pEnabledFeatures = &rdr->features,
 	};
-	VkResult err = vkCreateDevice(rdr->phy, &dev_info, NULL, &rdr->device);
-	if (err != VK_SUCCESS) {
-		return 1;
+	return vkCreateDevice(rdr->phy, &dev_info, NULL, &rdr->device);
+}
+
+int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
+		    VkSurfaceKHR surface)
+{
+	rdr->srf = surface;
+	if (vkrenderer_configure(rdr, instance)) {
+		return -1;
+	}
+	if (vkrenderer_create_device(rdr) != VK_SUCCESS) {
+		return -1;
 	}
 	vkGetDeviceQueue(rdr->device, rdr->graphic, 0, &rdr->graphics_queue);
 	vkGetDeviceQueue(rdr->device, rdr->present, 0, &rdr->present_queue);

@@ -68,7 +68,7 @@ select_universal_families(const struct family_properties *props,
 			return 0;
 		}
 	}
-	return 1;
+	return -1;
 }
 
 /**
@@ -159,12 +159,12 @@ int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance)
 	VkPhysicalDevice phy[4];
 	uint32_t nphy = ARRAY_SIZE(phy);
 	if (vkEnumeratePhysicalDevices(instance, &nphy, phy) != VK_SUCCESS) {
-		return 1;
+		return -1;
 	}
 	for (size_t i = 0; i < nphy; i++) {
 		rdr->phy = phy[i];
 		if (!vkrenderer_configure_device(rdr))
 			return 0;
 	}
-	return 1;
+	return -1;
 }
