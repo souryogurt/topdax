@@ -179,7 +179,7 @@ Ensure(not_enough_memory_for_devices)
 	       when(instance, is_equal_to(instance)));
 	never_expect(vkGetPhysicalDeviceQueueFamilyProperties);
 	never_expect(vkGetPhysicalDeviceSurfaceSupportKHR);
-	int result = choose_config(&rdr, instance);
+	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
 }
 
@@ -196,7 +196,7 @@ Ensure(one_device_universal_family)
 	       when(physicalDevice, is_equal_to(0)));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(physicalDevice, is_equal_to(0)), will_return(VK_SUCCESS));
-	int result = choose_config(&rdr, instance);
+	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_equal_to(0));
 	assert_that(rdr.phy, is_equal_to(0));
 	assert_that(rdr.graphic, is_equal_to(0));
@@ -218,7 +218,7 @@ Ensure(one_device_separate_families)
 	       when(physicalDevice, is_equal_to(1)), will_return(VK_SUCCESS));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(physicalDevice, is_equal_to(1)), will_return(VK_SUCCESS));
-	int result = choose_config(&rdr, instance);
+	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_equal_to(0));
 	assert_that(rdr.phy, is_equal_to(1));
 	assert_that(rdr.graphic, is_equal_to(0));
@@ -236,7 +236,7 @@ Ensure(no_devices)
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	never_expect(vkGetPhysicalDeviceQueueFamilyProperties);
 	never_expect(vkGetPhysicalDeviceSurfaceSupportKHR);
-	int result = choose_config(&rdr, instance);
+	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
 }
 
@@ -255,7 +255,7 @@ Ensure(no_suitable_families)
 	       when(physicalDevice, is_equal_to(2)), will_return(VK_SUCCESS));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(physicalDevice, is_equal_to(2)), will_return(VK_SUCCESS));
-	int result = choose_config(&rdr, instance);
+	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
 }
 

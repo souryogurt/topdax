@@ -11,7 +11,7 @@
 #include <renderer/vkrenderer.h>
 #include "vkrenderer.h"
 
-int choose_config(struct vkrenderer *rdr, VkInstance instance)
+int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance)
 {
 	return (int)mock(rdr, instance);
 }
@@ -46,7 +46,7 @@ Ensure(vkrenderer_init_returns_zero_on_success)
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
 	struct vkrenderer vkr;
-	expect(choose_config, will_return(0));
+	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
@@ -59,7 +59,7 @@ Ensure(vkrenderer_init_returns_non_zero_when_no_configs)
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
 	struct vkrenderer vkr;
-	expect(choose_config, will_return(1));
+	expect(vkrenderer_configure, will_return(1));
 	never_expect(vkCreateDevice, will_return(VK_SUCCESS));
 	never_expect(vkGetDeviceQueue);
 	int error = vkrenderer_init(&vkr, instance, surface);
@@ -71,7 +71,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_device_fail)
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
 	struct vkrenderer vkr;
-	expect(choose_config, will_return(0));
+	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_ERROR_INITIALIZATION_FAILED));
 	never_expect(vkGetDeviceQueue);
 	int error = vkrenderer_init(&vkr, instance, surface);

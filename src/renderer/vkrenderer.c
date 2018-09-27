@@ -14,7 +14,7 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 		    VkSurfaceKHR surface)
 {
 	rdr->srf = surface;
-	if (choose_config(rdr, instance)) {
+	if (vkrenderer_configure(rdr, instance)) {
 		return 1;
 	}
 

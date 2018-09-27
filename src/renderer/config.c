@@ -27,7 +27,7 @@ struct family_properties {
  * @param props Specifies available family queues
  * @param graph Specifies pointer where store graphics family index
  * @param present Specifies pointer where store presentation family index
- * @returns non-zero if indices are found, and zero otherwise
+ * @returns zero if indices are found, and non-zero otherwise
  */
 static int
 select_families(const struct family_properties *props, uint32_t * graph,
@@ -47,7 +47,7 @@ select_families(const struct family_properties *props, uint32_t * graph,
 			break;
 		}
 	}
-	return (*graph < props->count) && (*present < props->count);
+	return (*graph >= props->count) || (*present >= props->count);
 }
 
 /**
@@ -55,7 +55,7 @@ select_families(const struct family_properties *props, uint32_t * graph,
  * @param props Specifies available family queues
  * @param graph Specifies pointer where store universal family index
  * @param present Specifies pointer where store universal family index
- * @returns non-zero if family is found, and zero otherwise
+ * @returns zero if family is found, and non-zero otherwise
  */
 static int
 select_universal_families(const struct family_properties *props,
@@ -65,10 +65,10 @@ select_universal_families(const struct family_properties *props,
 		if (props->present[i] && props->graphic[i]) {
 			*graph = i;
 			*present = i;
-			return 1;
+			return 0;
 		}
 	}
-	return 0;
+	return 1;
 }
 
 /**
@@ -92,9 +92,9 @@ set_family_properties(VkPhysicalDevice phy, VkSurfaceKHR srf,
 /**
  * Choose graphics and presentation families
  * @param rdr Specifies renderer to choose families for
- * @returns non-zero if indices are found, and zero otherwise
+ * @returns zero if indices are found, and non-zero otherwise
  */
-static int choose_families(struct vkrenderer *rdr)
+static int vkrenderer_configure_families(struct vkrenderer *rdr)
 {
 	VkQueueFamilyProperties families[32];
 	VkBool32 is_present[ARRAY_SIZE(families)];
@@ -110,17 +110,52 @@ static int choose_families(struct vkrenderer *rdr)
 	for (uint32_t i = 0; i < props.count; i++) {
 		set_family_properties(rdr->phy, rdr->srf, &props, i);
 	}
-	if (select_universal_families(&props, &rdr->graphic, &rdr->present)) {
-		return 1;
+	if (!select_universal_families(&props, &rdr->graphic, &rdr->present)) {
+		return 0;
 	}
 	return select_families(&props, &rdr->graphic, &rdr->present);
 }
 
-int choose_config(struct vkrenderer *rdr, VkInstance instance)
+/**
+ * Configure device features
+ * @param rdr Specifies renderer to configure
+ */
+static void vkrenderer_configure_features(struct vkrenderer *rdr)
+{
+	/* We are not enabling any features, so no need to check for them */
+	memset(&rdr->features, 0, sizeof(VkPhysicalDeviceFeatures));
+}
+
+/**
+ * Configure device extensions
+ * @param rdr Specifies renderer to configure
+ */
+static void vkrenderer_configure_extensions(struct vkrenderer *rdr)
 {
 	static const char *const req_dev_extensions[] = {
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
+	/* TODO: check that required extension is really supported */
+	rdr->extensions = req_dev_extensions;
+	rdr->nextensions = ARRAY_SIZE(req_dev_extensions);
+}
+
+/**
+ * Configure renderer on specific physical device
+ * @param rdr Specifies renderer to configure
+ * @returns zero on success, or non-zero otherwise
+ */
+static int vkrenderer_configure_device(struct vkrenderer *rdr)
+{
+	vkrenderer_configure_features(rdr);
+	vkrenderer_configure_extensions(rdr);
+	if (vkrenderer_configure_families(rdr))
+		return -1;
+	return 0;
+}
+
+int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance)
+{
 	VkPhysicalDevice phy[4];
 	uint32_t nphy = ARRAY_SIZE(phy);
 	if (vkEnumeratePhysicalDevices(instance, &nphy, phy) != VK_SUCCESS) {
@@ -128,12 +163,8 @@ int choose_config(struct vkrenderer *rdr, VkInstance instance)
 	}
 	for (size_t i = 0; i < nphy; i++) {
 		rdr->phy = phy[i];
-		memset(&rdr->features, 0, sizeof(VkPhysicalDeviceFeatures));
-		rdr->extensions = req_dev_extensions;
-		rdr->nextensions = ARRAY_SIZE(req_dev_extensions);
-		if (choose_families(rdr)) {
+		if (!vkrenderer_configure_device(rdr))
 			return 0;
-		}
 	}
 	return 1;
 }
