@@ -18,7 +18,7 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 		return 1;
 	}
 
-	float queue_priorities[2] = { 1.0f, 1.0f };
+	float queue_priorities = 1.0f;
 	VkDeviceQueueCreateInfo qinfos[2] = {
 		{
 		 .queueFamilyIndex = rdr->graphic,
@@ -33,9 +33,8 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 		info->sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		info->pNext = NULL;
 		info->flags = 0;
-		info->queueFamilyIndex = rdr->graphic;
 		info->queueCount = 1;
-		info->pQueuePriorities = queue_priorities;
+		info->pQueuePriorities = &queue_priorities;
 	}
 	VkDeviceCreateInfo dev_info = {
 		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
