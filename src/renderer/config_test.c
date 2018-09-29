@@ -167,6 +167,34 @@ vkGetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice physicalDevice,
 	return result;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL
+vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysicalDevice physicalDevice,
+					  VkSurfaceKHR surface,
+					  VkSurfaceCapabilitiesKHR * caps)
+{
+	return (VkResult) mock(physicalDevice, surface, caps);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+vkGetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice physicalDevice,
+				     VkSurfaceKHR surface,
+				     uint32_t * pSurfaceFormatCount,
+				     VkSurfaceFormatKHR * pSurfaceFormats)
+{
+	return (VkResult) mock(physicalDevice, surface, pSurfaceFormatCount,
+			       pSurfaceFormats);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+vkGetPhysicalDeviceSurfacePresentModesKHR(VkPhysicalDevice physicalDevice,
+					  VkSurfaceKHR surface,
+					  uint32_t * pPresentModeCount,
+					  VkPresentModeKHR * pPresentModes)
+{
+	return (VkResult) mock(physicalDevice, surface, pPresentModeCount,
+			       pPresentModes);
+}
+
 Ensure(not_enough_memory_for_devices)
 {
 	VkInstance instance = (VkInstance) 0;
@@ -196,6 +224,11 @@ Ensure(one_device_universal_family)
 	       when(physicalDevice, is_equal_to(0)));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(physicalDevice, is_equal_to(0)), will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
+	       will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR, will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
+	       will_return(VK_SUCCESS));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_equal_to(0));
 	assert_that(rdr.phy, is_equal_to(0));
@@ -218,6 +251,11 @@ Ensure(one_device_separate_families)
 	       when(physicalDevice, is_equal_to(1)), will_return(VK_SUCCESS));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(physicalDevice, is_equal_to(1)), will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
+	       will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR, will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
+	       will_return(VK_SUCCESS));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_equal_to(0));
 	assert_that(rdr.phy, is_equal_to(1));
@@ -259,6 +297,117 @@ Ensure(no_suitable_families)
 	assert_that(result, is_not_equal_to(0));
 }
 
+Ensure(not_enough_memory_for_surface_capabilities)
+{
+	VkInstance instance = (VkInstance) 0;
+	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
+	expect(vkEnumeratePhysicalDevices,
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
+	expect(vkGetPhysicalDeviceQueueFamilyProperties,
+	       when(physicalDevice, is_equal_to(0)));
+	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
+	       when(physicalDevice, is_equal_to(0)), will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
+	       will_return(VK_INCOMPLETE));
+	int result = vkrenderer_configure(&rdr, instance);
+	assert_that(result, is_not_equal_to(0));
+}
+
+Ensure(not_enough_memory_for_surface_formats)
+{
+	VkInstance instance = (VkInstance) 0;
+	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
+	expect(vkEnumeratePhysicalDevices,
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
+	expect(vkGetPhysicalDeviceQueueFamilyProperties,
+	       when(physicalDevice, is_equal_to(0)));
+	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
+	       when(physicalDevice, is_equal_to(0)), will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
+	       will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
+	       will_return(VK_INCOMPLETE));
+	int result = vkrenderer_configure(&rdr, instance);
+	assert_that(result, is_not_equal_to(0));
+}
+
+Ensure(not_enough_memory_for_surface_modes)
+{
+	VkInstance instance = (VkInstance) 0;
+	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
+	expect(vkEnumeratePhysicalDevices,
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
+	expect(vkGetPhysicalDeviceQueueFamilyProperties,
+	       when(physicalDevice, is_equal_to(0)));
+	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
+	       when(physicalDevice, is_equal_to(0)), will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
+	       will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR, will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
+	       will_return(VK_INCOMPLETE));
+	int result = vkrenderer_configure(&rdr, instance);
+	assert_that(result, is_not_equal_to(0));
+}
+
+Ensure(no_surface_formats)
+{
+	VkInstance instance = (VkInstance) 0;
+	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
+	expect(vkEnumeratePhysicalDevices,
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
+	expect(vkGetPhysicalDeviceQueueFamilyProperties,
+	       when(physicalDevice, is_equal_to(0)));
+	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
+	       when(physicalDevice, is_equal_to(0)), will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
+	       will_return(VK_SUCCESS));
+	uint32_t nfmts = 0;
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
+	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
+					      sizeof(uint32_t)),
+	       will_return(VK_SUCCESS));
+	int result = vkrenderer_configure(&rdr, instance);
+	assert_that(result, is_not_equal_to(0));
+}
+
+Ensure(no_surface_modes)
+{
+	VkInstance instance = (VkInstance) 0;
+	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	struct vkrenderer rdr = {
+		.srf = surface,
+	};
+	expect(vkEnumeratePhysicalDevices,
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
+	expect(vkGetPhysicalDeviceQueueFamilyProperties,
+	       when(physicalDevice, is_equal_to(0)));
+	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
+	       when(physicalDevice, is_equal_to(0)), will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
+	       will_return(VK_SUCCESS));
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR, will_return(VK_SUCCESS));
+	uint32_t nmodes = 0;
+	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
+	       will_set_contents_of_parameter(pPresentModeCount, &nmodes,
+					      sizeof(uint32_t)),
+	       will_return(VK_SUCCESS));
+	int result = vkrenderer_configure(&rdr, instance);
+	assert_that(result, is_not_equal_to(0));
+}
+
 int main(int argc, char **argv)
 {
 	(void)(argc);
@@ -269,5 +418,10 @@ int main(int argc, char **argv)
 	add_test(vkr, one_device_separate_families);
 	add_test(vkr, no_devices);
 	add_test(vkr, no_suitable_families);
+	add_test(vkr, not_enough_memory_for_surface_capabilities);
+	add_test(vkr, not_enough_memory_for_surface_formats);
+	add_test(vkr, not_enough_memory_for_surface_modes);
+	add_test(vkr, no_surface_formats);
+	add_test(vkr, no_surface_modes);
 	return run_test_suite(vkr, create_text_reporter());
 }

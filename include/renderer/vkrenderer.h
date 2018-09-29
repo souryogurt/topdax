@@ -25,6 +25,14 @@ struct vkrenderer {
 	VkQueue graphics_queue;
 	/** Presenting Queue */
 	VkQueue present_queue;
+	/** Surface capabilities */
+	VkSurfaceCapabilitiesKHR srf_caps;
+	/** Surface format */
+	VkSurfaceFormatKHR srf_format;
+	/** Present Mode */
+	VkPresentModeKHR srf_mode;
+	/** Swapchain */
+	VkSwapchainKHR swapchain;
 };
 
 #ifdef __cplusplus
