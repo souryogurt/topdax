@@ -33,6 +33,10 @@ struct vkrenderer {
 	VkPresentModeKHR srf_mode;
 	/** Swapchain */
 	VkSwapchainKHR swapchain;
+	/** Rendered frames */
+	VkImage frames[16];
+	/** Number of frames in swapchain */
+	uint32_t nframes;
 };
 
 #ifdef __cplusplus

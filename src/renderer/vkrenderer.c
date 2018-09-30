@@ -100,6 +100,11 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_create_swapchain(rdr) != VK_SUCCESS) {
 		return -1;
 	}
+	rdr->nframes = ARRAY_SIZE(rdr->frames);
+	VkResult result = vkGetSwapchainImagesKHR(rdr->device, rdr->swapchain,
+						  &rdr->nframes, rdr->frames);
+	if (result != VK_SUCCESS)
+		return -1;
 	return 0;
 }
 
