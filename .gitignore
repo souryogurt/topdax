@@ -175,6 +175,8 @@ autom4te.cache/
 /liblogger.a
 /libtopdax_window.a
 /libvkconfig.a
+/libvkconfig_families.a
+/libvkconfig_swapchain.a
 /topdax
 /topdax_test
 /glfw_test
@@ -182,6 +184,8 @@ autom4te.cache/
 /logger_test
 /topdax_window_test
 /config_test
+/config_families_test
+/config_swapchain_test
 /tags
 /test-driver
 *.trs

@@ -17,6 +17,20 @@ extern "C" {
  */
 int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance);
 
+/**
+ * Choose graphics and presentation families
+ * @param rdr Specifies renderer to choose families for
+ * @returns zero if indices are found, and non-zero otherwise
+ */
+int vkrenderer_configure_families(struct vkrenderer *rdr);
+
+/**
+ * Choose swapchain parameters
+ * @param rdr Specifies renderer to choose swapchain parameters for
+ * @returns zero if parameters are found, and non-zero otherwise
+ */
+int vkrenderer_configure_swapchain(struct vkrenderer *rdr);
+
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }

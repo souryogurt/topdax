@@ -19,53 +19,17 @@ vkEnumeratePhysicalDevices(VkInstance instance, uint32_t * pPhysicalDeviceCount,
 			       pPhysicalDevices);
 }
 
-VKAPI_ATTR void VKAPI_CALL
-vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice physicalDevice,
-					 uint32_t * pQueueFamilyCount,
-					 VkQueueFamilyProperties * pQueueFamily)
+int vkrenderer_configure_families(struct vkrenderer *rdr)
 {
-	mock(physicalDevice, pQueueFamilyCount, pQueueFamily);
+	return (int)mock(rdr);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkGetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice physicalDevice,
-				     uint32_t queueFamilyIndex,
-				     VkSurfaceKHR surface,
-				     VkBool32 * pSupported)
+int vkrenderer_configure_swapchain(struct vkrenderer *rdr)
 {
-	return (VkResult) mock(physicalDevice, queueFamilyIndex, surface,
-			       pSupported);
+	return (int)mock(rdr);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysicalDevice physicalDevice,
-					  VkSurfaceKHR surface,
-					  VkSurfaceCapabilitiesKHR * caps)
-{
-	return (VkResult) mock(physicalDevice, surface, caps);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL
-vkGetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice physicalDevice,
-				     VkSurfaceKHR surface,
-				     uint32_t * pSurfaceFormatCount,
-				     VkSurfaceFormatKHR * pSurfaceFormats)
-{
-	return (VkResult) mock(physicalDevice, surface, pSurfaceFormatCount,
-			       pSurfaceFormats);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL
-vkGetPhysicalDeviceSurfacePresentModesKHR(VkPhysicalDevice physicalDevice,
-					  VkSurfaceKHR surface,
-					  uint32_t * pPresentModeCount,
-					  VkPresentModeKHR * pPresentModes)
-{
-	return (VkResult) mock(physicalDevice, surface, pPresentModeCount,
-			       pPresentModes);
-}
-
-Ensure(not_enough_memory_for_devices)
+Ensure(configure_fails_when_not_enough_memory_for_devices_list)
 {
 	VkInstance instance = VK_NULL_HANDLE;
 	struct vkrenderer rdr;
@@ -76,135 +40,7 @@ Ensure(not_enough_memory_for_devices)
 	assert_that(result, is_not_equal_to(0));
 }
 
-Ensure(one_device_universal_family)
-{
-	struct vkrenderer rdr;
-	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1];
-	uint32_t nphy = ARRAY_SIZE(phy);
-	VkQueueFamilyProperties fams[] = {
-		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
-	};
-	uint32_t nfams = ARRAY_SIZE(fams);
-	VkBool32 present[] = { VK_TRUE };
-	VkSurfaceCapabilitiesKHR caps = { 0 };
-	VkSurfaceFormatKHR fmts[1] = { 0 };
-	uint32_t nfmts = ARRAY_SIZE(fmts);
-	expect(vkEnumeratePhysicalDevices,
-	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(VkPhysicalDevice) * nphy),
-	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkGetPhysicalDeviceQueueFamilyProperties,
-	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
-	       will_set_contents_of_parameter(caps, &caps,
-					      sizeof(VkSurfaceCapabilitiesKHR)),
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
-	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
-					      sizeof(VkSurfaceFormatKHR) *
-					      nfmts), when(physicalDevice,
-							   is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_equal_to(0));
-	assert_that(rdr.phy, is_equal_to(phy[0]));
-	assert_that(rdr.graphic, is_equal_to(0));
-	assert_that(rdr.present, is_equal_to(0));
-}
-
-Ensure(one_device_separate_families)
-{
-	struct vkrenderer rdr;
-	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1];
-	uint32_t nphy = ARRAY_SIZE(phy);
-	VkQueueFamilyProperties fams[] = {
-		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
-		{
-		 .queueFlags = 0,
-		 .queueCount = 1,
-		 },
-	};
-	uint32_t nfams = ARRAY_SIZE(fams);
-	VkSurfaceCapabilitiesKHR caps = { 0 };
-	VkBool32 present[] = { VK_FALSE, VK_TRUE };
-	VkSurfaceFormatKHR fmts[1] = { 0 };
-	uint32_t nfmts = ARRAY_SIZE(fmts);
-	expect(vkEnumeratePhysicalDevices,
-	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(VkPhysicalDevice) * nphy),
-	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkGetPhysicalDeviceQueueFamilyProperties,
-	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])), when(queueFamilyIndex,
-							       is_equal_to(1)),
-	       will_set_contents_of_parameter(pSupported, &present[1],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
-	       will_set_contents_of_parameter(caps, &caps,
-					      sizeof(VkSurfaceCapabilitiesKHR)),
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
-	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
-					      sizeof(VkSurfaceFormatKHR) *
-					      nfmts), when(physicalDevice,
-							   is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_equal_to(0));
-	assert_that(rdr.phy, is_equal_to(phy[0]));
-	assert_that(rdr.graphic, is_equal_to(0));
-	assert_that(rdr.present, is_equal_to(1));
-}
-
-Ensure(no_devices)
+Ensure(configure_fails_when_no_devices_available)
 {
 	struct vkrenderer rdr;
 	VkInstance instance = VK_NULL_HANDLE;
@@ -217,298 +53,57 @@ Ensure(no_devices)
 	assert_that(result, is_not_equal_to(0));
 }
 
-Ensure(no_suitable_families)
+Ensure(configure_selects_suitable_device)
 {
 	struct vkrenderer rdr;
 	VkInstance instance = VK_NULL_HANDLE;
 	VkPhysicalDevice phy[1];
 	uint32_t nphy = ARRAY_SIZE(phy);
-	VkQueueFamilyProperties fams[] = {
-		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
-		{
-		 .queueFlags = VK_QUEUE_COMPUTE_BIT,
-		 .queueCount = 1,
-		 },
-	};
-	uint32_t nfams = ARRAY_SIZE(fams);
-	VkBool32 present[] = { VK_FALSE, VK_FALSE };
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDevices, phy,
 					      sizeof(VkPhysicalDevice) * nphy),
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
 					      sizeof(uint32_t)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkGetPhysicalDeviceQueueFamilyProperties,
-	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
+	expect(vkrenderer_configure_families, will_return(0));
+	expect(vkrenderer_configure_swapchain, will_return(0));
+	int result = vkrenderer_configure(&rdr, instance);
+	assert_that(result, is_equal_to(0));
+	assert_that(rdr.phy, is_equal_to(phy[0]));
+}
+
+Ensure(configure_fails_when_no_suitable_families_available)
+{
+	struct vkrenderer rdr;
+	VkInstance instance = VK_NULL_HANDLE;
+	VkPhysicalDevice phy[1];
+	uint32_t nphy = ARRAY_SIZE(phy);
+	expect(vkEnumeratePhysicalDevices,
+	       will_set_contents_of_parameter(pPhysicalDevices, phy,
+					      sizeof(VkPhysicalDevice) * nphy),
+	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
 					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])), when(queueFamilyIndex,
-							       is_equal_to(1)),
-	       will_set_contents_of_parameter(pSupported, &present[1],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
+	expect(vkrenderer_configure_families, will_return(-1));
+	never_expect(vkrenderer_configure_swapchain, will_return(0));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
 }
 
-Ensure(not_enough_memory_for_surface_capabilities)
+Ensure(configure_fails_when_no_suitable_swapchain_available)
 {
 	struct vkrenderer rdr;
 	VkInstance instance = VK_NULL_HANDLE;
 	VkPhysicalDevice phy[1];
 	uint32_t nphy = ARRAY_SIZE(phy);
-	VkQueueFamilyProperties fams[] = {
-		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
-	};
-	uint32_t nfams = ARRAY_SIZE(fams);
-	VkBool32 present[] = { VK_TRUE };
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDevices, phy,
 					      sizeof(VkPhysicalDevice) * nphy),
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
 					      sizeof(uint32_t)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkGetPhysicalDeviceQueueFamilyProperties,
-	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
-
-	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
-	       will_return(VK_INCOMPLETE));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_not_equal_to(0));
-}
-
-Ensure(not_enough_memory_for_surface_formats)
-{
-	struct vkrenderer rdr;
-	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1];
-	uint32_t nphy = ARRAY_SIZE(phy);
-	VkQueueFamilyProperties fams[] = {
-		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
-	};
-	uint32_t nfams = ARRAY_SIZE(fams);
-	VkBool32 present[] = { VK_TRUE };
-	VkSurfaceCapabilitiesKHR caps = { 0 };
-	expect(vkEnumeratePhysicalDevices,
-	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(VkPhysicalDevice) * nphy),
-	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkGetPhysicalDeviceQueueFamilyProperties,
-	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
-	       will_set_contents_of_parameter(caps, &caps,
-					      sizeof(VkSurfaceCapabilitiesKHR)),
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-
-	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
-	       will_return(VK_INCOMPLETE));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_not_equal_to(0));
-}
-
-Ensure(not_enough_memory_for_surface_modes)
-{
-	struct vkrenderer rdr;
-	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1];
-	uint32_t nphy = ARRAY_SIZE(phy);
-	VkQueueFamilyProperties fams[] = {
-		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
-	};
-	uint32_t nfams = ARRAY_SIZE(fams);
-	VkBool32 present[] = { VK_TRUE };
-	VkSurfaceCapabilitiesKHR caps = { 0 };
-	VkSurfaceFormatKHR fmts[1] = { 0 };
-	uint32_t nfmts = ARRAY_SIZE(fmts);
-	expect(vkEnumeratePhysicalDevices,
-	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(VkPhysicalDevice) * nphy),
-	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkGetPhysicalDeviceQueueFamilyProperties,
-	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
-	       will_set_contents_of_parameter(caps, &caps,
-					      sizeof(VkSurfaceCapabilitiesKHR)),
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
-	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
-					      sizeof(VkSurfaceFormatKHR) *
-					      nfmts), when(physicalDevice,
-							   is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-
-	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
-	       will_return(VK_INCOMPLETE));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_not_equal_to(0));
-}
-
-Ensure(no_surface_formats)
-{
-	struct vkrenderer rdr;
-	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1];
-	uint32_t nphy = ARRAY_SIZE(phy);
-	VkQueueFamilyProperties fams[] = {
-		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
-	};
-	uint32_t nfams = ARRAY_SIZE(fams);
-	VkBool32 present[] = { VK_TRUE };
-	VkSurfaceCapabilitiesKHR caps = { 0 };
-	VkSurfaceFormatKHR fmts[0];
-	uint32_t nfmts = ARRAY_SIZE(fmts);
-	expect(vkEnumeratePhysicalDevices,
-	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(VkPhysicalDevice) * nphy),
-	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkGetPhysicalDeviceQueueFamilyProperties,
-	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
-	       will_set_contents_of_parameter(caps, &caps,
-					      sizeof(VkSurfaceCapabilitiesKHR)),
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
-	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
-					      sizeof(VkSurfaceFormatKHR) *
-					      nfmts), will_return(VK_SUCCESS));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_not_equal_to(0));
-}
-
-Ensure(no_surface_modes)
-{
-	struct vkrenderer rdr;
-	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1];
-	uint32_t nphy = ARRAY_SIZE(phy);
-	VkQueueFamilyProperties fams[] = {
-		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
-	};
-	uint32_t nfams = ARRAY_SIZE(fams);
-	VkBool32 present[] = { VK_TRUE };
-	VkSurfaceCapabilitiesKHR caps = { 0 };
-	VkSurfaceFormatKHR fmts[1];
-	uint32_t nfmts = ARRAY_SIZE(fmts);
-	expect(vkEnumeratePhysicalDevices,
-	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(VkPhysicalDevice) * nphy),
-	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkGetPhysicalDeviceQueueFamilyProperties,
-	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
-	       will_set_contents_of_parameter(caps, &caps,
-					      sizeof(VkSurfaceCapabilitiesKHR)),
-	       when(physicalDevice, is_equal_to(phy[0])),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
-	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
-					      sizeof(VkSurfaceFormatKHR) *
-					      nfmts), will_return(VK_SUCCESS));
-	uint32_t nmodes = 0;
-	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
-	       will_set_contents_of_parameter(pPresentModeCount, &nmodes,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS));
+	expect(vkrenderer_configure_families, will_return(0));
+	expect(vkrenderer_configure_swapchain, will_return(-1));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
 }
@@ -517,16 +112,11 @@ int main(int argc, char **argv)
 {
 	(void)(argc);
 	(void)(argv);
-	TestSuite *vkr = create_named_test_suite("VKRenderer Configuration");
-	add_test(vkr, not_enough_memory_for_devices);
-	add_test(vkr, one_device_universal_family);
-	add_test(vkr, one_device_separate_families);
-	add_test(vkr, no_devices);
-	add_test(vkr, no_suitable_families);
-	add_test(vkr, not_enough_memory_for_surface_capabilities);
-	add_test(vkr, not_enough_memory_for_surface_formats);
-	add_test(vkr, not_enough_memory_for_surface_modes);
-	add_test(vkr, no_surface_formats);
-	add_test(vkr, no_surface_modes);
+	TestSuite *vkr = create_named_test_suite("Device configuration");
+	add_test(vkr, configure_fails_when_not_enough_memory_for_devices_list);
+	add_test(vkr, configure_fails_when_no_devices_available);
+	add_test(vkr, configure_selects_suitable_device);
+	add_test(vkr, configure_fails_when_no_suitable_families_available);
+	add_test(vkr, configure_fails_when_no_suitable_swapchain_available);
 	return run_test_suite(vkr, create_text_reporter());
 }
