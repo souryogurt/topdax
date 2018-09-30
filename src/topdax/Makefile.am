@@ -1,40 +1,43 @@
-bin_PROGRAMS += topdax
-topdax_SOURCES = src/GLFW/entry.c
-topdax_CFLAGS = $(CODE_COVERAGE_CFLAGS)
-topdax_LDADD = librunloop.a libtopdax.a libtopdax_window.a liblogger.a libvkrenderer.a libvkconfig.a libvkconfig_families.a libvkconfig_swapchain.a $(CODE_COVERAGE_LIBS)
+bin_PROGRAMS += bin/topdax
+bin_topdax_SOURCES = src/GLFW/entry.c
+bin_topdax_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+bin_topdax_LDADD = lib/librunloop.a lib/libtopdax.a lib/libtopdax_window.a\
+		   lib/liblogger.a lib/libvkrenderer.a lib/libvkconfig.a\
+		   lib/libvkconfig_families.a lib/libvkconfig_swapchain.a\
+		   $(CODE_COVERAGE_LIBS)
 
-noinst_LIBRARIES += libtopdax.a
-libtopdax_a_SOURCES = src/topdax/topdax.c
-libtopdax_a_SOURCES += src/topdax/topdax.h
-libtopdax_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+noinst_LIBRARIES += lib/libtopdax.a
+lib_libtopdax_a_SOURCES = src/topdax/topdax.c
+lib_libtopdax_a_SOURCES += src/topdax/topdax.h
+lib_libtopdax_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
-noinst_LIBRARIES += libtopdax_window.a
-libtopdax_window_a_SOURCES = src/topdax/window.c
-libtopdax_window_a_SOURCES += src/topdax/window.h
-libtopdax_window_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+noinst_LIBRARIES += lib/libtopdax_window.a
+lib_libtopdax_window_a_SOURCES = src/topdax/window.c
+lib_libtopdax_window_a_SOURCES += src/topdax/window.h
+lib_libtopdax_window_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
-noinst_LIBRARIES += liblogger.a
-liblogger_a_SOURCES = src/topdax/logger.c
-liblogger_a_SOURCES += src/topdax/logger.h
-liblogger_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+noinst_LIBRARIES += lib/liblogger.a
+lib_liblogger_a_SOURCES = src/topdax/logger.c
+lib_liblogger_a_SOURCES += src/topdax/logger.h
+lib_liblogger_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 if HAVE_CGREEN
-TESTS += topdax_test
-check_PROGRAMS += topdax_test
-topdax_test_SOURCES = src/topdax/topdax_test.c
-topdax_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
-topdax_test_LDADD = libtopdax.a -lcgreen $(CODE_COVERAGE_LIBS)
+TESTS += bin/topdax_test
+check_PROGRAMS += bin/topdax_test
+bin_topdax_test_SOURCES = src/topdax/topdax_test.c
+bin_topdax_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+bin_topdax_test_LDADD = lib/libtopdax.a -lcgreen $(CODE_COVERAGE_LIBS)
 
-TESTS += topdax_window_test
-check_PROGRAMS += topdax_window_test
-topdax_window_test_SOURCES = src/topdax/window_test.c
-topdax_window_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
-topdax_window_test_LDADD = libtopdax_window.a -lcgreen $(CODE_COVERAGE_LIBS)
+TESTS += bin/topdax_window_test
+check_PROGRAMS += bin/topdax_window_test
+bin_topdax_window_test_SOURCES = src/topdax/window_test.c
+bin_topdax_window_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+bin_topdax_window_test_LDADD = lib/libtopdax_window.a -lcgreen $(CODE_COVERAGE_LIBS)
 
-TESTS += logger_test
-check_PROGRAMS += logger_test
-logger_test_SOURCES = src/topdax/logger_test.c
-logger_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
-logger_test_LDADD = liblogger.a -lcgreen $(CODE_COVERAGE_LIBS)
-logger_test_LDFLAGS = -Wl,--wrap=fprintf
+TESTS += bin/logger_test
+check_PROGRAMS += bin/logger_test
+bin_logger_test_SOURCES = src/topdax/logger_test.c
+bin_logger_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+bin_logger_test_LDADD = lib/liblogger.a -lcgreen $(CODE_COVERAGE_LIBS)
+bin_logger_test_LDFLAGS = -Wl,--wrap=fprintf
 endif

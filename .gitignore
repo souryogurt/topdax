@@ -167,25 +167,8 @@ autom4te.cache/
 /config.h.in
 /configure
 /stamp-h1
-/libtopdax.a
-/librunloop.a
-/libwindow.a
-/libapplication.a
-/libvkrenderer.a
-/liblogger.a
-/libtopdax_window.a
-/libvkconfig.a
-/libvkconfig_families.a
-/libvkconfig_swapchain.a
-/topdax
-/topdax_test
-/glfw_test
-/vkrenderer_test
-/logger_test
-/topdax_window_test
-/config_test
-/config_families_test
-/config_swapchain_test
+/lib/*
+/bin/*
 /tags
 /test-driver
 *.trs
@@ -193,3 +176,6 @@ autom4te.cache/
 *.gcda
 *-coverage*
 /build-aux
+/compile_commands.json
+# virtualenv
+.venv/
