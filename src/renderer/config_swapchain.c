@@ -75,25 +75,24 @@ int vkrenderer_configure_surface_format(struct vkrenderer *rdr)
 static int select_surface_present_mode(const VkPresentModeKHR * modes,
 				       uint32_t nmodes, VkPresentModeKHR * mode)
 {
-	if (nmodes == 0)
-		return -1;
-	memcpy(mode, &modes[0], sizeof(VkPresentModeKHR));
+	for (uint32_t i = 0; i < nmodes; i++) {
+		if (modes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
+			*mode = modes[i];
+			return 0;
+		}
+	}
+	*mode = VK_PRESENT_MODE_FIFO_KHR;
 	return 0;
 }
 
-/**
- * Choose surface presentation parameters
- * @param rdr Specifies renderer to choose surface presentation parameters for
- * @returns zero if parameters are found, and non-zero otherwise
- */
-static int vkrenderer_configure_surface_present_mode(struct vkrenderer *rdr)
+int vkrenderer_configure_surface_present_mode(struct vkrenderer *rdr)
 {
 	VkPresentModeKHR modes[32];
 	uint32_t nmodes = ARRAY_SIZE(modes);
 	VkResult result;
 	result = vkGetPhysicalDeviceSurfacePresentModesKHR(rdr->phy, rdr->srf,
 							   &nmodes, modes);
-	if (result != VK_SUCCESS)
+	if (result != VK_SUCCESS || nmodes == 0)
 		return -1;
 	return select_surface_present_mode(modes, nmodes, &rdr->srf_mode);
 }

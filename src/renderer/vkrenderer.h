@@ -38,6 +38,13 @@ int vkrenderer_configure_swapchain(struct vkrenderer *rdr);
  */
 int vkrenderer_configure_surface_format(struct vkrenderer *rdr);
 
+/**
+ * Choose surface presentation parameters
+ * @param rdr Specifies renderer to choose surface presentation parameters for
+ * @returns zero if parameters are found, and non-zero otherwise
+ */
+int vkrenderer_configure_surface_present_mode(struct vkrenderer *rdr);
+
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }
