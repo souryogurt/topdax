@@ -51,32 +51,111 @@ Ensure(configure_fails_when_no_memory_for_surface_capabilities)
 Ensure(configure_fails_when_no_memory_for_surface_formats)
 {
 	struct vkrenderer rdr;
-	VkSurfaceCapabilitiesKHR caps = {
-		.minImageCount = 1,
-		.maxImageCount = 1,
-		.currentExtent = {
-				  .width = 640,
-				  .height = 480},
-		.minImageExtent = {
-				   .width = 640,
-				   .height = 480},
-		.maxImageExtent = {
-				   .width = 640,
-				   .height = 480},
-		.maxImageArrayLayers = 1,
-		.supportedTransforms = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-		.currentTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-		.supportedCompositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-		.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
-	};
-	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
-	       will_set_contents_of_parameter(caps, &caps,
-					      sizeof(VkSurfaceCapabilitiesKHR)),
-	       will_return(VK_SUCCESS));
 	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
 	       will_return(VK_INCOMPLETE));
-	int result = vkrenderer_configure_swapchain(&rdr);
+	int result = vkrenderer_configure_surface_format(&rdr);
 	assert_that(result, is_not_equal_to(0));
+}
+
+Ensure(configure_fails_when_no_surface_formats_available)
+{
+	struct vkrenderer rdr;
+	VkSurfaceFormatKHR fmts[0];
+	uint32_t nfmts = ARRAY_SIZE(fmts);
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
+	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
+					      sizeof(uint32_t)),
+	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
+					      sizeof(VkSurfaceFormatKHR) *
+					      nfmts));
+	int result = vkrenderer_configure_surface_format(&rdr);
+	assert_that(result, is_not_equal_to(0));
+}
+
+Ensure(configure_selects_bgra_unorm_srgb_format_when_possible)
+{
+	struct vkrenderer rdr;
+	VkSurfaceFormatKHR fmts[] = {
+		{
+		 .format = VK_FORMAT_UNDEFINED,
+		 .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+		 },
+	};
+	uint32_t nfmts = ARRAY_SIZE(fmts);
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
+	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
+					      sizeof(uint32_t)),
+	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
+					      sizeof(VkSurfaceFormatKHR) *
+					      nfmts));
+	int result = vkrenderer_configure_surface_format(&rdr);
+	assert_that(result, is_equal_to(0));
+	assert_that(rdr.srf_format.format,
+		    is_equal_to(VK_FORMAT_B8G8R8A8_UNORM));
+	assert_that(rdr.srf_format.colorSpace,
+		    is_equal_to(VK_COLOR_SPACE_SRGB_NONLINEAR_KHR));
+}
+
+Ensure(configure_finds_bgra_unorm_srgb_format_in_available)
+{
+	struct vkrenderer rdr;
+	VkSurfaceFormatKHR fmts[] = {
+		{
+		 .format = VK_FORMAT_B5G5R5A1_UNORM_PACK16,
+		 .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+		 },
+		{
+		 .format = VK_FORMAT_B4G4R4A4_UNORM_PACK16,
+		 .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+		 },
+		{
+		 .format = VK_FORMAT_B8G8R8A8_UNORM,
+		 .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+		 },
+	};
+	uint32_t nfmts = ARRAY_SIZE(fmts);
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
+	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
+					      sizeof(uint32_t)),
+	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
+					      sizeof(VkSurfaceFormatKHR) *
+					      nfmts));
+	int result = vkrenderer_configure_surface_format(&rdr);
+	assert_that(result, is_equal_to(0));
+	assert_that(rdr.srf_format.format,
+		    is_equal_to(VK_FORMAT_B8G8R8A8_UNORM));
+	assert_that(rdr.srf_format.colorSpace,
+		    is_equal_to(VK_COLOR_SPACE_SRGB_NONLINEAR_KHR));
+}
+
+Ensure(configure_selects_first_when_no_bgra_unorm_srgb_format)
+{
+	struct vkrenderer rdr;
+	VkSurfaceFormatKHR fmts[] = {
+		{
+		 .format = VK_FORMAT_B5G5R5A1_UNORM_PACK16,
+		 .colorSpace = VK_COLOR_SPACE_DCI_P3_LINEAR_EXT,
+		 },
+		{
+		 .format = VK_FORMAT_B4G4R4A4_UNORM_PACK16,
+		 .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+		 },
+		{
+		 .format = VK_FORMAT_R8_SRGB,
+		 .colorSpace = VK_COLOR_SPACE_DCI_P3_LINEAR_EXT,
+		 },
+	};
+	uint32_t nfmts = ARRAY_SIZE(fmts);
+	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
+	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
+					      sizeof(uint32_t)),
+	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
+					      sizeof(VkSurfaceFormatKHR) *
+					      nfmts));
+	int result = vkrenderer_configure_surface_format(&rdr);
+	assert_that(result, is_equal_to(0));
+	assert_that(rdr.srf_format.format, is_equal_to(fmts[0].format));
+	assert_that(rdr.srf_format.colorSpace, is_equal_to(fmts[0].colorSpace));
 }
 
 Ensure(configure_fails_when_no_memory_for_surface_modes)
@@ -120,43 +199,6 @@ Ensure(configure_fails_when_no_memory_for_surface_modes)
 
 	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
 	       will_return(VK_INCOMPLETE));
-	int result = vkrenderer_configure_swapchain(&rdr);
-	assert_that(result, is_not_equal_to(0));
-}
-
-Ensure(configure_fails_when_no_surface_formats_available)
-{
-	struct vkrenderer rdr;
-	VkSurfaceCapabilitiesKHR caps = {
-		.minImageCount = 1,
-		.maxImageCount = 1,
-		.currentExtent = {
-				  .width = 640,
-				  .height = 480},
-		.minImageExtent = {
-				   .width = 640,
-				   .height = 480},
-		.maxImageExtent = {
-				   .width = 640,
-				   .height = 480},
-		.maxImageArrayLayers = 1,
-		.supportedTransforms = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-		.currentTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-		.supportedCompositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-		.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
-	};
-	VkSurfaceFormatKHR fmts[0];
-	uint32_t nfmts = ARRAY_SIZE(fmts);
-	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
-	       will_set_contents_of_parameter(caps, &caps,
-					      sizeof(VkSurfaceCapabilitiesKHR)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
-	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
-					      sizeof(VkSurfaceFormatKHR) *
-					      nfmts));
 	int result = vkrenderer_configure_swapchain(&rdr);
 	assert_that(result, is_not_equal_to(0));
 }
@@ -256,6 +298,10 @@ Ensure(configure_selects_suitable_swapchain)
 					      nmodes), will_return(VK_SUCCESS));
 	int result = vkrenderer_configure_swapchain(&rdr);
 	assert_that(result, is_equal_to(0));
+	assert_that(rdr.srf_format.format,
+		    is_equal_to(VK_FORMAT_B8G8R8A8_UNORM));
+	assert_that(rdr.srf_format.colorSpace,
+		    is_equal_to(VK_COLOR_SPACE_SRGB_NONLINEAR_KHR));
 }
 
 int main(int argc, char **argv)
@@ -266,6 +312,9 @@ int main(int argc, char **argv)
 	add_test(vkr, configure_selects_suitable_swapchain);
 	add_test(vkr, configure_fails_when_no_memory_for_surface_capabilities);
 	add_test(vkr, configure_fails_when_no_memory_for_surface_formats);
+	add_test(vkr, configure_selects_bgra_unorm_srgb_format_when_possible);
+	add_test(vkr, configure_selects_first_when_no_bgra_unorm_srgb_format);
+	add_test(vkr, configure_finds_bgra_unorm_srgb_format_in_available);
 	add_test(vkr, configure_fails_when_no_memory_for_surface_modes);
 	add_test(vkr, configure_fails_when_no_surface_formats_available);
 	add_test(vkr, configure_fails_when_no_surface_modes_available);

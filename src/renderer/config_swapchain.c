@@ -10,6 +10,26 @@
 #include <string.h>
 #include "vkrenderer.h"
 
+/** Find BGRA_UNORM format for surface
+ * @param fmts Specifies array of available surface formats on device
+ * @param nfmts Specifies number of elements in @a fmts array
+ * @param fmt Specifies pointer to memory where selected format must be stored
+ * @returns zero if format is found, and non-zero otherwise
+ */
+static int select_simple_surface_format(const VkSurfaceFormatKHR * fmts,
+					uint32_t nfmts,
+					VkSurfaceFormatKHR * fmt)
+{
+	for (uint32_t i = 0; i < nfmts; i++) {
+		if (fmts[i].format == VK_FORMAT_B8G8R8A8_UNORM &&
+		    fmts[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+			memcpy(fmt, &fmts[i], sizeof(VkSurfaceFormatKHR));
+			return 0;
+		}
+	}
+	return -1;
+}
+
 /**
  * Select suitable surface format from available
  * @param fmts Specifies array of available surface formats on device
@@ -20,18 +40,18 @@
 static int select_surface_format(const VkSurfaceFormatKHR * fmts,
 				 uint32_t nfmts, VkSurfaceFormatKHR * fmt)
 {
-	if (nfmts == 0)
-		return -1;
+	if (nfmts == 1 && fmts[0].format == VK_FORMAT_UNDEFINED) {
+		fmt->format = VK_FORMAT_B8G8R8A8_UNORM;
+		fmt->colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+		return 0;
+	}
+	if (!select_simple_surface_format(fmts, nfmts, fmt))
+		return 0;
 	memcpy(fmt, &fmts[0], sizeof(VkSurfaceFormatKHR));
 	return 0;
 }
 
-/**
- * Choose surface format
- * @param rdr Specifies renderer to choose surface format for
- * @returns zero if format is found, and non-zero otherwise
- */
-static int vkrenderer_configure_surface_format(struct vkrenderer *rdr)
+int vkrenderer_configure_surface_format(struct vkrenderer *rdr)
 {
 	VkSurfaceFormatKHR fmts[256];
 	uint32_t nfmts = ARRAY_SIZE(fmts);
@@ -39,7 +59,7 @@ static int vkrenderer_configure_surface_format(struct vkrenderer *rdr)
 	VkResult result;
 	result = vkGetPhysicalDeviceSurfaceFormatsKHR(rdr->phy, rdr->srf,
 						      &nfmts, fmts);
-	if (result != VK_SUCCESS)
+	if (result != VK_SUCCESS || nfmts == 0)
 		return -1;
 
 	return select_surface_format(fmts, nfmts, &rdr->srf_format);

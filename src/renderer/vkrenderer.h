@@ -31,6 +31,13 @@ int vkrenderer_configure_families(struct vkrenderer *rdr);
  */
 int vkrenderer_configure_swapchain(struct vkrenderer *rdr);
 
+/**
+ * Choose surface format
+ * @param rdr Specifies renderer to choose surface format for
+ * @returns zero if format is found, and non-zero otherwise
+ */
+int vkrenderer_configure_surface_format(struct vkrenderer *rdr);
+
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }
