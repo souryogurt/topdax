@@ -60,14 +60,10 @@ Ensure(configure_fails_when_no_memory_for_surface_formats)
 Ensure(configure_fails_when_no_surface_formats_available)
 {
 	struct vkrenderer rdr;
-	VkSurfaceFormatKHR fmts[0];
-	uint32_t nfmts = ARRAY_SIZE(fmts);
+	uint32_t nfmts = 0;
 	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
 	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
-					      sizeof(VkSurfaceFormatKHR) *
-					      nfmts));
+					      sizeof(uint32_t)), nfmts);
 	int result = vkrenderer_configure_surface_format(&rdr);
 	assert_that(result, is_not_equal_to(0));
 }
@@ -88,7 +84,8 @@ Ensure(configure_fails_when_no_suitable_present_modes)
 	struct vkrenderer rdr;
 	VkSurfaceFormatKHR fmts[] = {
 		{
-		 .format = VK_FORMAT_UNDEFINED}
+		 .format = VK_FORMAT_UNDEFINED,
+		 },
 	};
 	uint32_t nfmts = ARRAY_SIZE(fmts);
 	expect(vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
@@ -203,14 +200,11 @@ Ensure(configure_fails_when_no_memory_for_surface_modes)
 Ensure(configure_fails_when_no_surface_modes_available)
 {
 	struct vkrenderer rdr;
-	VkPresentModeKHR modes[0];
-	uint32_t nmodes = ARRAY_SIZE(modes);
+	uint32_t nmodes = 0;
 	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
 	       will_set_contents_of_parameter(pPresentModeCount, &nmodes,
 					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pPresentModes, modes,
-					      sizeof(VkPresentModeKHR) *
-					      nmodes), will_return(VK_SUCCESS));
+	       will_return(VK_SUCCESS));
 	int result = vkrenderer_configure_surface_present_mode(&rdr);
 	assert_that(result, is_not_equal_to(0));
 }
