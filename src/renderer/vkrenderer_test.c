@@ -66,6 +66,20 @@ vkGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
 			       pSwapchainImages);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL
+vkCreateImageView(VkDevice device, const VkImageViewCreateInfo * pCreateInfo,
+		  const VkAllocationCallbacks * pAllocator, VkImageView * pView)
+{
+	return (VkResult) mock(device, pCreateInfo, pAllocator, pView);
+}
+
+VKAPI_ATTR void VKAPI_CALL
+vkDestroyImageView(VkDevice device, VkImageView imageView,
+		   const VkAllocationCallbacks * pAllocator)
+{
+	mock(device, imageView, pAllocator);
+}
+
 Ensure(vkrenderer_init_returns_zero_on_success)
 {
 	VkInstance instance = (VkInstance) 1;
@@ -76,7 +90,12 @@ Ensure(vkrenderer_init_returns_zero_on_success)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
-	expect(vkGetSwapchainImagesKHR, will_return(VK_SUCCESS));
+	uint32_t nimgs = 1;
+	expect(vkGetSwapchainImagesKHR,
+	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
+					      sizeof(uint32_t)),
+	       will_return(VK_SUCCESS));
+	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_equal_to(0));
 }
@@ -137,9 +156,32 @@ Ensure(vkrenderer_init_returns_non_zero_on_getting_images_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
+Ensure(vkrenderer_init_returns_non_zero_on_getting_views_fail)
+{
+	VkInstance instance = (VkInstance) 1;
+	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	struct vkrenderer vkr;
+	expect(vkrenderer_configure, will_return(0));
+	expect(vkCreateDevice, will_return(VK_SUCCESS));
+	expect(vkGetDeviceQueue);
+	expect(vkGetDeviceQueue);
+	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
+	uint32_t nimgs = 1;
+	expect(vkGetSwapchainImagesKHR,
+	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
+					      sizeof(uint32_t)),
+	       will_return(VK_SUCCESS));
+	expect(vkCreateImageView, will_return(VK_ERROR_INITIALIZATION_FAILED));
+	int error = vkrenderer_init(&vkr, instance, surface);
+	assert_that(error, is_not_equal_to(0));
+}
+
 Ensure(vkrenderer_terminate_destroys_all_resources)
 {
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = {
+		.nframes = 1,
+	};
+	expect(vkDestroyImageView);
 	expect(vkDestroySwapchainKHR);
 	expect(vkDestroyDevice);
 	vkrenderer_terminate(&vkr);
@@ -155,6 +197,7 @@ int main(int argc, char **argv)
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_device_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_swapchain_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_getting_images_fail);
+	add_test(vkr, vkrenderer_init_returns_non_zero_on_getting_views_fail);
 	add_test(vkr, vkrenderer_terminate_destroys_all_resources);
 	return run_test_suite(vkr, create_text_reporter());
 }

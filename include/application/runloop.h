@@ -6,7 +6,7 @@ struct runloop;
 /** Runloop operations */
 struct runloop_ops {
 	/** Specifies pointer to function to quit from runloop */
-	void (*quit) (struct runloop *);
+	void (*quit)(struct runloop *);
 };
 
 /** Abstract runloop interface */

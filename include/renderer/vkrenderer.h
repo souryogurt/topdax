@@ -35,6 +35,8 @@ struct vkrenderer {
 	VkSwapchainKHR swapchain;
 	/** Rendered frames */
 	VkImage frames[16];
+	/** Frame views */
+	VkImageView frame_views[16];
 	/** Number of frames in swapchain */
 	uint32_t nframes;
 };
