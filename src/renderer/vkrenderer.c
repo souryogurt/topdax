@@ -86,52 +86,20 @@ static VkResult vkrenderer_create_swapchain(struct vkrenderer *rdr)
 }
 
 /**
- * Creates image view for specified image
- * @param rdr Specifies renderer to create image view for
- * @param index Specifies index of image of @frames member of renderer
- * @returns VK_SUCCESS on success, or VkResult error otherwise
- */
-static VkResult vkrenderer_init_frame_view(struct vkrenderer *rdr, size_t index)
-{
-	VkImageViewCreateInfo info = {
-		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.image = rdr->frames[index],
-		.viewType = VK_IMAGE_VIEW_TYPE_2D,
-		.format = rdr->srf_format.format,
-		.components = {
-			       .r = VK_COMPONENT_SWIZZLE_IDENTITY,
-			       .g = VK_COMPONENT_SWIZZLE_IDENTITY,
-			       .b = VK_COMPONENT_SWIZZLE_IDENTITY,
-			       .a = VK_COMPONENT_SWIZZLE_IDENTITY,
-			       },
-		.subresourceRange = {
-				     .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-				     .baseMipLevel = 0,
-				     .levelCount = 1,
-				     .baseArrayLayer = 0,
-				     .layerCount = 1,
-				     },
-	};
-	return vkCreateImageView(rdr->device, &info, NULL,
-				 &rdr->frame_views[index]);
-}
-
-/**
  * Initializes swapchain images
  * @param rdr Specifies renderer to initialize images for
  * @returns zero on success, or non-zero otherwise
  */
 static int vkrenderer_init_frames(struct vkrenderer *rdr)
 {
-	rdr->nframes = ARRAY_SIZE(rdr->frames);
+	VkImage images[ARRAY_SIZE(rdr->frames)];
+	rdr->nframes = ARRAY_SIZE(images);
 	VkResult result = vkGetSwapchainImagesKHR(rdr->device, rdr->swapchain,
-						  &rdr->nframes, rdr->frames);
+						  &rdr->nframes, images);
 	if (result != VK_SUCCESS)
 		return -1;
 	for (size_t i = 0; i < rdr->nframes; i++) {
-		if (vkrenderer_init_frame_view(rdr, i) != VK_SUCCESS) {
+		if (vkframe_init(&rdr->frames[i], rdr, images[i]) != VK_SUCCESS) {
 			return -1;
 		}
 	}
@@ -193,34 +161,6 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 }
 
 /**
- * Initialize framebuffer for each swapchain image
- * @param rdr Specifies renderer to initialize framebuffers for
- * @return VK_SUCCESS on success, or VkResult error otherwise
- */
-static VkResult vkrenderer_init_framebuffers(struct vkrenderer *rdr)
-{
-	for (uint32_t i = 0; i < rdr->nframes; i++) {
-		VkImageView attachments[] = { rdr->frame_views[i] };
-		VkFramebufferCreateInfo info = {
-			.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-			.pNext = NULL,
-			.flags = 0,
-			.renderPass = rdr->renderpass,
-			.attachmentCount = ARRAY_SIZE(attachments),
-			.pAttachments = attachments,
-			.width = rdr->srf_caps.currentExtent.width,
-			.height = rdr->srf_caps.currentExtent.height,
-			.layers = 1,
-		};
-		VkResult result = vkCreateFramebuffer(rdr->device, &info, NULL,
-						      &rdr->framebuffers[i]);
-		if (result != VK_SUCCESS)
-			return result;
-	}
-	return VK_SUCCESS;
-}
-
-/**
  * Initialize command pool for renderer
  * @param rdr Specifies renderer to initialize command pool for
  * @returns VK_SUCCESS on success, or VkResult error otherwise
@@ -251,13 +191,10 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_create_swapchain(rdr) != VK_SUCCESS) {
 		return -1;
 	}
-	if (vkrenderer_init_frames(rdr)) {
-		return -1;
-	}
 	if (vkrenderer_init_render_pass(rdr) != VK_SUCCESS) {
 		return -1;
 	}
-	if (vkrenderer_init_framebuffers(rdr) != VK_SUCCESS) {
+	if (vkrenderer_init_frames(rdr)) {
 		return -1;
 	}
 	return vkrenderer_init_command_pool(rdr) != VK_SUCCESS;
@@ -267,12 +204,9 @@ void vkrenderer_terminate(struct vkrenderer *rdr)
 {
 	vkDestroyCommandPool(rdr->device, rdr->cmd_pool, NULL);
 	for (size_t i = 0; i < rdr->nframes; i++) {
-		vkDestroyFramebuffer(rdr->device, rdr->framebuffers[i], NULL);
+		vkframe_destroy(&rdr->frames[i], rdr->device);
 	}
 	vkDestroyRenderPass(rdr->device, rdr->renderpass, NULL);
-	for (size_t i = 0; i < rdr->nframes; i++) {
-		vkDestroyImageView(rdr->device, rdr->frame_views[i], NULL);
-	}
 	vkDestroySwapchainKHR(rdr->device, rdr->swapchain, NULL);
 	vkDestroyDevice(rdr->device, NULL);
 }

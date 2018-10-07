@@ -3,6 +3,16 @@
 
 #include <vulkan/vulkan.h>
 
+/** Presentable frame in swapchain */
+struct vkframe {
+	/** Image in swapchain */
+	VkImage image;
+	/** View to image in swapchain */
+	VkImageView view;
+	/** Attached framebuffer*/
+	VkFramebuffer framebuffer;
+};
+
 /** Vulkan Renderer Instance */
 struct vkrenderer {
 	/** Target surface presenting rendered image */
@@ -33,18 +43,14 @@ struct vkrenderer {
 	VkPresentModeKHR srf_mode;
 	/** Swapchain */
 	VkSwapchainKHR swapchain;
-	/** Rendered frames */
-	VkImage frames[16];
-	/** Frame views */
-	VkImageView frame_views[16];
-	/** Framebuffers */
-	VkFramebuffer framebuffers[16];
-	/** Number of frames in swapchain */
-	uint32_t nframes;
 	/** Render pass */
 	VkRenderPass renderpass;
 	/** Command pool */
 	VkCommandPool cmd_pool;
+	/** Rendered frames */
+	struct vkframe frames[16];
+	/** Number of frames in swapchain */
+	uint32_t nframes;
 };
 
 #ifdef __cplusplus
@@ -69,6 +75,22 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
  */
 void vkrenderer_terminate(struct vkrenderer *rdr);
 
+/**
+ * Initializes swapchain frame
+ * @param frame Specifies frame to initialize
+ * @param rdr Specifies renderer this frame belongs to
+ * @param image Specifies swapchain image to init frame on
+ * @returns VK_SUCCESS on success, or VkResult error otherwise
+ */
+VkResult vkframe_init(struct vkframe *frame, struct vkrenderer *rdr,
+		      VkImage image);
+
+/**
+ * Destroys frame resources
+ * @param frame Specifies frame to destroy
+ * @param device Specifes device instance this frame belongs to
+ */
+void vkframe_destroy(struct vkframe *frame, VkDevice device);
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }

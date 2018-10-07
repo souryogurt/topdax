@@ -67,20 +67,6 @@ vkGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateImageView(VkDevice device, const VkImageViewCreateInfo * pCreateInfo,
-		  const VkAllocationCallbacks * pAllocator, VkImageView * pView)
-{
-	return (VkResult) mock(device, pCreateInfo, pAllocator, pView);
-}
-
-VKAPI_ATTR void VKAPI_CALL
-vkDestroyImageView(VkDevice device, VkImageView imageView,
-		   const VkAllocationCallbacks * pAllocator)
-{
-	mock(device, imageView, pAllocator);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL
 vkCreateRenderPass(VkDevice device, const VkRenderPassCreateInfo * pCreateInfo,
 		   const VkAllocationCallbacks * pAllocator,
 		   VkRenderPass * pRenderPass)
@@ -93,22 +79,6 @@ vkDestroyRenderPass(VkDevice device, VkRenderPass renderPass,
 		    const VkAllocationCallbacks * pAllocator)
 {
 	mock(device, renderPass, pAllocator);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateFramebuffer(VkDevice device,
-		    const VkFramebufferCreateInfo * pCreateInfo,
-		    const VkAllocationCallbacks * pAllocator,
-		    VkFramebuffer * pFramebuffer)
-{
-	return (VkResult) mock(device, pCreateInfo, pAllocator, pFramebuffer);
-}
-
-VKAPI_ATTR void VKAPI_CALL
-vkDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer,
-		     const VkAllocationCallbacks * pAllocator)
-{
-	mock(device, framebuffer, pAllocator);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
@@ -127,6 +97,17 @@ vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool,
 	mock(device, commandPool, pAllocator);
 }
 
+VkResult
+vkframe_init(struct vkframe *frame, struct vkrenderer *rdr, VkImage image)
+{
+	return (VkResult) mock(frame, rdr, image);
+}
+
+void vkframe_destroy(struct vkframe *frame, VkDevice device)
+{
+	mock(frame, device);
+}
+
 Ensure(vkrenderer_init_returns_zero_on_success)
 {
 	VkInstance instance = (VkInstance) 1;
@@ -137,14 +118,13 @@ Ensure(vkrenderer_init_returns_zero_on_success)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
+	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	uint32_t nimgs = 1;
 	expect(vkGetSwapchainImagesKHR,
 	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
 					      sizeof(uint32_t)),
 	       will_return(VK_SUCCESS));
-	expect(vkCreateImageView, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
-	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
+	expect(vkframe_init, will_return(VK_SUCCESS));
 	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_equal_to(0));
@@ -201,12 +181,13 @@ Ensure(vkrenderer_init_returns_non_zero_on_getting_images_fail)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
+	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	expect(vkGetSwapchainImagesKHR, will_return(VK_INCOMPLETE));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_not_equal_to(0));
 }
 
-Ensure(vkrenderer_init_returns_non_zero_on_getting_views_fail)
+Ensure(vkrenderer_init_returns_non_zero_on_frame_init_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
@@ -216,12 +197,13 @@ Ensure(vkrenderer_init_returns_non_zero_on_getting_views_fail)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
+	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	uint32_t nimgs = 1;
 	expect(vkGetSwapchainImagesKHR,
 	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
 					      sizeof(uint32_t)),
 	       will_return(VK_SUCCESS));
-	expect(vkCreateImageView, will_return(VK_ERROR_INITIALIZATION_FAILED));
+	expect(vkframe_init, will_return(VK_ERROR_INITIALIZATION_FAILED));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_not_equal_to(0));
 }
@@ -236,35 +218,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_renderpass_fail)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
-	uint32_t nimgs = 1;
-	expect(vkGetSwapchainImagesKHR,
-	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS));
-	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateRenderPass, will_return(VK_NOT_READY));
-	int error = vkrenderer_init(&vkr, instance, surface);
-	assert_that(error, is_not_equal_to(0));
-}
-
-Ensure(vkrenderer_init_returns_non_zero_on_framebuffer_fail)
-{
-	VkInstance instance = (VkInstance) 1;
-	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
-	expect(vkrenderer_configure, will_return(0));
-	expect(vkCreateDevice, will_return(VK_SUCCESS));
-	expect(vkGetDeviceQueue);
-	expect(vkGetDeviceQueue);
-	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
-	uint32_t nimgs = 1;
-	expect(vkGetSwapchainImagesKHR,
-	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS));
-	expect(vkCreateImageView, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
-	expect(vkCreateFramebuffer, will_return(VK_NOT_READY));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_not_equal_to(0));
 }
@@ -275,9 +229,8 @@ Ensure(vkrenderer_terminate_destroys_all_resources)
 		.nframes = 1,
 	};
 	expect(vkDestroyCommandPool);
-	expect(vkDestroyFramebuffer);
+	expect(vkframe_destroy);
 	expect(vkDestroyRenderPass);
-	expect(vkDestroyImageView);
 	expect(vkDestroySwapchainKHR);
 	expect(vkDestroyDevice);
 	vkrenderer_terminate(&vkr);
@@ -293,9 +246,8 @@ int main(int argc, char **argv)
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_device_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_swapchain_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_getting_images_fail);
-	add_test(vkr, vkrenderer_init_returns_non_zero_on_getting_views_fail);
+	add_test(vkr, vkrenderer_init_returns_non_zero_on_frame_init_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_renderpass_fail);
-	add_test(vkr, vkrenderer_init_returns_non_zero_on_framebuffer_fail);
 	add_test(vkr, vkrenderer_terminate_destroys_all_resources);
 	return run_test_suite(vkr, create_text_reporter());
 }

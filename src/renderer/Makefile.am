@@ -4,6 +4,11 @@ lib_libvkrenderer_a_SOURCES += src/renderer/vkrenderer.h
 lib_libvkrenderer_a_SOURCES += src/renderer/vkrenderer.c
 lib_libvkrenderer_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
+noinst_LIBRARIES += lib/libvkframe.a
+lib_libvkframe_a_SOURCES = include/renderer/vkrender.h
+lib_libvkframe_a_SOURCES += src/renderer/vkframe.c
+lib_libvkframe_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+
 noinst_LIBRARIES += lib/libvkconfig.a
 lib_libvkconfig_a_SOURCES = src/renderer/vkrenderer.h
 lib_libvkconfig_a_SOURCES += src/renderer/config.c
@@ -25,6 +30,12 @@ check_PROGRAMS += bin/vkrenderer_test
 bin_vkrenderer_test_SOURCES = src/renderer/vkrenderer_test.c
 bin_vkrenderer_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 bin_vkrenderer_test_LDADD = lib/libvkrenderer.a -lcgreen $(CODE_COVERAGE_LIBS)
+
+TESTS += bin/vkframe_test
+check_PROGRAMS += bin/vkframe_test
+bin_vkframe_test_SOURCES = src/renderer/vkframe_test.c
+bin_vkframe_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+bin_vkframe_test_LDADD = lib/libvkframe.a -lcgreen $(CODE_COVERAGE_LIBS)
 
 TESTS += bin/config_test
 check_PROGRAMS += bin/config_test
