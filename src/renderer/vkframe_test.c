@@ -40,6 +40,14 @@ vkDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer,
 	mock(device, framebuffer, pAllocator);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL
+vkAllocateCommandBuffers(VkDevice device,
+			 const VkCommandBufferAllocateInfo * pAllocateInfo,
+			 VkCommandBuffer * pCommandBuffers)
+{
+	return (VkResult) mock(device, pAllocateInfo, pCommandBuffers);
+}
+
 Ensure(vkframe_init_returns_error_on_framebuffer_fail)
 {
 	struct vkframe frame;
@@ -61,6 +69,18 @@ Ensure(vkframe_init_returns_error_on_getting_view_fail)
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
+Ensure(vkframe_init_returns_error_on_command_buffer_fail)
+{
+	struct vkframe frame;
+	struct vkrenderer rdr;
+	VkImage image = VK_NULL_HANDLE;
+	expect(vkCreateImageView, will_return(VK_SUCCESS));
+	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
+	expect(vkAllocateCommandBuffers, will_return(VK_NOT_READY));
+	int error = vkframe_init(&frame, &rdr, image);
+	assert_that(error, is_equal_to(VK_NOT_READY));
+}
+
 Ensure(vkframe_init_returns_vk_success_on_success)
 {
 	struct vkframe frame;
@@ -68,6 +88,7 @@ Ensure(vkframe_init_returns_vk_success_on_success)
 	VkImage image = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
+	expect(vkAllocateCommandBuffers, will_return(VK_SUCCESS));
 	int error = vkframe_init(&frame, &rdr, image);
 	assert_that(error, is_equal_to(VK_SUCCESS));
 }
@@ -89,6 +110,7 @@ int main(int argc, char **argv)
 	add_test(vkf, vkframe_init_returns_vk_success_on_success);
 	add_test(vkf, vkframe_init_returns_error_on_getting_view_fail);
 	add_test(vkf, vkframe_init_returns_error_on_framebuffer_fail);
+	add_test(vkf, vkframe_init_returns_error_on_command_buffer_fail);
 	add_test(vkf, vkframe_destroy_destroys_all_resources);
 	return run_test_suite(vkf, create_text_reporter());
 }

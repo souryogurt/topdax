@@ -119,13 +119,13 @@ Ensure(vkrenderer_init_returns_zero_on_success)
 	expect(vkGetDeviceQueue);
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
 	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
+	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
 	uint32_t nimgs = 1;
 	expect(vkGetSwapchainImagesKHR,
 	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
 					      sizeof(uint32_t)),
 	       will_return(VK_SUCCESS));
 	expect(vkframe_init, will_return(VK_SUCCESS));
-	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_equal_to(0));
 }
@@ -182,7 +182,24 @@ Ensure(vkrenderer_init_returns_non_zero_on_getting_images_fail)
 	expect(vkGetDeviceQueue);
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
 	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
+	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
 	expect(vkGetSwapchainImagesKHR, will_return(VK_INCOMPLETE));
+	int error = vkrenderer_init(&vkr, instance, surface);
+	assert_that(error, is_not_equal_to(0));
+}
+
+Ensure(vkrenderer_init_returns_non_zero_on_command_pool_fail)
+{
+	VkInstance instance = (VkInstance) 1;
+	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	struct vkrenderer vkr;
+	expect(vkrenderer_configure, will_return(0));
+	expect(vkCreateDevice, will_return(VK_SUCCESS));
+	expect(vkGetDeviceQueue);
+	expect(vkGetDeviceQueue);
+	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
+	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
+	expect(vkCreateCommandPool, will_return(VK_NOT_READY));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_not_equal_to(0));
 }
@@ -198,6 +215,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_frame_init_fail)
 	expect(vkGetDeviceQueue);
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
 	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
+	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
 	uint32_t nimgs = 1;
 	expect(vkGetSwapchainImagesKHR,
 	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
@@ -228,8 +246,8 @@ Ensure(vkrenderer_terminate_destroys_all_resources)
 	struct vkrenderer vkr = {
 		.nframes = 1,
 	};
-	expect(vkDestroyCommandPool);
 	expect(vkframe_destroy);
+	expect(vkDestroyCommandPool);
 	expect(vkDestroyRenderPass);
 	expect(vkDestroySwapchainKHR);
 	expect(vkDestroyDevice);
@@ -246,6 +264,7 @@ int main(int argc, char **argv)
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_device_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_swapchain_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_getting_images_fail);
+	add_test(vkr, vkrenderer_init_returns_non_zero_on_command_pool_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_frame_init_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_renderpass_fail);
 	add_test(vkr, vkrenderer_terminate_destroys_all_resources);

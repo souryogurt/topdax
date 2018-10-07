@@ -194,18 +194,19 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_init_render_pass(rdr) != VK_SUCCESS) {
 		return -1;
 	}
-	if (vkrenderer_init_frames(rdr)) {
+	if (vkrenderer_init_command_pool(rdr) != VK_SUCCESS) {
 		return -1;
 	}
-	return vkrenderer_init_command_pool(rdr) != VK_SUCCESS;
+
+	return vkrenderer_init_frames(rdr) != VK_SUCCESS;
 }
 
 void vkrenderer_terminate(struct vkrenderer *rdr)
 {
-	vkDestroyCommandPool(rdr->device, rdr->cmd_pool, NULL);
 	for (size_t i = 0; i < rdr->nframes; i++) {
 		vkframe_destroy(&rdr->frames[i], rdr->device);
 	}
+	vkDestroyCommandPool(rdr->device, rdr->cmd_pool, NULL);
 	vkDestroyRenderPass(rdr->device, rdr->renderpass, NULL);
 	vkDestroySwapchainKHR(rdr->device, rdr->swapchain, NULL);
 	vkDestroyDevice(rdr->device, NULL);

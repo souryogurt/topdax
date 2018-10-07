@@ -66,6 +66,24 @@ static VkResult vkframe_init_view(struct vkframe *frame, struct vkrenderer *rdr)
 	return vkCreateImageView(rdr->device, &info, NULL, &frame->view);
 }
 
+/**
+ * Allocates primary command bufffer for frame
+ * @param frame Specifies frame to allocate primary command buffer for
+ * @param rdr Specifies renderer of this frame
+ * @returns VK_SUCCESS on success, or VkResult error otherwise
+ */
+VkResult vkframe_alloc_cmdbuffer(struct vkframe *frame, struct vkrenderer *rdr)
+{
+	VkCommandBufferAllocateInfo info = {
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.pNext = NULL,
+		.commandPool = rdr->cmd_pool,
+		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		.commandBufferCount = 1,
+	};
+	return vkAllocateCommandBuffers(rdr->device, &info, &frame->cmdbuffer);
+}
+
 VkResult vkframe_init(struct vkframe *frame, struct vkrenderer *rdr,
 		      VkImage image)
 {
@@ -74,6 +92,8 @@ VkResult vkframe_init(struct vkframe *frame, struct vkrenderer *rdr,
 	if ((result = vkframe_init_view(frame, rdr)) != VK_SUCCESS)
 		return result;
 	if ((result = vkframe_init_framebuffer(frame, rdr)) != VK_SUCCESS)
+		return result;
+	if ((result = vkframe_alloc_cmdbuffer(frame, rdr)) != VK_SUCCESS)
 		return result;
 	return result;
 }

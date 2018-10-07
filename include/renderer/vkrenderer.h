@@ -11,6 +11,8 @@ struct vkframe {
 	VkImageView view;
 	/** Attached framebuffer*/
 	VkFramebuffer framebuffer;
+	/** Primary command buffer */
+	VkCommandBuffer cmdbuffer;
 };
 
 /** Vulkan Renderer Instance */
