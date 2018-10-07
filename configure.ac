@@ -7,10 +7,14 @@ AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror 1.11.1 foreign subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AM_MAINTAINER_MODE([enable])
-AM_PROG_AR
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_RANLIB
+AM_PROG_AR
+AX_PTHREAD
+LIBS="$PTHREAD_LIBS $LIBS"
+CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+CC="$PTHREAD_CC"
 
 AC_CHECK_HEADER([GLFW/glfw3.h], [], [
   AC_MSG_ERROR([GLFW/glfw3.h not found])
