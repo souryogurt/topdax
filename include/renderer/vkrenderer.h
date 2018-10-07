@@ -37,6 +37,8 @@ struct vkrenderer {
 	VkImage frames[16];
 	/** Frame views */
 	VkImageView frame_views[16];
+	/** Framebuffers */
+	VkFramebuffer framebuffers[16];
 	/** Number of frames in swapchain */
 	uint32_t nframes;
 	/** Render pass */

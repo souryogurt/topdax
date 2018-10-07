@@ -192,6 +192,34 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 	return vkCreateRenderPass(rdr->device, &info, NULL, &rdr->renderpass);
 }
 
+/**
+ * Initialize framebuffer for each swapchain image
+ * @param rdr Specifies renderer to initialize framebuffers for
+ * @return VK_SUCCESS on success, or VkResult error otherwise
+ */
+static VkResult vkrenderer_init_framebuffers(struct vkrenderer *rdr)
+{
+	for (uint32_t i = 0; i < rdr->nframes; i++) {
+		VkImageView attachments[] = { rdr->frame_views[i] };
+		VkFramebufferCreateInfo info = {
+			.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+			.pNext = NULL,
+			.flags = 0,
+			.renderPass = rdr->renderpass,
+			.attachmentCount = ARRAY_SIZE(attachments),
+			.pAttachments = attachments,
+			.width = rdr->srf_caps.currentExtent.width,
+			.height = rdr->srf_caps.currentExtent.height,
+			.layers = 1,
+		};
+		VkResult result = vkCreateFramebuffer(rdr->device, &info, NULL,
+						      &rdr->framebuffers[i]);
+		if (result != VK_SUCCESS)
+			return result;
+	}
+	return VK_SUCCESS;
+}
+
 int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 		    VkSurfaceKHR surface)
 {
@@ -210,11 +238,17 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_init_frames(rdr)) {
 		return -1;
 	}
-	return vkrenderer_init_render_pass(rdr) != VK_SUCCESS;
+	if (vkrenderer_init_render_pass(rdr) != VK_SUCCESS) {
+		return -1;
+	}
+	return vkrenderer_init_framebuffers(rdr) != VK_SUCCESS;
 }
 
 void vkrenderer_terminate(struct vkrenderer *rdr)
 {
+	for (size_t i = 0; i < rdr->nframes; i++) {
+		vkDestroyFramebuffer(rdr->device, rdr->framebuffers[i], NULL);
+	}
 	vkDestroyRenderPass(rdr->device, rdr->renderpass, NULL);
 	for (size_t i = 0; i < rdr->nframes; i++) {
 		vkDestroyImageView(rdr->device, rdr->frame_views[i], NULL);
