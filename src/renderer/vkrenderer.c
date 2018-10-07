@@ -85,7 +85,13 @@ static VkResult vkrenderer_create_swapchain(struct vkrenderer *rdr)
 	return vkCreateSwapchainKHR(rdr->device, &info, NULL, &rdr->swapchain);
 }
 
-static int vkrenderer_init_frame_view(struct vkrenderer *rdr, size_t index)
+/**
+ * Creates image view for specified image
+ * @param rdr Specifies renderer to create image view for
+ * @param index Specifies index of image of @frames member of renderer
+ * @returns VK_SUCCESS on success, or VkResult error otherwise
+ */
+static VkResult vkrenderer_init_frame_view(struct vkrenderer *rdr, size_t index)
 {
 	VkImageViewCreateInfo info = {
 		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -112,6 +118,11 @@ static int vkrenderer_init_frame_view(struct vkrenderer *rdr, size_t index)
 				 &rdr->frame_views[index]);
 }
 
+/**
+ * Initializes swapchain images
+ * @param rdr Specifies renderer to initialize images for
+ * @returns zero on success, or non-zero otherwise
+ */
 static int vkrenderer_init_frames(struct vkrenderer *rdr)
 {
 	rdr->nframes = ARRAY_SIZE(rdr->frames);
@@ -125,6 +136,60 @@ static int vkrenderer_init_frames(struct vkrenderer *rdr)
 		}
 	}
 	return 0;
+}
+
+/**
+ * Initializes renderpass for renderer
+ * @param rdr Specifies renderer to create renderpass for
+ * @returns VK_SUCCESS on success, or VkResult error otherwise
+ */
+static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
+{
+	VkAttachmentDescription color_attachment[] = {
+		{
+		 .flags = 0,
+		 .format = rdr->srf_format.format,
+		 .samples = VK_SAMPLE_COUNT_1_BIT,
+		 .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+		 .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		 .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		 .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		 .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		 .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+		 },
+	};
+	VkAttachmentReference color_attachment_ref[] = {
+		{
+		 .attachment = 0,
+		 .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+		 },
+	};
+	VkSubpassDescription subpass[] = {
+		{
+		 .flags = 0,
+		 .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+		 .inputAttachmentCount = 0,
+		 .pInputAttachments = NULL,
+		 .colorAttachmentCount = ARRAY_SIZE(color_attachment_ref),
+		 .pColorAttachments = color_attachment_ref,
+		 .pResolveAttachments = NULL,
+		 .pDepthStencilAttachment = NULL,
+		 .preserveAttachmentCount = 0,
+		 .pPreserveAttachments = NULL,
+		 },
+	};
+	VkRenderPassCreateInfo info = {
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.attachmentCount = ARRAY_SIZE(color_attachment),
+		.pAttachments = color_attachment,
+		.subpassCount = ARRAY_SIZE(subpass),
+		.pSubpasses = subpass,
+		.dependencyCount = 0,
+		.pDependencies = NULL,
+	};
+	return vkCreateRenderPass(rdr->device, &info, NULL, &rdr->renderpass);
 }
 
 int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
@@ -142,11 +207,15 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_create_swapchain(rdr) != VK_SUCCESS) {
 		return -1;
 	}
-	return vkrenderer_init_frames(rdr);
+	if (vkrenderer_init_frames(rdr)) {
+		return -1;
+	}
+	return vkrenderer_init_render_pass(rdr) != VK_SUCCESS;
 }
 
 void vkrenderer_terminate(struct vkrenderer *rdr)
 {
+	vkDestroyRenderPass(rdr->device, rdr->renderpass, NULL);
 	for (size_t i = 0; i < rdr->nframes; i++) {
 		vkDestroyImageView(rdr->device, rdr->frame_views[i], NULL);
 	}
