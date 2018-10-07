@@ -72,7 +72,8 @@ static VkResult vkframe_init_view(struct vkframe *frame, struct vkrenderer *rdr)
  * @param rdr Specifies renderer of this frame
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-VkResult vkframe_alloc_cmdbuffer(struct vkframe *frame, struct vkrenderer *rdr)
+static VkResult vkframe_alloc_cmds(struct vkframe *frame,
+				   struct vkrenderer *rdr)
 {
 	VkCommandBufferAllocateInfo info = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -81,7 +82,50 @@ VkResult vkframe_alloc_cmdbuffer(struct vkframe *frame, struct vkrenderer *rdr)
 		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 		.commandBufferCount = 1,
 	};
-	return vkAllocateCommandBuffers(rdr->device, &info, &frame->cmdbuffer);
+	return vkAllocateCommandBuffers(rdr->device, &info, &frame->cmds);
+}
+
+/**
+ * Records commands to frame
+ * @param frame Specifies the frame to recoord commands for
+ * @param rdr Specifies renderer that will render this frame
+ * @returns VK_SUCCESS on success, or error otherwise
+ */
+static VkResult vkframe_record(struct vkframe *frame, struct vkrenderer *rdr)
+{
+	VkCommandBufferBeginInfo begin_info = {
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		.pNext = NULL,
+		.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,	// ???
+		.pInheritanceInfo = NULL,
+	};
+	VkResult result;
+	result = vkBeginCommandBuffer(frame->cmds, &begin_info);
+	if (result != VK_SUCCESS)
+		return result;
+
+	VkClearValue clear_colors[] = {
+		{
+		 .color = {
+			   .float32 = {1.0f, 1.0f, 1.0f, 1.0f}
+			   }
+		 }
+	};
+	VkRenderPassBeginInfo rbf = {
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		.pNext = NULL,
+		.renderPass = rdr->renderpass,
+		.framebuffer = frame->framebuffer,
+		.renderArea = {
+			       .offset = {0, 0},
+			       .extent = rdr->srf_caps.currentExtent,
+			       },
+		.clearValueCount = ARRAY_SIZE(clear_colors),
+		.pClearValues = clear_colors,
+	};
+	vkCmdBeginRenderPass(frame->cmds, &rbf, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdEndRenderPass(frame->cmds);
+	return vkEndCommandBuffer(frame->cmds);
 }
 
 VkResult vkframe_init(struct vkframe *frame, struct vkrenderer *rdr,
@@ -93,7 +137,9 @@ VkResult vkframe_init(struct vkframe *frame, struct vkrenderer *rdr,
 		return result;
 	if ((result = vkframe_init_framebuffer(frame, rdr)) != VK_SUCCESS)
 		return result;
-	if ((result = vkframe_alloc_cmdbuffer(frame, rdr)) != VK_SUCCESS)
+	if ((result = vkframe_alloc_cmds(frame, rdr)) != VK_SUCCESS)
+		return result;
+	if ((result = vkframe_record(frame, rdr)) != VK_SUCCESS)
 		return result;
 	return result;
 }

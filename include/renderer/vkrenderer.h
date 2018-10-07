@@ -12,7 +12,7 @@ struct vkframe {
 	/** Attached framebuffer*/
 	VkFramebuffer framebuffer;
 	/** Primary command buffer */
-	VkCommandBuffer cmdbuffer;
+	VkCommandBuffer cmds;
 };
 
 /** Vulkan Renderer Instance */

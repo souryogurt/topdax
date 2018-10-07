@@ -48,6 +48,31 @@ vkAllocateCommandBuffers(VkDevice device,
 	return (VkResult) mock(device, pAllocateInfo, pCommandBuffers);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL
+vkBeginCommandBuffer(VkCommandBuffer commandBuffer,
+		     const VkCommandBufferBeginInfo * pBeginInfo)
+{
+	return (VkResult) mock(commandBuffer, pBeginInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL
+vkCmdBeginRenderPass(VkCommandBuffer commandBuffer,
+		     const VkRenderPassBeginInfo * pRenderPassBegin,
+		     VkSubpassContents contents)
+{
+	mock(commandBuffer, pRenderPassBegin, contents);
+}
+
+VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass(VkCommandBuffer commandBuffer)
+{
+	mock(commandBuffer);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkEndCommandBuffer(VkCommandBuffer commandBuffer)
+{
+	return (VkResult) mock(commandBuffer);
+}
+
 Ensure(vkframe_init_returns_error_on_framebuffer_fail)
 {
 	struct vkframe frame;
@@ -89,8 +114,41 @@ Ensure(vkframe_init_returns_vk_success_on_success)
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
 	expect(vkAllocateCommandBuffers, will_return(VK_SUCCESS));
+	expect(vkBeginCommandBuffer, will_return(VK_SUCCESS));
+	expect(vkCmdBeginRenderPass, will_return(VK_SUCCESS));
+	expect(vkCmdEndRenderPass, will_return(VK_SUCCESS));
+	expect(vkEndCommandBuffer, will_return(VK_SUCCESS));
 	int error = vkframe_init(&frame, &rdr, image);
 	assert_that(error, is_equal_to(VK_SUCCESS));
+}
+
+Ensure(vkframe_init_returns_error_on_end_cmd_buffer)
+{
+	struct vkframe frame;
+	struct vkrenderer rdr;
+	VkImage image = VK_NULL_HANDLE;
+	expect(vkCreateImageView, will_return(VK_SUCCESS));
+	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
+	expect(vkAllocateCommandBuffers, will_return(VK_SUCCESS));
+	expect(vkBeginCommandBuffer, will_return(VK_SUCCESS));
+	expect(vkCmdBeginRenderPass, will_return(VK_SUCCESS));
+	expect(vkCmdEndRenderPass, will_return(VK_SUCCESS));
+	expect(vkEndCommandBuffer, will_return(VK_NOT_READY));
+	int error = vkframe_init(&frame, &rdr, image);
+	assert_that(error, is_equal_to(VK_NOT_READY));
+}
+
+Ensure(vkframe_init_returns_error_on_begin_cmd_buffer)
+{
+	struct vkframe frame;
+	struct vkrenderer rdr;
+	VkImage image = VK_NULL_HANDLE;
+	expect(vkCreateImageView, will_return(VK_SUCCESS));
+	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
+	expect(vkAllocateCommandBuffers, will_return(VK_SUCCESS));
+	expect(vkBeginCommandBuffer, will_return(VK_NOT_READY));
+	int error = vkframe_init(&frame, &rdr, image);
+	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
 Ensure(vkframe_destroy_destroys_all_resources)
@@ -111,6 +169,8 @@ int main(int argc, char **argv)
 	add_test(vkf, vkframe_init_returns_error_on_getting_view_fail);
 	add_test(vkf, vkframe_init_returns_error_on_framebuffer_fail);
 	add_test(vkf, vkframe_init_returns_error_on_command_buffer_fail);
+	add_test(vkf, vkframe_init_returns_error_on_begin_cmd_buffer);
+	add_test(vkf, vkframe_init_returns_error_on_end_cmd_buffer);
 	add_test(vkf, vkframe_destroy_destroys_all_resources);
 	return run_test_suite(vkf, create_text_reporter());
 }
