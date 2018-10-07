@@ -43,6 +43,8 @@ struct vkrenderer {
 	uint32_t nframes;
 	/** Render pass */
 	VkRenderPass renderpass;
+	/** Command pool */
+	VkCommandPool cmd_pool;
 };
 
 #ifdef __cplusplus

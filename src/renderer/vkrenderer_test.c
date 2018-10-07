@@ -111,6 +111,22 @@ vkDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer,
 	mock(device, framebuffer, pAllocator);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL
+vkCreateCommandPool(VkDevice device,
+		    const VkCommandPoolCreateInfo * pCreateInfo,
+		    const VkAllocationCallbacks * pAllocator,
+		    VkCommandPool * pCommandPool)
+{
+	return (VkResult) mock(device, pCreateInfo, pAllocator, pCommandPool);
+}
+
+VKAPI_ATTR void VKAPI_CALL
+vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool,
+		     const VkAllocationCallbacks * pAllocator)
+{
+	mock(device, commandPool, pAllocator);
+}
+
 Ensure(vkrenderer_init_returns_zero_on_success)
 {
 	VkInstance instance = (VkInstance) 1;
@@ -129,6 +145,7 @@ Ensure(vkrenderer_init_returns_zero_on_success)
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
+	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_equal_to(0));
 }
@@ -257,6 +274,7 @@ Ensure(vkrenderer_terminate_destroys_all_resources)
 	struct vkrenderer vkr = {
 		.nframes = 1,
 	};
+	expect(vkDestroyCommandPool);
 	expect(vkDestroyFramebuffer);
 	expect(vkDestroyRenderPass);
 	expect(vkDestroyImageView);

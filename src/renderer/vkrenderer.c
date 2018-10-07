@@ -220,6 +220,22 @@ static VkResult vkrenderer_init_framebuffers(struct vkrenderer *rdr)
 	return VK_SUCCESS;
 }
 
+/**
+ * Initialize command pool for renderer
+ * @param rdr Specifies renderer to initialize command pool for
+ * @returns VK_SUCCESS on success, or VkResult error otherwise
+ */
+static VkResult vkrenderer_init_command_pool(struct vkrenderer *rdr)
+{
+	VkCommandPoolCreateInfo info = {
+		.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.queueFamilyIndex = rdr->graphic,
+	};
+	return vkCreateCommandPool(rdr->device, &info, NULL, &rdr->cmd_pool);
+}
+
 int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 		    VkSurfaceKHR surface)
 {
@@ -241,11 +257,15 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_init_render_pass(rdr) != VK_SUCCESS) {
 		return -1;
 	}
-	return vkrenderer_init_framebuffers(rdr) != VK_SUCCESS;
+	if (vkrenderer_init_framebuffers(rdr) != VK_SUCCESS) {
+		return -1;
+	}
+	return vkrenderer_init_command_pool(rdr) != VK_SUCCESS;
 }
 
 void vkrenderer_terminate(struct vkrenderer *rdr)
 {
+	vkDestroyCommandPool(rdr->device, rdr->cmd_pool, NULL);
 	for (size_t i = 0; i < rdr->nframes; i++) {
 		vkDestroyFramebuffer(rdr->device, rdr->framebuffers[i], NULL);
 	}
