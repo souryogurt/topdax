@@ -123,6 +123,33 @@ vkDestroySemaphore(VkDevice device, VkSemaphore semaphore,
 	mock(device, semaphore, pAllocator);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL
+vkAcquireNextImageKHR(VkDevice device, VkSwapchainKHR swapchain,
+		      uint64_t timeout, VkSemaphore semaphore, VkFence fence,
+		      uint32_t * pImageIndex)
+{
+	return (VkResult) mock(device, swapchain, timeout, semaphore, fence,
+			       pImageIndex);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+vkQueueSubmit(VkQueue queue, uint32_t submitCount,
+	      const VkSubmitInfo * pSubmits, VkFence fence)
+{
+	return (VkResult) mock(queue, submitCount, pSubmits, fence);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR * pPresentInfo)
+{
+	return (VkResult) mock(queue, pPresentInfo);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkDeviceWaitIdle(VkDevice device)
+{
+	return (VkResult) mock(device);
+}
+
 Ensure(vkrenderer_init_returns_zero_on_success)
 {
 	VkInstance instance = (VkInstance) 1;
@@ -279,11 +306,47 @@ Ensure(vkrenderer_init_returns_non_zero_on_renderpass_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
+Ensure(vkrenderer_render_returns_error_on_image_acquire_fail)
+{
+	struct vkrenderer vkr;
+	expect(vkAcquireNextImageKHR, will_return(VK_NOT_READY));
+	VkResult error = vkrenderer_render(&vkr);
+	assert_that(error, is_equal_to(VK_NOT_READY));
+}
+
+Ensure(vkrenderer_render_returns_error_on_submit_fail)
+{
+	struct vkrenderer vkr;
+	uint32_t image_index = 0;
+	expect(vkAcquireNextImageKHR,
+	       will_set_contents_of_parameter(pImageIndex, &image_index,
+					      sizeof(uint32_t)),
+	       will_return(VK_SUCCESS));
+	expect(vkQueueSubmit, will_return(VK_NOT_READY));
+	VkResult error = vkrenderer_render(&vkr);
+	assert_that(error, is_equal_to(VK_NOT_READY));
+}
+
+Ensure(vkrenderer_render_returns_error_on_present_fail)
+{
+	struct vkrenderer vkr;
+	uint32_t image_index = 0;
+	expect(vkAcquireNextImageKHR,
+	       will_set_contents_of_parameter(pImageIndex, &image_index,
+					      sizeof(uint32_t)),
+	       will_return(VK_SUCCESS));
+	expect(vkQueueSubmit, will_return(VK_SUCCESS));
+	expect(vkQueuePresentKHR, will_return(VK_NOT_READY));
+	VkResult error = vkrenderer_render(&vkr);
+	assert_that(error, is_equal_to(VK_NOT_READY));
+}
+
 Ensure(vkrenderer_terminate_destroys_all_resources)
 {
 	struct vkrenderer vkr = {
 		.nframes = 1,
 	};
+	expect(vkDeviceWaitIdle);
 	expect(vkframe_destroy);
 	expect(vkDestroySemaphore);
 	expect(vkDestroySemaphore);
@@ -308,6 +371,9 @@ int main(int argc, char **argv)
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_sync_objects_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_getting_images_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_frame_init_fail);
+	add_test(vkr, vkrenderer_render_returns_error_on_image_acquire_fail);
+	add_test(vkr, vkrenderer_render_returns_error_on_submit_fail);
+	add_test(vkr, vkrenderer_render_returns_error_on_present_fail);
 	add_test(vkr, vkrenderer_terminate_destroys_all_resources);
 	return run_test_suite(vkr, create_text_reporter());
 }

@@ -82,6 +82,13 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 void vkrenderer_terminate(struct vkrenderer *rdr);
 
 /**
+ * Render to surface associated with renderer
+ * @param rdr Specifies pointer to renderer to render
+ * @returns VK_SUCCESS on success, or VkError error otherwise
+ */
+VkResult vkrenderer_render(struct vkrenderer *rdr);
+
+/**
  * Initializes swapchain frame
  * @param frame Specifies frame to initialize
  * @param rdr Specifies renderer this frame belongs to

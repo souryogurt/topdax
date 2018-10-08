@@ -165,6 +165,19 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 		 .pPreserveAttachments = NULL,
 		 },
 	};
+	VkSubpassDependency dependencies[] = {
+		{
+		 .srcSubpass = VK_SUBPASS_EXTERNAL,
+		 .dstSubpass = 0,	// Index of subpass in subpass[]
+		 .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		 .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		 .srcAccessMask = 0,
+		 .dstAccessMask =
+		 VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+		 VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		 .dependencyFlags = 0,
+		 },
+	};
 	VkRenderPassCreateInfo info = {
 		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 		.pNext = NULL,
@@ -173,8 +186,8 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 		.pAttachments = color_attachment,
 		.subpassCount = ARRAY_SIZE(subpass),
 		.pSubpasses = subpass,
-		.dependencyCount = 0,
-		.pDependencies = NULL,
+		.dependencyCount = ARRAY_SIZE(dependencies),
+		.pDependencies = dependencies,
 	};
 	return vkCreateRenderPass(rdr->device, &info, NULL, &rdr->renderpass);
 }
@@ -222,8 +235,48 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	return vkrenderer_init_frames(rdr) != VK_SUCCESS;
 }
 
+VkResult vkrenderer_render(struct vkrenderer *rdr)
+{
+	uint32_t image_index;
+	VkResult result = vkAcquireNextImageKHR(rdr->device, rdr->swapchain,
+						UINT64_MAX, rdr->acquire_sem,
+						VK_NULL_HANDLE, &image_index);
+	if (result != VK_SUCCESS)
+		return result;
+	const VkPipelineStageFlags wait_stages[] = {
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+	};
+	VkSubmitInfo submit_info = {
+		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.pNext = NULL,
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &rdr->acquire_sem,
+		.pWaitDstStageMask = wait_stages,
+		.commandBufferCount = 1,
+		.pCommandBuffers = &rdr->frames[image_index].cmds,
+		.signalSemaphoreCount = 1,
+		.pSignalSemaphores = &rdr->render_sem,
+	};
+	result = vkQueueSubmit(rdr->graphics_queue, 1, &submit_info,
+			       VK_NULL_HANDLE);
+	if (result != VK_SUCCESS)
+		return result;
+	VkPresentInfoKHR present_info = {
+		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		.pNext = NULL,
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &rdr->render_sem,
+		.swapchainCount = 1,
+		.pSwapchains = &rdr->swapchain,
+		.pImageIndices = &image_index,
+		.pResults = NULL,
+	};
+	return vkQueuePresentKHR(rdr->present_queue, &present_info);
+}
+
 void vkrenderer_terminate(struct vkrenderer *rdr)
 {
+	vkDeviceWaitIdle(rdr->device);
 	for (size_t i = 0; i < rdr->nframes; i++) {
 		vkframe_destroy(&rdr->frames[i], rdr->device);
 	}

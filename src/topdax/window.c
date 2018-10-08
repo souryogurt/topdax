@@ -37,10 +37,8 @@ int topdax_window_init(struct topdax_window *win, struct topdax *app)
 	    VK_SUCCESS) {
 		return 1;
 	}
-	/* TODO: Must be initialized using vulkan instance and window
-	 * surface (after window creation) since window surface WILL
-	 * enforce selection of supported device */
 	vkrenderer_init(&win->renderer, app->vk, win->surface);
+	vkrenderer_render(&win->renderer);
 	return 0;
 }
 

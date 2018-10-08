@@ -68,6 +68,11 @@ void vkrenderer_terminate(struct vkrenderer *rdr)
 	mock(rdr);
 }
 
+VkResult vkrenderer_render(struct vkrenderer *rdr)
+{
+	return (VkResult) mock(rdr);
+}
+
 VKAPI_ATTR void VKAPI_CALL
 vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface,
 		    const VkAllocationCallbacks * pAllocator)
@@ -90,6 +95,7 @@ Ensure(topdax_window_init_creates_window)
 	expect(glfwSetWindowCloseCallback);
 	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
 	expect(vkrenderer_init, when(rdr, is_equal_to(&win.renderer)));
+	expect(vkrenderer_render, when(rdr, is_equal_to(&win.renderer)));
 	int error = topdax_window_init(&win, &app);
 	assert_that(error, is_equal_to(0));
 }
@@ -155,6 +161,7 @@ Ensure(topdax_window_ends_application_on_close_request)
 	expect(glfwSetWindowCloseCallback);
 	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
 	expect(vkrenderer_init);
+	expect(vkrenderer_render, will_return(VK_SUCCESS));
 	int error = topdax_window_init(&app.window, &app);
 	assert_that(error, is_equal_to(0));
 
