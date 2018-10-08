@@ -51,6 +51,25 @@ static VkResult vkrenderer_create_device(struct vkrenderer *rdr)
 }
 
 /**
+ * Create synchronization objects used during rendering
+ * @param rdr Specifies renderer to create sync objects for
+ * @returns VK_SUCCESS on success, or VkResult error otherwise
+ */
+static VkResult vkrenderer_create_sync_objects(struct vkrenderer *rdr)
+{
+	VkResult result;
+	VkSemaphoreCreateInfo info = {
+		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+	};
+	result = vkCreateSemaphore(rdr->device, &info, NULL, &rdr->acquire_sem);
+	if (result != VK_SUCCESS)
+		return result;
+	return vkCreateSemaphore(rdr->device, &info, NULL, &rdr->render_sem);
+}
+
+/**
  * Create Vulkan swapchain for renderer
  * @param rdr Specifies renderer to create swapchain for
  * @returns VK_SUCCESS on success, or VkResult error otherwise
@@ -197,7 +216,9 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_init_command_pool(rdr) != VK_SUCCESS) {
 		return -1;
 	}
-
+	if (vkrenderer_create_sync_objects(rdr) != VK_SUCCESS) {
+		return -1;
+	}
 	return vkrenderer_init_frames(rdr) != VK_SUCCESS;
 }
 
@@ -206,6 +227,8 @@ void vkrenderer_terminate(struct vkrenderer *rdr)
 	for (size_t i = 0; i < rdr->nframes; i++) {
 		vkframe_destroy(&rdr->frames[i], rdr->device);
 	}
+	vkDestroySemaphore(rdr->device, rdr->render_sem, NULL);
+	vkDestroySemaphore(rdr->device, rdr->acquire_sem, NULL);
 	vkDestroyCommandPool(rdr->device, rdr->cmd_pool, NULL);
 	vkDestroyRenderPass(rdr->device, rdr->renderpass, NULL);
 	vkDestroySwapchainKHR(rdr->device, rdr->swapchain, NULL);

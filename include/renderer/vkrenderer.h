@@ -53,6 +53,10 @@ struct vkrenderer {
 	struct vkframe frames[16];
 	/** Number of frames in swapchain */
 	uint32_t nframes;
+	/** Semaphore signaled when image is acquired from swapchain */
+	VkSemaphore acquire_sem;
+	/** Semaphore signaled when image is rendered */
+	VkSemaphore render_sem;
 };
 
 #ifdef __cplusplus
@@ -90,7 +94,7 @@ VkResult vkframe_init(struct vkframe *frame, struct vkrenderer *rdr,
 /**
  * Destroys frame resources
  * @param frame Specifies frame to destroy
- * @param device Specifes device instance this frame belongs to
+ * @param device Specifies device instance this frame belongs to
  */
 void vkframe_destroy(struct vkframe *frame, VkDevice device);
 #ifdef __cplusplus
