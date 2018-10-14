@@ -132,7 +132,7 @@ static int vkrenderer_init_frames(struct vkrenderer *rdr)
  */
 static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 {
-	VkAttachmentDescription color_attachment[] = {
+	VkAttachmentDescription attachments[] = {
 		{
 		 .flags = 0,
 		 .format = rdr->srf_format.format,
@@ -145,20 +145,20 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 		 .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
 		 },
 	};
-	VkAttachmentReference color_attachment_ref[] = {
+	VkAttachmentReference attachment_refs[] = {
 		{
 		 .attachment = 0,
 		 .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 		 },
 	};
-	VkSubpassDescription subpass[] = {
+	VkSubpassDescription subpasses[] = {
 		{
 		 .flags = 0,
 		 .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
 		 .inputAttachmentCount = 0,
 		 .pInputAttachments = NULL,
-		 .colorAttachmentCount = ARRAY_SIZE(color_attachment_ref),
-		 .pColorAttachments = color_attachment_ref,
+		 .colorAttachmentCount = ARRAY_SIZE(attachment_refs),
+		 .pColorAttachments = attachment_refs,
 		 .pResolveAttachments = NULL,
 		 .pDepthStencilAttachment = NULL,
 		 .preserveAttachmentCount = 0,
@@ -168,7 +168,7 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 	VkSubpassDependency dependencies[] = {
 		{
 		 .srcSubpass = VK_SUBPASS_EXTERNAL,
-		 .dstSubpass = 0,	// Index of subpass in subpass[]
+		 .dstSubpass = 0,	// Index of subpass in subpasses[]
 		 .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 		 .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 		 .srcAccessMask = 0,
@@ -182,10 +182,10 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 		.pNext = NULL,
 		.flags = 0,
-		.attachmentCount = ARRAY_SIZE(color_attachment),
-		.pAttachments = color_attachment,
-		.subpassCount = ARRAY_SIZE(subpass),
-		.pSubpasses = subpass,
+		.attachmentCount = ARRAY_SIZE(attachments),
+		.pAttachments = attachments,
+		.subpassCount = ARRAY_SIZE(subpasses),
+		.pSubpasses = subpasses,
 		.dependencyCount = ARRAY_SIZE(dependencies),
 		.pDependencies = dependencies,
 	};
