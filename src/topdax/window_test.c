@@ -71,7 +71,7 @@ vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface,
 	mock(instance, surface, pAllocator);
 }
 
-void topdax_quit(void)
+void application_quit(void)
 {
 	mock();
 }
@@ -153,7 +153,7 @@ Ensure(topdax_window_ends_application_on_close_request)
 	expect(vkrenderer_render, will_return(VK_SUCCESS));
 	int error = topdax_window_init(&app.window, &app);
 	assert_that(error, is_equal_to(0));
-	expect(topdax_quit);
+	expect(application_quit);
 	glfw_close_request(app.window.id);
 }
 

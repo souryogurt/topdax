@@ -11,5 +11,5 @@
 /** Entry point */
 int main(int argc, char **argv)
 {
-	return topdax_main(argc, argv);
+	return application_main(argc, argv);
 }

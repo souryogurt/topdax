@@ -6,28 +6,32 @@
 #include <config.h>
 #endif
 
+#include <argp.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include "topdax.h"
-#include <GLFW/glfw3.h>
 #include <application/utils.h>
+#include <GLFW/glfw3.h>
 #include "logger.h"
+#include "topdax.h"
 #include "window.h"
 
 /** Topdax application instance */
 static struct topdax app;
 
 /** Version string */
-const char *const g_app_version = PACKAGE_STRING;
+const char *argp_program_version = PACKAGE_STRING;
 
 /** Name and email of person responsible for issues */
-const char *const g_app_bug_address = PACKAGE_BUGREPORT;
+const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 
-/** Application description */
-const char *const g_app_description =
-    "The program that renders triangle using Vulkan API";
+/** Arguments parser */
+static struct argp argp;
+
+/** zero if application is running, non-zero otherwise */
+static int g_app_must_quit;
 
 /** Topdax application information */
 static const VkApplicationInfo topdax_app_info = {
@@ -92,27 +96,35 @@ static VkResult vk_instance_create(VkInstance * instance)
 	return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-int application_startup(void)
+void application_quit(void)
 {
+	g_app_must_quit++;
+}
+
+int application_main(int argc, char **argv)
+{
+	argp.doc = "The program that renders triangle using Vulkan API";
+	if (argp_parse(&argp, argc, argv, 0, NULL, NULL))
+		return EXIT_FAILURE;
+
 	if (!glfwInit())
-		return 1;
+		return EXIT_FAILURE;
 
 	if (vk_instance_create(&app.vk) != VK_SUCCESS) {
-		return 1;
+		return EXIT_FAILURE;
 	}
 #ifndef NDEBUG
 	setup_debug_logger(app.vk);
 #endif
 	topdax_window_init(&app.window, &app);
-	return 0;
-}
-
-void application_shutdown(void)
-{
+	do {
+		glfwWaitEvents();
+	} while (!g_app_must_quit);
 	topdax_window_destroy(&app.window);
 #ifndef NDEBUG
 	destroy_debug_logger(app.vk);
 #endif
 	vkDestroyInstance(app.vk, NULL);
 	glfwTerminate();
+	return EXIT_SUCCESS;
 }

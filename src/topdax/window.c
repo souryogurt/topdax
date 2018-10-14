@@ -18,7 +18,7 @@
 static void topdax_window_close(GLFWwindow * glfw_window)
 {
 	UNUSED(glfw_window);
-	topdax_quit();
+	application_quit();
 }
 
 int topdax_window_init(struct topdax_window *win, struct topdax *app)
