@@ -11,9 +11,10 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#include <application/runloop.h>
-#include <GLFW/runloop.h>
+#include <GLFW/glfw3.h>
 #include <argp.h>
+
+#include "topdax.h"
 
 /** Version string */
 const char *const g_app_version = "TestApplicationVersionString";

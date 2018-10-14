@@ -1,11 +1,17 @@
 bin_PROGRAMS += bin/topdax
-bin_topdax_SOURCES = src/GLFW/entry.c
+bin_topdax_SOURCES = src/topdax/entry.c
 bin_topdax_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 bin_topdax_LDADD = lib/librunloop.a lib/libtopdax.a lib/libtopdax_window.a\
 		   lib/liblogger.a lib/libvkrenderer.a lib/libvkconfig.a\
 		   lib/libvkconfig_families.a lib/libvkconfig_swapchain.a\
 		   lib/libvkframe.a\
 		   $(CODE_COVERAGE_LIBS)
+
+noinst_LIBRARIES += lib/librunloop.a
+lib_librunloop_a_SOURCES = include/application/utils.h
+lib_librunloop_a_SOURCES += src/topdax/topdax.h
+lib_librunloop_a_SOURCES += src/topdax/runloop.c
+lib_librunloop_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 noinst_LIBRARIES += lib/libtopdax.a
 lib_libtopdax_a_SOURCES = src/topdax/topdax.c
@@ -23,6 +29,13 @@ lib_liblogger_a_SOURCES += src/topdax/logger.h
 lib_liblogger_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 if HAVE_CGREEN
+TESTS += bin/runloop_test
+check_PROGRAMS += bin/runloop_test
+bin_runloop_test_SOURCES = src/topdax/runloop_test.c
+bin_runloop_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+bin_runloop_test_LDADD = lib/librunloop.a -lcgreen $(CODE_COVERAGE_LIBS)
+bin_runloop_test_LDFLAGS = -Wl,--wrap=argp_parse
+
 TESTS += bin/topdax_test
 check_PROGRAMS += bin/topdax_test
 bin_topdax_test_SOURCES = src/topdax/topdax_test.c

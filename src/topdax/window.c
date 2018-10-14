@@ -6,7 +6,6 @@
 #include <config.h>
 #endif
 
-#include <application/runloop.h>
 #include <vulkan/vulkan.h>
 #include "window.h"
 #include "topdax.h"

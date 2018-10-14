@@ -5,7 +5,7 @@ lib_libvkrenderer_a_SOURCES += src/renderer/vkrenderer.c
 lib_libvkrenderer_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 noinst_LIBRARIES += lib/libvkframe.a
-lib_libvkframe_a_SOURCES = include/renderer/vkrender.h
+lib_libvkframe_a_SOURCES = include/renderer/vkrenderer.h
 lib_libvkframe_a_SOURCES += src/renderer/vkframe.c
 lib_libvkframe_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 

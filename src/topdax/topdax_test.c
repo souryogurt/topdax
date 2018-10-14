@@ -12,10 +12,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "topdax.h"
-#include <GLFW/runloop.h>
 #include <renderer/vkrenderer.h>
 #include <application/utils.h>
-#include <application/runloop.h>
 
 GLFWAPI int glfwInit(void)
 {

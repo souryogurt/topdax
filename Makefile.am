@@ -10,5 +10,4 @@ TESTS =
 check_PROGRAMS =
 
 include src/topdax/Makefile.am
-include src/GLFW/Makefile.am
 include src/renderer/Makefile.am

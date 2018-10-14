@@ -6,7 +6,7 @@
 #include <config.h>
 #endif
 
-#include <GLFW/runloop.h>
+#include "topdax.h"
 
 /** Entry point */
 int main(int argc, char **argv)
