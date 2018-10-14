@@ -61,7 +61,7 @@ void application_shutdown(void);
  * @param argv Specifies @a argv from main() function
  * @return exit code
  */
-int glfw_runloop_run(int argc, char **argv);
+int topdax_main(int argc, char **argv);
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */

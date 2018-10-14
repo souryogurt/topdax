@@ -11,5 +11,5 @@
 /** Entry point */
 int main(int argc, char **argv)
 {
-	return glfw_runloop_run(argc, argv);
+	return topdax_main(argc, argv);
 }

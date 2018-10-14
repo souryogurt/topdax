@@ -45,7 +45,7 @@ static const struct runloop_ops glfw_ops = {
 	.quit = &glfw_quit
 };
 
-int glfw_runloop_run(int argc, char **argv)
+int topdax_main(int argc, char **argv)
 {
 	argp_program_version = g_app_version;
 	argp_program_bug_address = g_app_bug_address;

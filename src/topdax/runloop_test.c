@@ -62,7 +62,7 @@ Ensure(app_calls_callbacks)
 	expect(application_startup);
 	expect(glfwWaitEvents);
 	expect(application_shutdown);
-	int exit_code = glfw_runloop_run(1, &argv[0]);
+	int exit_code = topdax_main(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }
 
@@ -72,7 +72,7 @@ Ensure(app_exit_with_error_on_startup_fail)
 	expect(__wrap_argp_parse);
 	expect(application_startup, will_return(1));
 	never_expect(application_shutdown);
-	int exit_code = glfw_runloop_run(1, &argv[0]);
+	int exit_code = topdax_main(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
@@ -83,7 +83,7 @@ Ensure(app_accepts_help_argument_when_summary_provided)
 	       when(argp_doc, is_equal_to_string(g_app_description)),
 	       when(argp_version, is_equal_to_string(g_app_version)),
 	       when(argp_bug_address, is_equal_to_string(g_app_bug_address)));
-	int exit_code = glfw_runloop_run(1, &argv[0]);
+	int exit_code = topdax_main(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
