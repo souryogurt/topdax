@@ -42,11 +42,9 @@ error_t __wrap_argp_parse(const struct argp *__restrict __argp,
 			      argp_bug_address);
 }
 
-int application_startup(struct runloop *loop)
+int application_startup(void)
 {
-	int result = mock(loop);
-	loop->ops->quit(loop);
-	return result;
+	return (int)mock();
 }
 
 void application_shutdown()
@@ -61,6 +59,7 @@ Ensure(app_calls_callbacks)
 	expect(application_startup);
 	expect(glfwWaitEvents);
 	expect(application_shutdown);
+	topdax_quit();
 	int exit_code = topdax_main(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }

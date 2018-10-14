@@ -74,7 +74,6 @@ Ensure(topdax_startup_initializes_components)
 {
 	const char *wsi_exts[] = { "VK_KHR_surface" };
 	const uint32_t wsi_size = ARRAY_SIZE(wsi_exts);
-	struct runloop loop;
 	expect(glfwInit, will_return(1));
 	expect(glfwGetRequiredInstanceExtensions,
 	       will_return(wsi_exts),
@@ -85,22 +84,20 @@ Ensure(topdax_startup_initializes_components)
 	expect(setup_debug_logger);
 #endif
 	expect(topdax_window_init);
-	application_startup(&loop);
+	application_startup();
 }
 
 Ensure(topdax_startup_fails_on_glfw_fail)
 {
-	struct runloop loop;
 	expect(glfwInit, will_return(0));
 	never_expect(vkCreateInstance);
 	never_expect(topdax_window_init);
-	int status = application_startup(&loop);
+	int status = application_startup();
 	assert_that(status, is_not_equal_to(0));
 }
 
 Ensure(topdax_startup_fails_on_out_of_memory_for_extensions)
 {
-	struct runloop loop;
 	const char *wsi_exts[101];
 	const uint32_t wsi_count = ARRAY_SIZE(wsi_exts);
 	expect(glfwInit, will_return(1));
@@ -110,7 +107,7 @@ Ensure(topdax_startup_fails_on_out_of_memory_for_extensions)
 					      sizeof(uint32_t)));
 	never_expect(vkCreateInstance);
 	never_expect(topdax_window_init);
-	int status = application_startup(&loop);
+	int status = application_startup();
 	assert_that(status, is_not_equal_to(0));
 }
 

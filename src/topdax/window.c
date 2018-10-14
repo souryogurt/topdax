@@ -7,6 +7,7 @@
 #endif
 
 #include "window.h"
+#include <application/utils.h>
 #include <renderer/vkrenderer.h>
 #include "topdax.h"
 
@@ -16,10 +17,8 @@
  */
 static void topdax_window_close(GLFWwindow * glfw_window)
 {
-	struct topdax_window *win;
-	win = (struct topdax_window *)glfwGetWindowUserPointer(glfw_window);
-	struct runloop *mainloop = win->app->mainloop;
-	mainloop->ops->quit(mainloop);
+	UNUSED(glfw_window);
+	topdax_quit();
 }
 
 int topdax_window_init(struct topdax_window *win, struct topdax *app)

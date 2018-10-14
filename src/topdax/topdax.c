@@ -92,11 +92,10 @@ static VkResult vk_instance_create(VkInstance * instance)
 	return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-int application_startup(struct runloop *loop)
+int application_startup(void)
 {
 	if (!glfwInit())
 		return 1;
-	app.mainloop = loop;
 
 	if (vk_instance_create(&app.vk) != VK_SUCCESS) {
 		return 1;

@@ -40,22 +40,12 @@ GLFWAPI void glfwSetWindowUserPointer(GLFWwindow * window, void *pointer)
 	mock(window, pointer);
 }
 
-GLFWAPI void *glfwGetWindowUserPointer(GLFWwindow * window)
-{
-	return (void *)mock(window);
-}
-
 GLFWAPI VkResult
 glfwCreateWindowSurface(VkInstance instance, GLFWwindow * window,
 			const VkAllocationCallbacks * allocator,
 			VkSurfaceKHR * surface)
 {
 	return (VkResult) mock(instance, window, allocator, surface);
-}
-
-static void runloop_quit(struct runloop *loop)
-{
-	mock(loop);
 }
 
 int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
@@ -79,6 +69,11 @@ vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface,
 		    const VkAllocationCallbacks * pAllocator)
 {
 	mock(instance, surface, pAllocator);
+}
+
+void topdax_quit(void)
+{
+	mock();
 }
 
 Ensure(topdax_window_init_creates_window)
@@ -144,14 +139,7 @@ Ensure(topdax_window_destroy_destroys_window)
 Ensure(topdax_window_ends_application_on_close_request)
 {
 	GLFWwindow *window = (GLFWwindow *) 1;
-	struct runloop_ops loop_ops = {
-		.quit = &runloop_quit,
-	};
-	struct runloop loop = {
-		.ops = &loop_ops,
-	};
 	struct topdax app = {
-		.mainloop = &loop,
 		.window = {
 			   .app = &app,
 			   },
@@ -165,10 +153,7 @@ Ensure(topdax_window_ends_application_on_close_request)
 	expect(vkrenderer_render, will_return(VK_SUCCESS));
 	int error = topdax_window_init(&app.window, &app);
 	assert_that(error, is_equal_to(0));
-
-	expect(glfwGetWindowUserPointer,
-	       will_return(&app.window), when(window, is_equal_to(window)));
-	expect(runloop_quit, when(loop, is_equal_to(&loop)));
+	expect(topdax_quit);
 	glfw_close_request(app.window.id);
 }
 
