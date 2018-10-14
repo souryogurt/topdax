@@ -6,8 +6,8 @@
 #include <config.h>
 #endif
 
-#include <vulkan/vulkan.h>
 #include "window.h"
+#include <renderer/vkrenderer.h>
 #include "topdax.h"
 
 /**

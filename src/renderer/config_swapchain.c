@@ -6,9 +6,12 @@
 #include <config.h>
 #endif
 
-#include <application/utils.h>
+#include <stdint.h>
 #include <string.h>
-#include "vkrenderer.h"
+
+#include <application/utils.h>
+#include <vulkan/vulkan_core.h>
+#include <renderer/vkrenderer.h>
 
 /** Find BGRA_UNORM format for surface
  * @param fmts Specifies array of available surface formats on device

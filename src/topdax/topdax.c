@@ -6,12 +6,13 @@
 #include <config.h>
 #endif
 
-#include "topdax.h"
-#include <GLFW/glfw3.h>
-#include <application/utils.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "topdax.h"
+#include <GLFW/glfw3.h>
+#include <application/utils.h>
 #include "logger.h"
 #include "window.h"
 

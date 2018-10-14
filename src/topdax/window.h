@@ -1,10 +1,9 @@
 #ifndef TOPDAX_WINDOW_H
 #define TOPDAX_WINDOW_H
 
-#ifdef TOPDAX_USE_PLATFORM_GLFW
-#include <GLFW/glfw3.h>
-#endif
 #include <renderer/vkrenderer.h>
+#include <vulkan/vulkan_core.h>
+#include <GLFW/glfw3.h>
 
 struct topdax;
 

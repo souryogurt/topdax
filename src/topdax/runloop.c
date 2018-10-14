@@ -9,9 +9,8 @@
 #include <argp.h>
 #include <stdlib.h>
 
-#include <application/utils.h>
 #include <GLFW/glfw3.h>
-
+#include <application/utils.h>
 #include "topdax.h"
 
 /** Runloop implementation using GLFW API */

@@ -12,6 +12,8 @@
 #include "topdax.h"
 #include "window.h"
 
+struct vkrenderer;
+
 GLFWAPI void glfwWindowHint(int hint, int value)
 {
 	mock(hint, value);

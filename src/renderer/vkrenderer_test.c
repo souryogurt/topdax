@@ -6,8 +6,11 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
+
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
+
 #include <renderer/vkrenderer.h>
 #include "vkrenderer.h"
 

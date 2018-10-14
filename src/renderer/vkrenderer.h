@@ -1,7 +1,9 @@
 #ifndef RENDERER_VKRENDERER_CONFIG_H
 #define RENDERER_VKRENDERER_CONFIG_H
 
-#include <renderer/vkrenderer.h>
+#include <vulkan/vulkan_core.h>
+
+struct vkrenderer;
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */

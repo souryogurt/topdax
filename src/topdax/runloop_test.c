@@ -10,10 +10,9 @@
 #include <cgreen/mocks.h>
 
 #include <stdlib.h>
-#include <unistd.h>
-#include <GLFW/glfw3.h>
 #include <argp.h>
 
+#include <GLFW/glfw3.h>
 #include "topdax.h"
 
 /** Version string */

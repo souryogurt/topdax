@@ -6,14 +6,16 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
+
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
-#include <stdlib.h>
-#include <unistd.h>
-#include "topdax.h"
-#include <renderer/vkrenderer.h>
 #include <application/utils.h>
+#include <GLFW/glfw3.h>
+#include "topdax.h"
+
+struct topdax_window;
 
 GLFWAPI int glfwInit(void)
 {

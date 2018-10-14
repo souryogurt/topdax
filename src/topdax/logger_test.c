@@ -6,10 +6,11 @@
 #include <config.h>
 #endif
 
+#include <stdarg.h>
+#include <stdio.h>
+
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
-
-#include <stdarg.h>
 
 #include "logger.h"
 

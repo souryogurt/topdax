@@ -8,6 +8,8 @@
 
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
+
+#include <vulkan/vulkan_core.h>
 #include <renderer/vkrenderer.h>
 
 VKAPI_ATTR VkResult VKAPI_CALL

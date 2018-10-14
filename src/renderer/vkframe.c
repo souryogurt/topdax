@@ -7,6 +7,7 @@
 #endif
 #include <application/utils.h>
 #include <renderer/vkrenderer.h>
+#include <vulkan/vulkan_core.h>
 
 /**
  * Initializes framebuffer on frame's image

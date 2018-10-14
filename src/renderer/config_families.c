@@ -6,9 +6,11 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
+
 #include <application/utils.h>
-#include <string.h>
-#include "vkrenderer.h"
+#include <vulkan/vulkan_core.h>
+#include <renderer/vkrenderer.h>
 
 /** Queue Family Properties */
 struct family_properties {
