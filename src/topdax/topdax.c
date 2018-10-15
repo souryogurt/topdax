@@ -21,12 +21,6 @@
 /** Topdax application instance */
 static struct topdax app;
 
-/** Version string */
-const char *argp_program_version = PACKAGE_STRING;
-
-/** Name and email of person responsible for issues */
-const char *argp_program_bug_address = PACKAGE_BUGREPORT;
-
 /** Arguments parser */
 static struct argp argp;
 
@@ -103,6 +97,8 @@ void application_quit(void)
 
 int application_main(int argc, char **argv)
 {
+	argp_program_version = PACKAGE_STRING;
+	argp_program_bug_address = PACKAGE_BUGREPORT;
 	argp.doc = "The program that renders triangle using Vulkan API";
 	if (argp_parse(&argp, argc, argv, 0, NULL, NULL))
 		return EXIT_FAILURE;
