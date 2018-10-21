@@ -3,6 +3,8 @@ topdax
 
 Topdax is the simple Linux application that renders triangle using Vulkan API.
 
+[![Build Status](https://travis-ci.org/souryogurt/topdax.svg?branch=master)](https://travis-ci.org/souryogurt/topdax)
+
 Features
 --------
 
