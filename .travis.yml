@@ -18,6 +18,7 @@ addons:
     - libxinerama-dev
     - libxkbcommon-dev
     - libxrandr-dev
+    - lcov
   sonarcloud:
     organization: "souryogurt-github"
     token:
