@@ -5,12 +5,10 @@
 #include <vulkan/vulkan_core.h>
 #include <GLFW/glfw3.h>
 
-struct topdax;
-
 /** Main topdax window */
 struct topdax_window {
-	/** Pointer to application */
-	struct topdax *app;
+	/** Vulkan instance used to render this window */
+	VkInstance vk;
 
 	/** Instance of GLFW window */
 	GLFWwindow *id;
@@ -31,10 +29,10 @@ extern "C" {
 /**
  * Initialize main window
  * @param win Specifies pointer to window to initialize
- * @param app Specifies pointer to application this window belongs to
+ * @param vk Specifies Vulkan instance where this window will be rendered
  * @return zero on success, non-zero otherwise
  */
-int topdax_window_init(struct topdax_window *win, struct topdax *app);
+int topdax_window_init(struct topdax_window *win, VkInstance vk);
 
 /**
  * Destroy main window

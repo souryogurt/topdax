@@ -21,9 +21,8 @@ static void topdax_window_close(GLFWwindow * glfw_window)
 	application_quit();
 }
 
-int topdax_window_init(struct topdax_window *win, struct topdax *app)
+int topdax_window_init(struct topdax_window *win, VkInstance vk)
 {
-	win->app = app;
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	win->id = glfwCreateWindow(960, 540, "Topdax", NULL, NULL);
 	if (win->id == NULL) {
@@ -31,11 +30,11 @@ int topdax_window_init(struct topdax_window *win, struct topdax *app)
 	}
 	glfwSetWindowUserPointer(win->id, win);
 	glfwSetWindowCloseCallback(win->id, topdax_window_close);
-	if (glfwCreateWindowSurface(app->vk, win->id, NULL, &win->surface) !=
+	if (glfwCreateWindowSurface(vk, win->id, NULL, &win->surface) !=
 	    VK_SUCCESS) {
 		return 1;
 	}
-	vkrenderer_init(&win->renderer, app->vk, win->surface);
+	vkrenderer_init(&win->renderer, vk, win->surface);
 	vkrenderer_render(&win->renderer);
 	return 0;
 }
@@ -43,5 +42,5 @@ int topdax_window_init(struct topdax_window *win, struct topdax *app)
 void topdax_window_destroy(struct topdax_window *win)
 {
 	vkrenderer_terminate(&win->renderer);
-	vkDestroySurfaceKHR(win->app->vk, win->surface, NULL);
+	vkDestroySurfaceKHR(win->vk, win->surface, NULL);
 }

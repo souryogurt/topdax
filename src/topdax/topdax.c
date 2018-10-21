@@ -112,7 +112,7 @@ int application_main(int argc, char **argv)
 #ifndef NDEBUG
 	setup_debug_logger(app.vk);
 #endif
-	topdax_window_init(&app.window, &app);
+	topdax_window_init(&app.window, app.vk);
 	do {
 		glfwWaitEvents();
 	} while (!g_app_must_quit);

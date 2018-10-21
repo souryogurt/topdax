@@ -62,9 +62,9 @@ void destroy_debug_logger(VkInstance instance)
 }
 #endif
 
-int topdax_window_init(struct topdax_window *win, struct topdax *app)
+int topdax_window_init(struct topdax_window *win, VkInstance vk)
 {
-	return (int)mock(win, app);
+	return (int)mock(win, vk);
 }
 
 void topdax_window_destroy(struct topdax_window *win)

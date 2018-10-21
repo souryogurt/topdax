@@ -80,7 +80,7 @@ Ensure(topdax_window_init_creates_window)
 {
 	GLFWwindow *window = (GLFWwindow *) 1;
 	struct topdax_window win;
-	struct topdax app;
+	VkInstance vk = VK_NULL_HANDLE;
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow,
 	       will_return(window),
@@ -92,20 +92,20 @@ Ensure(topdax_window_init_creates_window)
 	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
 	expect(vkrenderer_init, when(rdr, is_equal_to(&win.renderer)));
 	expect(vkrenderer_render, when(rdr, is_equal_to(&win.renderer)));
-	int error = topdax_window_init(&win, &app);
+	int error = topdax_window_init(&win, vk);
 	assert_that(error, is_equal_to(0));
 }
 
 Ensure(topdax_window_init_returns_non_zero_on_fail)
 {
 	struct topdax_window win;
-	struct topdax app;
+	VkInstance vk = VK_NULL_HANDLE;
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow, will_return(NULL));
 	never_expect(glfwSetWindowUserPointer);
 	never_expect(glfwSetWindowCloseCallback);
 	never_expect(vkrenderer_init);
-	int error = topdax_window_init(&win, &app);
+	int error = topdax_window_init(&win, vk);
 	assert_that(error, is_not_equal_to(0));
 }
 
@@ -113,7 +113,7 @@ Ensure(topdax_window_init_returns_non_zero_on_surface_fail)
 {
 	GLFWwindow *window = (GLFWwindow *) 1;
 	struct topdax_window win;
-	struct topdax app;
+	VkInstance vk = VK_NULL_HANDLE;
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow, will_return(window));
 	expect(glfwSetWindowUserPointer);
@@ -121,16 +121,13 @@ Ensure(topdax_window_init_returns_non_zero_on_surface_fail)
 	expect(glfwCreateWindowSurface,
 	       will_return(VK_ERROR_INITIALIZATION_FAILED));
 	never_expect(vkrenderer_init);
-	int error = topdax_window_init(&win, &app);
+	int error = topdax_window_init(&win, vk);
 	assert_that(error, is_not_equal_to(0));
 }
 
 Ensure(topdax_window_destroy_destroys_window)
 {
-	struct topdax app;
-	struct topdax_window win = {
-		.app = &app,
-	};
+	struct topdax_window win;
 	expect(vkrenderer_terminate, when(rdr, is_equal_to(&win.renderer)));
 	expect(vkDestroySurfaceKHR, when(surface, is_equal_to(win.surface)));
 	topdax_window_destroy(&win);
@@ -139,11 +136,8 @@ Ensure(topdax_window_destroy_destroys_window)
 Ensure(topdax_window_ends_application_on_close_request)
 {
 	GLFWwindow *window = (GLFWwindow *) 1;
-	struct topdax app = {
-		.window = {
-			   .app = &app,
-			   },
-	};
+	struct topdax_window win;
+	VkInstance vk = VK_NULL_HANDLE;
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow, will_return(window));
 	expect(glfwSetWindowUserPointer);
@@ -151,10 +145,10 @@ Ensure(topdax_window_ends_application_on_close_request)
 	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
 	expect(vkrenderer_init);
 	expect(vkrenderer_render, will_return(VK_SUCCESS));
-	int error = topdax_window_init(&app.window, &app);
+	int error = topdax_window_init(&win, vk);
 	assert_that(error, is_equal_to(0));
 	expect(application_quit);
-	glfw_close_request(app.window.id);
+	glfw_close_request(win.id);
 }
 
 int main(int argc, char **argv)
