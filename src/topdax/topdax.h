@@ -26,11 +26,6 @@ extern "C" {
  */
 int application_main(int argc, char **argv);
 
-/**
- * Post quit message
- */
-void application_quit(void);
-
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }

@@ -25,16 +25,6 @@ GLFWAPI GLFWwindow *glfwCreateWindow(int width, int height, const char *title,
 	return (GLFWwindow *) mock(width, height, title, monitor, share);
 }
 
-static GLFWwindowclosefun glfw_close_request;
-
-GLFWAPI GLFWwindowclosefun glfwSetWindowCloseCallback(GLFWwindow * window,
-						      GLFWwindowclosefun cbfun)
-{
-	/* Store callback to be able to simulate close request in tests */
-	glfw_close_request = cbfun;
-	return (GLFWwindowclosefun) mock(window, cbfun);
-}
-
 GLFWAPI void glfwSetWindowUserPointer(GLFWwindow * window, void *pointer)
 {
 	mock(window, pointer);
@@ -71,11 +61,6 @@ vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface,
 	mock(instance, surface, pAllocator);
 }
 
-void application_quit(void)
-{
-	mock();
-}
-
 Ensure(topdax_window_init_creates_window)
 {
 	GLFWwindow *window = (GLFWwindow *) 1;
@@ -88,7 +73,6 @@ Ensure(topdax_window_init_creates_window)
 	       when(height, is_equal_to(540)),
 	       when(title, is_equal_to_string("Topdax")));
 	expect(glfwSetWindowUserPointer);
-	expect(glfwSetWindowCloseCallback);
 	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
 	expect(vkrenderer_init, when(rdr, is_equal_to(&win.renderer)));
 	expect(vkrenderer_render, when(rdr, is_equal_to(&win.renderer)));
@@ -102,9 +86,6 @@ Ensure(topdax_window_init_returns_non_zero_on_fail)
 	VkInstance vk = VK_NULL_HANDLE;
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow, will_return(NULL));
-	never_expect(glfwSetWindowUserPointer);
-	never_expect(glfwSetWindowCloseCallback);
-	never_expect(vkrenderer_init);
 	int error = topdax_window_init(&win, vk);
 	assert_that(error, is_not_equal_to(0));
 }
@@ -117,7 +98,6 @@ Ensure(topdax_window_init_returns_non_zero_on_surface_fail)
 	expect(glfwWindowHint);
 	expect(glfwCreateWindow, will_return(window));
 	expect(glfwSetWindowUserPointer);
-	expect(glfwSetWindowCloseCallback);
 	expect(glfwCreateWindowSurface,
 	       will_return(VK_ERROR_INITIALIZATION_FAILED));
 	never_expect(vkrenderer_init);
@@ -133,24 +113,6 @@ Ensure(topdax_window_destroy_destroys_window)
 	topdax_window_destroy(&win);
 }
 
-Ensure(topdax_window_ends_application_on_close_request)
-{
-	GLFWwindow *window = (GLFWwindow *) 1;
-	struct topdax_window win;
-	VkInstance vk = VK_NULL_HANDLE;
-	expect(glfwWindowHint);
-	expect(glfwCreateWindow, will_return(window));
-	expect(glfwSetWindowUserPointer);
-	expect(glfwSetWindowCloseCallback);
-	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
-	expect(vkrenderer_init);
-	expect(vkrenderer_render, will_return(VK_SUCCESS));
-	int error = topdax_window_init(&win, vk);
-	assert_that(error, is_equal_to(0));
-	expect(application_quit);
-	glfw_close_request(win.id);
-}
-
 int main(int argc, char **argv)
 {
 	(void)(argc);
@@ -160,6 +122,5 @@ int main(int argc, char **argv)
 	add_test(suite, topdax_window_init_returns_non_zero_on_fail);
 	add_test(suite, topdax_window_init_returns_non_zero_on_surface_fail);
 	add_test(suite, topdax_window_destroy_destroys_window);
-	add_test(suite, topdax_window_ends_application_on_close_request);
 	return run_test_suite(suite, create_text_reporter());
 }

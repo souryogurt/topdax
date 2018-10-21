@@ -11,16 +11,6 @@
 #include <renderer/vkrenderer.h>
 #include "topdax.h"
 
-/**
- * Call window's close callback
- * @param glfw_window Specifies GLFW window that must be closed
- */
-static void topdax_window_close(GLFWwindow * glfw_window)
-{
-	UNUSED(glfw_window);
-	application_quit();
-}
-
 int topdax_window_init(struct topdax_window *win, VkInstance vk)
 {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -28,8 +18,8 @@ int topdax_window_init(struct topdax_window *win, VkInstance vk)
 	if (win->id == NULL) {
 		return 1;
 	}
+	win->vk = vk;
 	glfwSetWindowUserPointer(win->id, win);
-	glfwSetWindowCloseCallback(win->id, topdax_window_close);
 	if (glfwCreateWindowSurface(vk, win->id, NULL, &win->surface) !=
 	    VK_SUCCESS) {
 		return 1;

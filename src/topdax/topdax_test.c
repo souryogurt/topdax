@@ -90,6 +90,11 @@ GLFWAPI void glfwWaitEvents(void)
 	mock();
 }
 
+GLFWAPI int glfwWindowShouldClose(GLFWwindow * window)
+{
+	return (int)mock(window);
+}
+
 Ensure(main_returns_zero_on_success)
 {
 	const char *wsi_exts[] = { "VK_KHR_surface" };
@@ -106,14 +111,15 @@ Ensure(main_returns_zero_on_success)
 	expect(setup_debug_logger);
 #endif
 	expect(topdax_window_init);
+	expect(glfwWindowShouldClose, will_return(0));
 	expect(glfwWaitEvents);
+	expect(glfwWindowShouldClose, will_return(1));
 	expect(topdax_window_destroy);
 #ifndef NDEBUG
 	expect(destroy_debug_logger);
 #endif
 	expect(vkDestroyInstance);
 	expect(glfwTerminate);
-	application_quit();
 	int exit_code = application_main(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_SUCCESS));
 }

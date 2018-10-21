@@ -24,9 +24,6 @@ static struct topdax app;
 /** Arguments parser */
 static struct argp argp;
 
-/** zero if application is running, non-zero otherwise */
-static int g_app_must_quit;
-
 /** Topdax application information */
 static const VkApplicationInfo topdax_app_info = {
 	.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -90,11 +87,6 @@ static VkResult vk_instance_create(VkInstance * instance)
 	return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void application_quit(void)
-{
-	++g_app_must_quit;
-}
-
 int application_main(int argc, char **argv)
 {
 	argp_program_version = PACKAGE_STRING;
@@ -113,9 +105,9 @@ int application_main(int argc, char **argv)
 	setup_debug_logger(app.vk);
 #endif
 	topdax_window_init(&app.window, app.vk);
-	do {
+	while (!glfwWindowShouldClose(app.window.id)) {
 		glfwWaitEvents();
-	} while (!g_app_must_quit);
+	}
 	topdax_window_destroy(&app.window);
 #ifndef NDEBUG
 	destroy_debug_logger(app.vk);
