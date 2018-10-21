@@ -78,4 +78,5 @@ script:
     - CPPFLAGS="-I/usr/include" CFLAGS="--std=gnu99 -Wall -Wextra" ./configure --with-unit-tests --prefix=${TRAVIS_BUILD_DIR}/../local
     - build-wrapper-linux-x86-64 --out-dir bw-output make
     - make check
+    - git fetch --unshallow
     - sonar-scanner
