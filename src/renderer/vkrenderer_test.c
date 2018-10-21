@@ -101,12 +101,13 @@ vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool,
 }
 
 VkResult
-vkframe_init(struct vkframe *frame, struct vkrenderer *rdr, VkImage image)
+vkframe_init(struct vkframe *frame, const struct vkrenderer *rdr,
+	     const VkImage image)
 {
 	return (VkResult) mock(frame, rdr, image);
 }
 
-void vkframe_destroy(struct vkframe *frame, VkDevice device)
+void vkframe_destroy(const struct vkframe *frame, const VkDevice device)
 {
 	mock(frame, device);
 }

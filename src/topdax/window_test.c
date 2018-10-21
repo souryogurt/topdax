@@ -54,12 +54,12 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	return (int)mock(rdr, instance, surface);
 }
 
-void vkrenderer_terminate(struct vkrenderer *rdr)
+void vkrenderer_terminate(const struct vkrenderer *rdr)
 {
 	mock(rdr);
 }
 
-VkResult vkrenderer_render(struct vkrenderer *rdr)
+VkResult vkrenderer_render(const struct vkrenderer *rdr)
 {
 	return (VkResult) mock(rdr);
 }

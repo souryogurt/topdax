@@ -211,7 +211,7 @@ static VkResult vkrenderer_init_command_pool(struct vkrenderer *rdr)
 }
 
 int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
-		    VkSurfaceKHR surface)
+		    const VkSurfaceKHR surface)
 {
 	rdr->srf = surface;
 	if (vkrenderer_configure(rdr, instance)) {
@@ -237,7 +237,7 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	return vkrenderer_init_frames(rdr) != VK_SUCCESS;
 }
 
-VkResult vkrenderer_render(struct vkrenderer *rdr)
+VkResult vkrenderer_render(const struct vkrenderer *rdr)
 {
 	uint32_t image_index;
 	VkResult result = vkAcquireNextImageKHR(rdr->device, rdr->swapchain,
@@ -276,7 +276,7 @@ VkResult vkrenderer_render(struct vkrenderer *rdr)
 	return vkQueuePresentKHR(rdr->present_queue, &present_info);
 }
 
-void vkrenderer_terminate(struct vkrenderer *rdr)
+void vkrenderer_terminate(const struct vkrenderer *rdr)
 {
 	vkDeviceWaitIdle(rdr->device);
 	for (size_t i = 0; i < rdr->nframes; ++i) {

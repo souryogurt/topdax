@@ -73,20 +73,20 @@ extern "C" {
  * @returns zero on success, and non-zero otherwise
  */
 int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
-		    VkSurfaceKHR surface);
+		    const VkSurfaceKHR surface);
 
 /**
  * Terminates Vulkan renderer instance
  * @param rdr Specifies pointer to renderer to terminate
  */
-void vkrenderer_terminate(struct vkrenderer *rdr);
+void vkrenderer_terminate(const struct vkrenderer *rdr);
 
 /**
  * Render to surface associated with renderer
  * @param rdr Specifies pointer to renderer to render
  * @returns VK_SUCCESS on success, or VkError error otherwise
  */
-VkResult vkrenderer_render(struct vkrenderer *rdr);
+VkResult vkrenderer_render(const struct vkrenderer *rdr);
 
 /**
  * Initializes swapchain frame
@@ -95,15 +95,15 @@ VkResult vkrenderer_render(struct vkrenderer *rdr);
  * @param image Specifies swapchain image to init frame on
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-VkResult vkframe_init(struct vkframe *frame, struct vkrenderer *rdr,
-		      VkImage image);
+VkResult vkframe_init(struct vkframe *frame, const struct vkrenderer *rdr,
+		      const VkImage image);
 
 /**
  * Destroys frame resources
  * @param frame Specifies frame to destroy
  * @param device Specifies device instance this frame belongs to
  */
-void vkframe_destroy(struct vkframe *frame, VkDevice device);
+void vkframe_destroy(const struct vkframe *frame, const VkDevice device);
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }

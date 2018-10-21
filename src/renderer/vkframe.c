@@ -16,7 +16,7 @@
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
 static VkResult vkframe_init_framebuffer(struct vkframe *frame,
-					 struct vkrenderer *rdr)
+					 const struct vkrenderer *rdr)
 {
 
 	VkImageView attachments[] = { frame->view };
@@ -41,7 +41,8 @@ static VkResult vkframe_init_framebuffer(struct vkframe *frame,
  * @param rdr Specifies renderer of this frame
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-static VkResult vkframe_init_view(struct vkframe *frame, struct vkrenderer *rdr)
+static VkResult vkframe_init_view(struct vkframe *frame,
+				  const struct vkrenderer *rdr)
 {
 	VkImageViewCreateInfo info = {
 		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -74,7 +75,7 @@ static VkResult vkframe_init_view(struct vkframe *frame, struct vkrenderer *rdr)
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
 static VkResult vkframe_alloc_cmds(struct vkframe *frame,
-				   struct vkrenderer *rdr)
+				   const struct vkrenderer *rdr)
 {
 	VkCommandBufferAllocateInfo info = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -92,7 +93,8 @@ static VkResult vkframe_alloc_cmds(struct vkframe *frame,
  * @param rdr Specifies renderer that will render this frame
  * @returns VK_SUCCESS on success, or error otherwise
  */
-static VkResult vkframe_record(struct vkframe *frame, struct vkrenderer *rdr)
+static VkResult vkframe_record(const struct vkframe *frame,
+			       const struct vkrenderer *rdr)
 {
 	VkCommandBufferBeginInfo begin_info = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -129,8 +131,8 @@ static VkResult vkframe_record(struct vkframe *frame, struct vkrenderer *rdr)
 	return vkEndCommandBuffer(frame->cmds);
 }
 
-VkResult vkframe_init(struct vkframe *frame, struct vkrenderer *rdr,
-		      VkImage image)
+VkResult vkframe_init(struct vkframe *frame, const struct vkrenderer *rdr,
+		      const VkImage image)
 {
 	frame->image = image;
 	VkResult result;
@@ -145,7 +147,7 @@ VkResult vkframe_init(struct vkframe *frame, struct vkrenderer *rdr,
 	return result;
 }
 
-void vkframe_destroy(struct vkframe *frame, VkDevice device)
+void vkframe_destroy(const struct vkframe *frame, const VkDevice device)
 {
 	vkDestroyFramebuffer(device, frame->framebuffer, NULL);
 	vkDestroyImageView(device, frame->view, NULL);
