@@ -29,10 +29,10 @@ extern "C" {
 /**
  * Initialize main window
  * @param win Specifies pointer to window to initialize
- * @param vk Specifies Vulkan instance where this window will be rendered
+ * @param instance Specifies Vulkan instance where this window will be rendered
  * @return zero on success, non-zero otherwise
  */
-int topdax_window_init(struct topdax_window *win, VkInstance vk);
+int topdax_window_init(struct topdax_window *win, VkInstance instance);
 
 /**
  * Destroy main window
