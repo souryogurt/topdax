@@ -19,7 +19,7 @@
  */
 static VkResult vkrenderer_create_device(struct vkrenderer *rdr)
 {
-	float queue_priorities = 1.0f;
+	float queue_priorities = 1.0F;
 	VkDeviceQueueCreateInfo qinfos[2] = {
 		{
 		 .queueFamilyIndex = rdr->graphic,
@@ -29,7 +29,7 @@ static VkResult vkrenderer_create_device(struct vkrenderer *rdr)
 		 },
 	};
 	uint32_t nqinfos = (rdr->graphic == rdr->present) ? 1 : 2;
-	for (size_t i = 0; i < nqinfos; i++) {
+	for (size_t i = 0; i < nqinfos; ++i) {
 		VkDeviceQueueCreateInfo *info = &qinfos[i];
 		info->sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		info->pNext = NULL;
@@ -119,7 +119,7 @@ static int vkrenderer_init_frames(struct vkrenderer *rdr)
 						  &rdr->nframes, images);
 	if (result != VK_SUCCESS)
 		return -1;
-	for (size_t i = 0; i < rdr->nframes; i++) {
+	for (size_t i = 0; i < rdr->nframes; ++i) {
 		if (vkframe_init(&rdr->frames[i], rdr, images[i]) != VK_SUCCESS) {
 			return -1;
 		}
@@ -170,7 +170,7 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 	VkSubpassDependency dependencies[] = {
 		{
 		 .srcSubpass = VK_SUBPASS_EXTERNAL,
-		 .dstSubpass = 0,	// Index of subpass in subpasses[]
+		 .dstSubpass = 0,
 		 .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 		 .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 		 .srcAccessMask = 0,
@@ -279,7 +279,7 @@ VkResult vkrenderer_render(struct vkrenderer *rdr)
 void vkrenderer_terminate(struct vkrenderer *rdr)
 {
 	vkDeviceWaitIdle(rdr->device);
-	for (size_t i = 0; i < rdr->nframes; i++) {
+	for (size_t i = 0; i < rdr->nframes; ++i) {
 		vkframe_destroy(&rdr->frames[i], rdr->device);
 	}
 	vkDestroySemaphore(rdr->device, rdr->render_sem, NULL);

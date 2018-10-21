@@ -37,13 +37,13 @@ select_families(const struct family_properties *props, uint32_t * graph,
 {
 	*graph = props->count;
 	*present = props->count;
-	for (uint32_t i = 0; i < props->count; i++) {
+	for (uint32_t i = 0; i < props->count; ++i) {
 		if (props->present[i]) {
 			*present = i;
 			break;
 		}
 	}
-	for (uint32_t i = 0; i < props->count; i++) {
+	for (uint32_t i = 0; i < props->count; ++i) {
 		if (props->graphic[i]) {
 			*graph = i;
 			break;
@@ -63,7 +63,7 @@ static int
 select_universal_families(const struct family_properties *props,
 			  uint32_t * graph, uint32_t * present)
 {
-	for (uint32_t i = 0; i < props->count; i++) {
+	for (uint32_t i = 0; i < props->count; ++i) {
 		if (props->present[i] && props->graphic[i]) {
 			*graph = i;
 			*present = i;
@@ -109,7 +109,7 @@ int vkrenderer_configure_families(struct vkrenderer *rdr)
 	};
 	vkGetPhysicalDeviceQueueFamilyProperties(rdr->phy, &props.count,
 						 props.fams);
-	for (uint32_t i = 0; i < props.count; i++) {
+	for (uint32_t i = 0; i < props.count; ++i) {
 		set_family_properties(rdr->phy, rdr->srf, &props, i);
 	}
 	if (!select_universal_families(&props, &rdr->graphic, &rdr->present)) {

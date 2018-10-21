@@ -61,7 +61,7 @@ int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance)
 	if (vkEnumeratePhysicalDevices(instance, &nphy, phy) != VK_SUCCESS) {
 		return -1;
 	}
-	for (size_t i = 0; i < nphy; i++) {
+	for (size_t i = 0; i < nphy; ++i) {
 		rdr->phy = phy[i];
 		if (!vkrenderer_configure_device(rdr))
 			return 0;

@@ -92,7 +92,7 @@ static VkResult vk_instance_create(VkInstance * instance)
 
 void application_quit(void)
 {
-	g_app_must_quit++;
+	++g_app_must_quit;
 }
 
 int application_main(int argc, char **argv)

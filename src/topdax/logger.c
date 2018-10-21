@@ -58,7 +58,7 @@ void setup_debug_logger(VkInstance instance)
 		.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
 		    VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
 		    VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-		.pfnUserCallback = vk_debug_print,
+		.pfnUserCallback = &vk_debug_print,
 		.pUserData = NULL
 	};
 	create_debug_msgr(instance, &msgr_info, NULL, &vk_debug_messenger);

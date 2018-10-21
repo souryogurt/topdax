@@ -97,7 +97,7 @@ static VkResult vkframe_record(struct vkframe *frame, struct vkrenderer *rdr)
 	VkCommandBufferBeginInfo begin_info = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		.pNext = NULL,
-		.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,	// ???
+		.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
 		.pInheritanceInfo = NULL,
 	};
 	VkResult result;
@@ -108,7 +108,7 @@ static VkResult vkframe_record(struct vkframe *frame, struct vkrenderer *rdr)
 	VkClearValue clear_colors[] = {
 		{
 		 .color = {
-			   .float32 = {1.0f, 1.0f, 1.0f, 1.0f}
+			   .float32 = {1.0F, 1.0F, 1.0F, 1.0F}
 			   }
 		 }
 	};
