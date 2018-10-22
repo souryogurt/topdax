@@ -6,8 +6,6 @@
 
 /** Vulkan Swapchain */
 struct vkswapchain {
-	/** Present Mode */
-	VkPresentModeKHR srf_mode;
 	/** Swapchain */
 	VkSwapchainKHR swapchain;
 	/** Render pass */
@@ -48,6 +46,8 @@ struct vkrenderer {
 	VkSurfaceCapabilitiesKHR srf_caps;
 	/** Surface format */
 	VkSurfaceFormatKHR srf_format;
+	/** Present Mode */
+	VkPresentModeKHR srf_mode;
 	/** Command pool */
 	VkCommandPool cmd_pool;
 	/** Chain of render images */
@@ -78,10 +78,12 @@ void vkrenderer_terminate(const struct vkrenderer *rdr);
 
 /**
  * Render to surface associated with renderer
- * @param rdr Specifies pointer to renderer to render
+ * @param swc Specifies pointer to swapchain used as target
+ * @param rdr Specifies pointer to renderer
  * @returns VK_SUCCESS on success, or VkError error otherwise
  */
-VkResult vkrenderer_render(const struct vkrenderer *rdr);
+VkResult vkswapchain_render(const struct vkswapchain *swc,
+			    const struct vkrenderer *rdr);
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }

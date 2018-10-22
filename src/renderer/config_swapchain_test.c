@@ -231,7 +231,7 @@ Ensure(configure_selects_mailbox_mode_when_available)
 					      nmodes), will_return(VK_SUCCESS));
 	int result = vkrenderer_configure_surface_present_mode(&rdr);
 	assert_that(result, is_equal_to(0));
-	assert_that(rdr.swapchain.srf_mode, is_equal_to(VK_PRESENT_MODE_MAILBOX_KHR));
+	assert_that(rdr.srf_mode, is_equal_to(VK_PRESENT_MODE_MAILBOX_KHR));
 }
 
 Ensure(configure_selects_fifo_mode_when_no_mailbox)
@@ -250,7 +250,7 @@ Ensure(configure_selects_fifo_mode_when_no_mailbox)
 					      nmodes), will_return(VK_SUCCESS));
 	int result = vkrenderer_configure_surface_present_mode(&rdr);
 	assert_that(result, is_equal_to(0));
-	assert_that(rdr.swapchain.srf_mode, is_equal_to(VK_PRESENT_MODE_FIFO_KHR));
+	assert_that(rdr.srf_mode, is_equal_to(VK_PRESENT_MODE_FIFO_KHR));
 }
 
 Ensure(configure_selects_suitable_swapchain)
@@ -305,7 +305,7 @@ Ensure(configure_selects_suitable_swapchain)
 		    is_equal_to(VK_FORMAT_B8G8R8A8_UNORM));
 	assert_that(rdr.srf_format.colorSpace,
 		    is_equal_to(VK_COLOR_SPACE_SRGB_NONLINEAR_KHR));
-	assert_that(rdr.swapchain.srf_mode, is_equal_to(VK_PRESENT_MODE_FIFO_KHR));
+	assert_that(rdr.srf_mode, is_equal_to(VK_PRESENT_MODE_FIFO_KHR));
 }
 
 int main(int argc, char **argv)

@@ -310,15 +310,15 @@ Ensure(vkrenderer_init_returns_non_zero_on_renderpass_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
-Ensure(vkrenderer_render_returns_error_on_image_acquire_fail)
+Ensure(vkswapchain_render_returns_error_on_image_acquire_fail)
 {
 	struct vkrenderer vkr = { 0 };
 	expect(vkAcquireNextImageKHR, will_return(VK_NOT_READY));
-	VkResult error = vkrenderer_render(&vkr);
+	VkResult error = vkswapchain_render(&vkr.swapchain, &vkr);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
-Ensure(vkrenderer_render_returns_error_on_submit_fail)
+Ensure(vkswapchain_render_returns_error_on_submit_fail)
 {
 	struct vkrenderer vkr = { 0 };
 	uint32_t image_index = 0;
@@ -327,11 +327,11 @@ Ensure(vkrenderer_render_returns_error_on_submit_fail)
 					      sizeof(uint32_t)),
 	       will_return(VK_SUCCESS));
 	expect(vkQueueSubmit, will_return(VK_NOT_READY));
-	VkResult error = vkrenderer_render(&vkr);
+	VkResult error = vkswapchain_render(&vkr.swapchain, &vkr);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
-Ensure(vkrenderer_render_returns_error_on_present_fail)
+Ensure(vkswapchain_render_returns_error_on_present_fail)
 {
 	struct vkrenderer vkr = { 0 };
 	uint32_t image_index = 0;
@@ -341,24 +341,24 @@ Ensure(vkrenderer_render_returns_error_on_present_fail)
 	       will_return(VK_SUCCESS));
 	expect(vkQueueSubmit, will_return(VK_SUCCESS));
 	expect(vkQueuePresentKHR, will_return(VK_NOT_READY));
-	VkResult error = vkrenderer_render(&vkr);
+	VkResult error = vkswapchain_render(&vkr.swapchain, &vkr);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
 Ensure(vkrenderer_terminate_destroys_all_resources)
 {
 	struct vkrenderer vkr = {
-		.swapchain ={
-			.nframes = 1,
-		},
+		.swapchain = {
+			      .nframes = 1,
+			      },
 	};
 	expect(vkDeviceWaitIdle);
 	expect(vkframe_destroy);
 	expect(vkDestroySemaphore);
 	expect(vkDestroySemaphore);
-	expect(vkDestroyCommandPool);
 	expect(vkDestroyRenderPass);
 	expect(vkDestroySwapchainKHR);
+	expect(vkDestroyCommandPool);
 	expect(vkDestroyDevice);
 	vkrenderer_terminate(&vkr);
 }
@@ -377,9 +377,9 @@ int main(int argc, char **argv)
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_sync_objects_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_getting_images_fail);
 	add_test(vkr, vkrenderer_init_returns_non_zero_on_frame_init_fail);
-	add_test(vkr, vkrenderer_render_returns_error_on_image_acquire_fail);
-	add_test(vkr, vkrenderer_render_returns_error_on_submit_fail);
-	add_test(vkr, vkrenderer_render_returns_error_on_present_fail);
+	add_test(vkr, vkswapchain_render_returns_error_on_image_acquire_fail);
+	add_test(vkr, vkswapchain_render_returns_error_on_submit_fail);
+	add_test(vkr, vkswapchain_render_returns_error_on_present_fail);
 	add_test(vkr, vkrenderer_terminate_destroys_all_resources);
 	TestReporter *reporter = create_text_reporter();
 	int exit_code = run_test_suite(vkr, reporter);

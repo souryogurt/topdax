@@ -13,51 +13,13 @@
 #include "vkrenderer.h"
 
 /**
- * Create Vulkan device for renderer
- * @param rdr Specifies renderer to create device for
- * @returns VK_SUCCESS on success, or VkResult error otherwise
- */
-static VkResult vkrenderer_create_device(struct vkrenderer *rdr)
-{
-	float queue_priorities = 1.0F;
-	VkDeviceQueueCreateInfo qinfos[2] = {
-		{
-		 .queueFamilyIndex = rdr->graphic,
-		 },
-		{
-		 .queueFamilyIndex = rdr->present,
-		 },
-	};
-	uint32_t nqinfos = (rdr->graphic == rdr->present) ? 1 : 2;
-	for (size_t i = 0; i < nqinfos; ++i) {
-		VkDeviceQueueCreateInfo *info = &qinfos[i];
-		info->sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		info->pNext = NULL;
-		info->flags = 0;
-		info->queueCount = 1;
-		info->pQueuePriorities = &queue_priorities;
-	}
-	VkDeviceCreateInfo dev_info = {
-		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.queueCreateInfoCount = nqinfos,
-		.pQueueCreateInfos = qinfos,
-		.enabledLayerCount = 0,
-		.ppEnabledLayerNames = NULL,
-		.enabledExtensionCount = rdr->nextensions,
-		.ppEnabledExtensionNames = rdr->extensions,
-		.pEnabledFeatures = &rdr->features,
-	};
-	return vkCreateDevice(rdr->phy, &dev_info, NULL, &rdr->device);
-}
-
-/**
  * Create synchronization objects used during rendering
- * @param rdr Specifies renderer to create sync objects for
+ * @param swc Specifies swapchain to create sync objects for
+ * @param dev Specifies device to create sync objects on
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-static VkResult vkrenderer_create_sync_objects(struct vkrenderer *rdr)
+static VkResult vkswapchain_create_sync_objects(struct vkswapchain *swc,
+						VkDevice dev)
 {
 	VkResult result;
 	VkSemaphoreCreateInfo info = {
@@ -65,18 +27,20 @@ static VkResult vkrenderer_create_sync_objects(struct vkrenderer *rdr)
 		.pNext = NULL,
 		.flags = 0,
 	};
-	result = vkCreateSemaphore(rdr->device, &info, NULL, &rdr->swapchain.acquire_sem);
+	result = vkCreateSemaphore(dev, &info, NULL, &swc->acquire_sem);
 	if (result != VK_SUCCESS)
 		return result;
-	return vkCreateSemaphore(rdr->device, &info, NULL, &rdr->swapchain.render_sem);
+	return vkCreateSemaphore(dev, &info, NULL, &swc->render_sem);
 }
 
 /**
  * Create Vulkan swapchain for renderer
- * @param rdr Specifies renderer to create swapchain for
+ * @param swapchain Specifies pointer to destination variable of swapchain
+ * @param rdr Specifies renderer to use for creation
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-static VkResult vkrenderer_create_swapchain(struct vkrenderer *rdr)
+static VkResult vkswapchain_create(VkSwapchainKHR * swapchain,
+				   const struct vkrenderer *rdr)
 {
 	uint32_t indeces[] = { rdr->graphic, rdr->present };
 	uint32_t nindeces = ARRAY_SIZE(indeces);
@@ -99,28 +63,30 @@ static VkResult vkrenderer_create_swapchain(struct vkrenderer *rdr)
 		.pQueueFamilyIndices = indeces,
 		.preTransform = rdr->srf_caps.currentTransform,
 		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-		.presentMode = rdr->swapchain.srf_mode,
+		.presentMode = rdr->srf_mode,
 		.clipped = VK_TRUE,
 		.oldSwapchain = VK_NULL_HANDLE,
 	};
-	return vkCreateSwapchainKHR(rdr->device, &info, NULL, &rdr->swapchain.swapchain);
+	return vkCreateSwapchainKHR(rdr->device, &info, NULL, swapchain);
 }
 
 /**
  * Initializes swapchain images
- * @param rdr Specifies renderer to initialize images for
+ * @param swc Specifies swapchain to initialize images for
+ * @param rdr Specifies renderer to to get images from
  * @returns zero on success, or non-zero otherwise
  */
-static int vkrenderer_init_frames(struct vkrenderer *rdr)
+static int vkswapchain_init_frames(struct vkswapchain *swc,
+				   const struct vkrenderer *rdr)
 {
-	VkImage images[ARRAY_SIZE(rdr->swapchain.frames)];
-	rdr->swapchain.nframes = ARRAY_SIZE(images);
-	VkResult result = vkGetSwapchainImagesKHR(rdr->device, rdr->swapchain.swapchain,
-						  &rdr->swapchain.nframes, images);
+	VkImage images[ARRAY_SIZE(swc->frames)];
+	swc->nframes = ARRAY_SIZE(images);
+	VkResult result = vkGetSwapchainImagesKHR(rdr->device, swc->swapchain,
+						  &swc->nframes, images);
 	if (result != VK_SUCCESS)
 		return -1;
-	for (size_t i = 0; i < rdr->swapchain.nframes; ++i) {
-		if (vkframe_init(&rdr->swapchain.frames[i], rdr, images[i]) != VK_SUCCESS) {
+	for (size_t i = 0; i < swc->nframes; ++i) {
+		if (vkframe_init(&swc->frames[i], rdr, images[i]) != VK_SUCCESS) {
 			return -1;
 		}
 	}
@@ -129,10 +95,12 @@ static int vkrenderer_init_frames(struct vkrenderer *rdr)
 
 /**
  * Initializes renderpass for renderer
- * @param rdr Specifies renderer to create renderpass for
+ * @param swc Specifies swapchain to create renderpass for
+ * @param rdr Specifies renderer to get params from
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
+static VkResult vkswapchain_init_render_pass(struct vkswapchain *swc,
+					     const struct vkrenderer *rdr)
 {
 	VkAttachmentDescription attachments[] = {
 		{
@@ -191,7 +159,84 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 		.dependencyCount = ARRAY_SIZE(dependencies),
 		.pDependencies = dependencies,
 	};
-	return vkCreateRenderPass(rdr->device, &info, NULL, &rdr->swapchain.renderpass);
+	return vkCreateRenderPass(rdr->device, &info, NULL, &swc->renderpass);
+}
+
+/**
+ * Initialize swapchain struct
+ * @param swc Specifies pointer to vkswapchain struct to initialize
+ * @param rdr Specifies renderer to get parameters from
+ * @returns zero on sucess, or non-zero otherwise
+ */
+static int vkswapchain_init(struct vkswapchain *swc,
+			    const struct vkrenderer *rdr)
+{
+	if (vkswapchain_create(&swc->swapchain, rdr) != VK_SUCCESS) {
+		return -1;
+	}
+	if (vkswapchain_init_render_pass(swc, rdr) != VK_SUCCESS) {
+		return -1;
+	}
+	if (vkswapchain_create_sync_objects(swc, rdr->device) != VK_SUCCESS) {
+		return -1;
+	}
+	return vkswapchain_init_frames(swc, rdr) != VK_SUCCESS;
+}
+
+/**
+ * Terminate swapchain
+ * @param swc Specifies pointer to vkswapchain to terminate
+ * @param dev Spwcifies Vulkan device to remove swapchain from
+ */
+static void vkswapchain_terminate(const struct vkswapchain *swc, VkDevice dev)
+{
+	for (size_t i = 0; i < swc->nframes; ++i) {
+		vkframe_destroy(&swc->frames[i], dev);
+	}
+	vkDestroySemaphore(dev, swc->render_sem, NULL);
+	vkDestroySemaphore(dev, swc->acquire_sem, NULL);
+	vkDestroyRenderPass(dev, swc->renderpass, NULL);
+	vkDestroySwapchainKHR(dev, swc->swapchain, NULL);
+}
+
+/**
+ * Create Vulkan device for renderer
+ * @param rdr Specifies renderer to create device for
+ * @returns VK_SUCCESS on success, or VkResult error otherwise
+ */
+static VkResult vkrenderer_create_device(struct vkrenderer *rdr)
+{
+	float queue_priorities = 1.0F;
+	VkDeviceQueueCreateInfo qinfos[2] = {
+		{
+		 .queueFamilyIndex = rdr->graphic,
+		 },
+		{
+		 .queueFamilyIndex = rdr->present,
+		 },
+	};
+	uint32_t nqinfos = (rdr->graphic == rdr->present) ? 1 : 2;
+	for (size_t i = 0; i < nqinfos; ++i) {
+		VkDeviceQueueCreateInfo *info = &qinfos[i];
+		info->sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		info->pNext = NULL;
+		info->flags = 0;
+		info->queueCount = 1;
+		info->pQueuePriorities = &queue_priorities;
+	}
+	VkDeviceCreateInfo dev_info = {
+		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.queueCreateInfoCount = nqinfos,
+		.pQueueCreateInfos = qinfos,
+		.enabledLayerCount = 0,
+		.ppEnabledLayerNames = NULL,
+		.enabledExtensionCount = rdr->nextensions,
+		.ppEnabledExtensionNames = rdr->extensions,
+		.pEnabledFeatures = &rdr->features,
+	};
+	return vkCreateDevice(rdr->phy, &dev_info, NULL, &rdr->device);
 }
 
 /**
@@ -225,23 +270,15 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_init_command_pool(rdr) != VK_SUCCESS) {
 		return -1;
 	}
-	if (vkrenderer_create_swapchain(rdr) != VK_SUCCESS) {
-		return -1;
-	}
-	if (vkrenderer_init_render_pass(rdr) != VK_SUCCESS) {
-		return -1;
-	}
-	if (vkrenderer_create_sync_objects(rdr) != VK_SUCCESS) {
-		return -1;
-	}
-	return vkrenderer_init_frames(rdr) != VK_SUCCESS;
+	return vkswapchain_init(&rdr->swapchain, rdr);
 }
 
-VkResult vkrenderer_render(const struct vkrenderer *rdr)
+VkResult vkswapchain_render(const struct vkswapchain *swc,
+			    const struct vkrenderer *rdr)
 {
 	uint32_t image_index;
-	VkResult result = vkAcquireNextImageKHR(rdr->device, rdr->swapchain.swapchain,
-						UINT64_MAX, rdr->swapchain.acquire_sem,
+	VkResult result = vkAcquireNextImageKHR(rdr->device, swc->swapchain,
+						UINT64_MAX, swc->acquire_sem,
 						VK_NULL_HANDLE, &image_index);
 	if (result != VK_SUCCESS)
 		return result;
@@ -252,12 +289,12 @@ VkResult vkrenderer_render(const struct vkrenderer *rdr)
 		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
 		.pNext = NULL,
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &rdr->swapchain.acquire_sem,
+		.pWaitSemaphores = &swc->acquire_sem,
 		.pWaitDstStageMask = wait_stages,
 		.commandBufferCount = 1,
-		.pCommandBuffers = &rdr->swapchain.frames[image_index].cmds,
+		.pCommandBuffers = &swc->frames[image_index].cmds,
 		.signalSemaphoreCount = 1,
-		.pSignalSemaphores = &rdr->swapchain.render_sem,
+		.pSignalSemaphores = &swc->render_sem,
 	};
 	result = vkQueueSubmit(rdr->graphics_queue, 1, &submit_info,
 			       VK_NULL_HANDLE);
@@ -267,9 +304,9 @@ VkResult vkrenderer_render(const struct vkrenderer *rdr)
 		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		.pNext = NULL,
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &rdr->swapchain.render_sem,
+		.pWaitSemaphores = &swc->render_sem,
 		.swapchainCount = 1,
-		.pSwapchains = &rdr->swapchain.swapchain,
+		.pSwapchains = &swc->swapchain,
 		.pImageIndices = &image_index,
 		.pResults = NULL,
 	};
@@ -279,13 +316,7 @@ VkResult vkrenderer_render(const struct vkrenderer *rdr)
 void vkrenderer_terminate(const struct vkrenderer *rdr)
 {
 	vkDeviceWaitIdle(rdr->device);
-	for (size_t i = 0; i < rdr->swapchain.nframes; ++i) {
-		vkframe_destroy(&rdr->swapchain.frames[i], rdr->device);
-	}
-	vkDestroySemaphore(rdr->device, rdr->swapchain.render_sem, NULL);
-	vkDestroySemaphore(rdr->device, rdr->swapchain.acquire_sem, NULL);
+	vkswapchain_terminate(&rdr->swapchain, rdr->device);
 	vkDestroyCommandPool(rdr->device, rdr->cmd_pool, NULL);
-	vkDestroyRenderPass(rdr->device, rdr->swapchain.renderpass, NULL);
-	vkDestroySwapchainKHR(rdr->device, rdr->swapchain.swapchain, NULL);
 	vkDestroyDevice(rdr->device, NULL);
 }
