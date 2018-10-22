@@ -65,10 +65,10 @@ static VkResult vkrenderer_create_sync_objects(struct vkrenderer *rdr)
 		.pNext = NULL,
 		.flags = 0,
 	};
-	result = vkCreateSemaphore(rdr->device, &info, NULL, &rdr->acquire_sem);
+	result = vkCreateSemaphore(rdr->device, &info, NULL, &rdr->swapchain.acquire_sem);
 	if (result != VK_SUCCESS)
 		return result;
-	return vkCreateSemaphore(rdr->device, &info, NULL, &rdr->render_sem);
+	return vkCreateSemaphore(rdr->device, &info, NULL, &rdr->swapchain.render_sem);
 }
 
 /**
@@ -99,11 +99,11 @@ static VkResult vkrenderer_create_swapchain(struct vkrenderer *rdr)
 		.pQueueFamilyIndices = indeces,
 		.preTransform = rdr->srf_caps.currentTransform,
 		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-		.presentMode = rdr->srf_mode,
+		.presentMode = rdr->swapchain.srf_mode,
 		.clipped = VK_TRUE,
 		.oldSwapchain = VK_NULL_HANDLE,
 	};
-	return vkCreateSwapchainKHR(rdr->device, &info, NULL, &rdr->swapchain);
+	return vkCreateSwapchainKHR(rdr->device, &info, NULL, &rdr->swapchain.swapchain);
 }
 
 /**
@@ -113,14 +113,14 @@ static VkResult vkrenderer_create_swapchain(struct vkrenderer *rdr)
  */
 static int vkrenderer_init_frames(struct vkrenderer *rdr)
 {
-	VkImage images[ARRAY_SIZE(rdr->frames)];
-	rdr->nframes = ARRAY_SIZE(images);
-	VkResult result = vkGetSwapchainImagesKHR(rdr->device, rdr->swapchain,
-						  &rdr->nframes, images);
+	VkImage images[ARRAY_SIZE(rdr->swapchain.frames)];
+	rdr->swapchain.nframes = ARRAY_SIZE(images);
+	VkResult result = vkGetSwapchainImagesKHR(rdr->device, rdr->swapchain.swapchain,
+						  &rdr->swapchain.nframes, images);
 	if (result != VK_SUCCESS)
 		return -1;
-	for (size_t i = 0; i < rdr->nframes; ++i) {
-		if (vkframe_init(&rdr->frames[i], rdr, images[i]) != VK_SUCCESS) {
+	for (size_t i = 0; i < rdr->swapchain.nframes; ++i) {
+		if (vkframe_init(&rdr->swapchain.frames[i], rdr, images[i]) != VK_SUCCESS) {
 			return -1;
 		}
 	}
@@ -191,7 +191,7 @@ static VkResult vkrenderer_init_render_pass(struct vkrenderer *rdr)
 		.dependencyCount = ARRAY_SIZE(dependencies),
 		.pDependencies = dependencies,
 	};
-	return vkCreateRenderPass(rdr->device, &info, NULL, &rdr->renderpass);
+	return vkCreateRenderPass(rdr->device, &info, NULL, &rdr->swapchain.renderpass);
 }
 
 /**
@@ -222,13 +222,13 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	}
 	vkGetDeviceQueue(rdr->device, rdr->graphic, 0, &rdr->graphics_queue);
 	vkGetDeviceQueue(rdr->device, rdr->present, 0, &rdr->present_queue);
+	if (vkrenderer_init_command_pool(rdr) != VK_SUCCESS) {
+		return -1;
+	}
 	if (vkrenderer_create_swapchain(rdr) != VK_SUCCESS) {
 		return -1;
 	}
 	if (vkrenderer_init_render_pass(rdr) != VK_SUCCESS) {
-		return -1;
-	}
-	if (vkrenderer_init_command_pool(rdr) != VK_SUCCESS) {
 		return -1;
 	}
 	if (vkrenderer_create_sync_objects(rdr) != VK_SUCCESS) {
@@ -240,8 +240,8 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 VkResult vkrenderer_render(const struct vkrenderer *rdr)
 {
 	uint32_t image_index;
-	VkResult result = vkAcquireNextImageKHR(rdr->device, rdr->swapchain,
-						UINT64_MAX, rdr->acquire_sem,
+	VkResult result = vkAcquireNextImageKHR(rdr->device, rdr->swapchain.swapchain,
+						UINT64_MAX, rdr->swapchain.acquire_sem,
 						VK_NULL_HANDLE, &image_index);
 	if (result != VK_SUCCESS)
 		return result;
@@ -252,12 +252,12 @@ VkResult vkrenderer_render(const struct vkrenderer *rdr)
 		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
 		.pNext = NULL,
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &rdr->acquire_sem,
+		.pWaitSemaphores = &rdr->swapchain.acquire_sem,
 		.pWaitDstStageMask = wait_stages,
 		.commandBufferCount = 1,
-		.pCommandBuffers = &rdr->frames[image_index].cmds,
+		.pCommandBuffers = &rdr->swapchain.frames[image_index].cmds,
 		.signalSemaphoreCount = 1,
-		.pSignalSemaphores = &rdr->render_sem,
+		.pSignalSemaphores = &rdr->swapchain.render_sem,
 	};
 	result = vkQueueSubmit(rdr->graphics_queue, 1, &submit_info,
 			       VK_NULL_HANDLE);
@@ -267,9 +267,9 @@ VkResult vkrenderer_render(const struct vkrenderer *rdr)
 		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		.pNext = NULL,
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &rdr->render_sem,
+		.pWaitSemaphores = &rdr->swapchain.render_sem,
 		.swapchainCount = 1,
-		.pSwapchains = &rdr->swapchain,
+		.pSwapchains = &rdr->swapchain.swapchain,
 		.pImageIndices = &image_index,
 		.pResults = NULL,
 	};
@@ -279,13 +279,13 @@ VkResult vkrenderer_render(const struct vkrenderer *rdr)
 void vkrenderer_terminate(const struct vkrenderer *rdr)
 {
 	vkDeviceWaitIdle(rdr->device);
-	for (size_t i = 0; i < rdr->nframes; ++i) {
-		vkframe_destroy(&rdr->frames[i], rdr->device);
+	for (size_t i = 0; i < rdr->swapchain.nframes; ++i) {
+		vkframe_destroy(&rdr->swapchain.frames[i], rdr->device);
 	}
-	vkDestroySemaphore(rdr->device, rdr->render_sem, NULL);
-	vkDestroySemaphore(rdr->device, rdr->acquire_sem, NULL);
+	vkDestroySemaphore(rdr->device, rdr->swapchain.render_sem, NULL);
+	vkDestroySemaphore(rdr->device, rdr->swapchain.acquire_sem, NULL);
 	vkDestroyCommandPool(rdr->device, rdr->cmd_pool, NULL);
-	vkDestroyRenderPass(rdr->device, rdr->renderpass, NULL);
-	vkDestroySwapchainKHR(rdr->device, rdr->swapchain, NULL);
+	vkDestroyRenderPass(rdr->device, rdr->swapchain.renderpass, NULL);
+	vkDestroySwapchainKHR(rdr->device, rdr->swapchain.swapchain, NULL);
 	vkDestroyDevice(rdr->device, NULL);
 }

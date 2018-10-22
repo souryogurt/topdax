@@ -4,6 +4,24 @@
 #include <vulkan/vulkan.h>
 #include <renderer/vkframe.h>
 
+/** Vulkan Swapchain */
+struct vkswapchain {
+	/** Present Mode */
+	VkPresentModeKHR srf_mode;
+	/** Swapchain */
+	VkSwapchainKHR swapchain;
+	/** Render pass */
+	VkRenderPass renderpass;
+	/** Rendered frames */
+	struct vkframe frames[16];
+	/** Number of frames in swapchain */
+	uint32_t nframes;
+	/** Semaphore signaled when image is acquired from swapchain */
+	VkSemaphore acquire_sem;
+	/** Semaphore signaled when image is rendered */
+	VkSemaphore render_sem;
+};
+
 /** Vulkan Renderer Instance */
 struct vkrenderer {
 	/** Target surface presenting rendered image */
@@ -30,22 +48,10 @@ struct vkrenderer {
 	VkSurfaceCapabilitiesKHR srf_caps;
 	/** Surface format */
 	VkSurfaceFormatKHR srf_format;
-	/** Present Mode */
-	VkPresentModeKHR srf_mode;
-	/** Swapchain */
-	VkSwapchainKHR swapchain;
-	/** Render pass */
-	VkRenderPass renderpass;
 	/** Command pool */
 	VkCommandPool cmd_pool;
-	/** Rendered frames */
-	struct vkframe frames[16];
-	/** Number of frames in swapchain */
-	uint32_t nframes;
-	/** Semaphore signaled when image is acquired from swapchain */
-	VkSemaphore acquire_sem;
-	/** Semaphore signaled when image is rendered */
-	VkSemaphore render_sem;
+	/** Chain of render images */
+	struct vkswapchain swapchain;
 };
 
 #ifdef __cplusplus

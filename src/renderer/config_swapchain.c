@@ -95,7 +95,7 @@ int vkrenderer_configure_surface_present_mode(struct vkrenderer *rdr)
 							   &nmodes, modes);
 	if (result != VK_SUCCESS || nmodes == 0)
 		return -1;
-	select_surface_present_mode(modes, nmodes, &rdr->srf_mode);
+	select_surface_present_mode(modes, nmodes, &rdr->swapchain.srf_mode);
 	return 0;
 }
 
