@@ -140,5 +140,9 @@ int main(int argc, char **argv)
 	add_test(suite, setup_debug_logger_initializes_messenger);
 	add_test(suite, destroy_debug_logger_destroys_messenger);
 	add_test(suite, logger_prints_messages_to_stderr);
-	return run_test_suite(suite, create_text_reporter());
+	TestReporter *reporter = create_text_reporter();
+	int exit_code = run_test_suite(suite, reporter);
+	destroy_reporter(reporter);
+	destroy_test_suite(suite);
+	return exit_code;
 }

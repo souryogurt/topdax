@@ -37,7 +37,7 @@ int vkrenderer_configure_swapchain(struct vkrenderer *rdr)
 Ensure(configure_fails_when_not_enough_memory_for_devices_list)
 {
 	VkInstance instance = VK_NULL_HANDLE;
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	expect(vkEnumeratePhysicalDevices,
 	       will_return(VK_INCOMPLETE),
 	       when(instance, is_equal_to(instance)));
@@ -47,7 +47,7 @@ Ensure(configure_fails_when_not_enough_memory_for_devices_list)
 
 Ensure(configure_fails_when_no_devices_available)
 {
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkInstance instance = VK_NULL_HANDLE;
 	uint32_t nphy = 0;
 	expect(vkEnumeratePhysicalDevices,
@@ -60,9 +60,9 @@ Ensure(configure_fails_when_no_devices_available)
 
 Ensure(configure_selects_suitable_device)
 {
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1];
+	VkPhysicalDevice phy[1] = { VK_NULL_HANDLE };
 	uint32_t nphy = ARRAY_SIZE(phy);
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDevices, phy,
@@ -79,9 +79,9 @@ Ensure(configure_selects_suitable_device)
 
 Ensure(configure_fails_when_no_suitable_families_available)
 {
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1];
+	VkPhysicalDevice phy[1] = { VK_NULL_HANDLE };
 	uint32_t nphy = ARRAY_SIZE(phy);
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDevices, phy,
@@ -97,9 +97,9 @@ Ensure(configure_fails_when_no_suitable_families_available)
 
 Ensure(configure_fails_when_no_suitable_swapchain_available)
 {
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1];
+	VkPhysicalDevice phy[1] = { VK_NULL_HANDLE };
 	uint32_t nphy = ARRAY_SIZE(phy);
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDevices, phy,
@@ -123,5 +123,9 @@ int main(int argc, char **argv)
 	add_test(vkr, configure_selects_suitable_device);
 	add_test(vkr, configure_fails_when_no_suitable_families_available);
 	add_test(vkr, configure_fails_when_no_suitable_swapchain_available);
-	return run_test_suite(vkr, create_text_reporter());
+	TestReporter *reporter = create_text_reporter();
+	int exit_code = run_test_suite(vkr, reporter);
+	destroy_reporter(reporter);
+	destroy_test_suite(vkr);
+	return exit_code;
 }

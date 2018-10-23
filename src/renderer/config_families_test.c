@@ -145,6 +145,9 @@ int main(int argc, char **argv)
 	add_test(vkr, configure_selects_universal_queue_family);
 	add_test(vkr, configure_selects_separate_families_when_no_universal);
 	add_test(vkr, configure_fails_when_no_suitable_families);
-
-	return run_test_suite(vkr, create_text_reporter());
+	TestReporter *reporter = create_text_reporter();
+	int exit_code = run_test_suite(vkr, reporter);
+	destroy_reporter(reporter);
+	destroy_test_suite(vkr);
+	return exit_code;
 }

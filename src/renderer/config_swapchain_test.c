@@ -326,5 +326,9 @@ int main(int argc, char **argv)
 	add_test(vkr, configure_fails_when_no_surface_modes_available);
 	add_test(vkr, configure_selects_mailbox_mode_when_available);
 	add_test(vkr, configure_selects_fifo_mode_when_no_mailbox);
-	return run_test_suite(vkr, create_text_reporter());
+	TestReporter *reporter = create_text_reporter();
+	int exit_code = run_test_suite(vkr, reporter);
+	destroy_reporter(reporter);
+	destroy_test_suite(vkr);
+	return exit_code;
 }

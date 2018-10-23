@@ -165,5 +165,9 @@ int main(int argc, char **argv)
 	add_test(suite, main_returns_non_zero_on_glfw_fail);
 	add_test(suite, main_returns_non_zero_on_vulkan_instance_init_fail);
 	add_test(suite, main_returns_non_zero_when_help_requested);
-	return run_test_suite(suite, create_text_reporter());
+	TestReporter *reporter = create_text_reporter();
+	int exit_code = run_test_suite(suite, reporter);
+	destroy_reporter(reporter);
+	destroy_test_suite(suite);
+	return exit_code;
 }

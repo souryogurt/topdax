@@ -64,9 +64,11 @@ vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface,
 Ensure(topdax_window_init_creates_window)
 {
 	GLFWwindow *window = (GLFWwindow *) 1;
-	struct topdax_window win;
+	struct topdax_window win = { 0 };
 	VkInstance vk = VK_NULL_HANDLE;
-	expect(glfwWindowHint);
+	expect(glfwWindowHint,
+	       when(hint, is_equal_to(GLFW_CLIENT_API)),
+	       when(value, is_equal_to(GLFW_NO_API)));
 	expect(glfwCreateWindow,
 	       will_return(window),
 	       when(width, is_equal_to(960)),
@@ -82,9 +84,11 @@ Ensure(topdax_window_init_creates_window)
 
 Ensure(topdax_window_init_returns_non_zero_on_fail)
 {
-	struct topdax_window win;
+	struct topdax_window win = { 0 };
 	VkInstance vk = VK_NULL_HANDLE;
-	expect(glfwWindowHint);
+	expect(glfwWindowHint,
+	       when(hint, is_equal_to(GLFW_CLIENT_API)),
+	       when(value, is_equal_to(GLFW_NO_API)));
 	expect(glfwCreateWindow, will_return(NULL));
 	int error = topdax_window_init(&win, vk);
 	assert_that(error, is_not_equal_to(0));
@@ -93,9 +97,11 @@ Ensure(topdax_window_init_returns_non_zero_on_fail)
 Ensure(topdax_window_init_returns_non_zero_on_surface_fail)
 {
 	GLFWwindow *window = (GLFWwindow *) 1;
-	struct topdax_window win;
+	struct topdax_window win = { 0 };
 	VkInstance vk = VK_NULL_HANDLE;
-	expect(glfwWindowHint);
+	expect(glfwWindowHint,
+	       when(hint, is_equal_to(GLFW_CLIENT_API)),
+	       when(value, is_equal_to(GLFW_NO_API)));
 	expect(glfwCreateWindow, will_return(window));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwCreateWindowSurface,
@@ -107,7 +113,7 @@ Ensure(topdax_window_init_returns_non_zero_on_surface_fail)
 
 Ensure(topdax_window_destroy_destroys_window)
 {
-	struct topdax_window win;
+	struct topdax_window win = { 0 };
 	expect(vkrenderer_terminate, when(rdr, is_equal_to(&win.renderer)));
 	expect(vkDestroySurfaceKHR, when(surface, is_equal_to(win.surface)));
 	topdax_window_destroy(&win);
@@ -122,5 +128,9 @@ int main(int argc, char **argv)
 	add_test(suite, topdax_window_init_returns_non_zero_on_fail);
 	add_test(suite, topdax_window_init_returns_non_zero_on_surface_fail);
 	add_test(suite, topdax_window_destroy_destroys_window);
-	return run_test_suite(suite, create_text_reporter());
+	TestReporter *reporter = create_text_reporter();
+	int exit_code = run_test_suite(suite, reporter);
+	destroy_reporter(reporter);
+	destroy_test_suite(suite);
+	return exit_code;
 }

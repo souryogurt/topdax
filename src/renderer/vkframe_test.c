@@ -174,5 +174,9 @@ int main(int argc, char **argv)
 	add_test(vkf, vkframe_init_returns_error_on_begin_cmd_buffer);
 	add_test(vkf, vkframe_init_returns_error_on_end_cmd_buffer);
 	add_test(vkf, vkframe_destroy_destroys_all_resources);
-	return run_test_suite(vkf, create_text_reporter());
+	TestReporter *reporter = create_text_reporter();
+	int exit_code = run_test_suite(vkf, reporter);
+	destroy_reporter(reporter);
+	destroy_test_suite(vkf);
+	return exit_code;
 }

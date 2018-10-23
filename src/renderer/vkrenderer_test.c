@@ -158,7 +158,7 @@ Ensure(vkrenderer_init_returns_zero_on_success)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
 	expect(vkGetDeviceQueue);
@@ -182,7 +182,7 @@ Ensure(vkrenderer_init_returns_non_zero_when_no_configs)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(1));
 	never_expect(vkCreateDevice, will_return(VK_SUCCESS));
 	never_expect(vkGetDeviceQueue);
@@ -195,7 +195,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_device_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_ERROR_INITIALIZATION_FAILED));
 	never_expect(vkGetDeviceQueue);
@@ -208,7 +208,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_swapchain_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
 	expect(vkGetDeviceQueue);
@@ -223,7 +223,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_getting_images_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
 	expect(vkGetDeviceQueue);
@@ -242,7 +242,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_command_pool_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
 	expect(vkGetDeviceQueue);
@@ -258,7 +258,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_sync_objects_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
 	expect(vkGetDeviceQueue);
@@ -275,7 +275,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_frame_init_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
 	expect(vkGetDeviceQueue);
@@ -299,7 +299,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_renderpass_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
 	expect(vkGetDeviceQueue);
@@ -312,7 +312,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_renderpass_fail)
 
 Ensure(vkrenderer_render_returns_error_on_image_acquire_fail)
 {
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	expect(vkAcquireNextImageKHR, will_return(VK_NOT_READY));
 	VkResult error = vkrenderer_render(&vkr);
 	assert_that(error, is_equal_to(VK_NOT_READY));
@@ -320,7 +320,7 @@ Ensure(vkrenderer_render_returns_error_on_image_acquire_fail)
 
 Ensure(vkrenderer_render_returns_error_on_submit_fail)
 {
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	uint32_t image_index = 0;
 	expect(vkAcquireNextImageKHR,
 	       will_set_contents_of_parameter(pImageIndex, &image_index,
@@ -333,7 +333,7 @@ Ensure(vkrenderer_render_returns_error_on_submit_fail)
 
 Ensure(vkrenderer_render_returns_error_on_present_fail)
 {
-	struct vkrenderer vkr;
+	struct vkrenderer vkr = { 0 };
 	uint32_t image_index = 0;
 	expect(vkAcquireNextImageKHR,
 	       will_set_contents_of_parameter(pImageIndex, &image_index,
@@ -379,5 +379,9 @@ int main(int argc, char **argv)
 	add_test(vkr, vkrenderer_render_returns_error_on_submit_fail);
 	add_test(vkr, vkrenderer_render_returns_error_on_present_fail);
 	add_test(vkr, vkrenderer_terminate_destroys_all_resources);
-	return run_test_suite(vkr, create_text_reporter());
+	TestReporter *reporter = create_text_reporter();
+	int exit_code = run_test_suite(vkr, reporter);
+	destroy_reporter(reporter);
+	destroy_test_suite(vkr);
+	return exit_code;
 }
