@@ -1,6 +1,8 @@
 #ifndef RENDERER_VKFRAME_H
 #define RENDERER_VKFRAME_H
 
+#include <vulkan/vulkan_core.h>
+
 struct vkrenderer;
 
 /** Presentable frame in swapchain */

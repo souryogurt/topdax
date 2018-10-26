@@ -5,8 +5,13 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+
+#include <stddef.h>
+
 #include <application/utils.h>
+#include "renderer/vkframe.h"
 #include <renderer/vkrenderer.h>
+#include "renderer/vkswapchain.h"
 #include <vulkan/vulkan_core.h>
 
 /**

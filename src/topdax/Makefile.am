@@ -2,9 +2,9 @@ bin_PROGRAMS += bin/topdax
 bin_topdax_SOURCES = src/topdax/entry.c
 bin_topdax_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 bin_topdax_LDADD = lib/libtopdax.a lib/libtopdax_window.a\
-		   lib/liblogger.a lib/libvkrenderer.a lib/libvkconfig.a\
-		   lib/libvkconfig_families.a lib/libvkconfig_swapchain.a\
-		   lib/libvkframe.a\
+		   lib/liblogger.a lib/libvkrenderer.a lib/libvkswapchain.a\
+		   lib/libvkconfig.a lib/libvkconfig_families.a\
+		   lib/libvkconfig_swapchain.a lib/libvkframe.a\
 		   $(CODE_COVERAGE_LIBS)
 
 noinst_LIBRARIES += lib/libtopdax.a

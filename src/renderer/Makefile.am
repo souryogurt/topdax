@@ -4,6 +4,11 @@ lib_libvkrenderer_a_SOURCES += src/renderer/vkrenderer.h
 lib_libvkrenderer_a_SOURCES += src/renderer/vkrenderer.c
 lib_libvkrenderer_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
+noinst_LIBRARIES += lib/libvkswapchain.a
+lib_libvkswapchain_a_SOURCES = include/renderer/vkswapchain.h
+lib_libvkswapchain_a_SOURCES += src/renderer/vkswapchain.c
+lib_libvkswapchain_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+
 noinst_LIBRARIES += lib/libvkframe.a
 lib_libvkframe_a_SOURCES = include/renderer/vkframe.h
 lib_libvkframe_a_SOURCES += src/renderer/vkframe.c
@@ -30,6 +35,12 @@ check_PROGRAMS += bin/vkrenderer_test
 bin_vkrenderer_test_SOURCES = src/renderer/vkrenderer_test.c
 bin_vkrenderer_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 bin_vkrenderer_test_LDADD = lib/libvkrenderer.a -lcgreen $(CODE_COVERAGE_LIBS)
+
+TESTS += bin/vkswapchain_test
+check_PROGRAMS += bin/vkswapchain_test
+bin_vkswapchain_test_SOURCES = src/renderer/vkswapchain_test.c
+bin_vkswapchain_test_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+bin_vkswapchain_test_LDADD = lib/libvkswapchain.a -lcgreen $(CODE_COVERAGE_LIBS)
 
 TESTS += bin/vkframe_test
 check_PROGRAMS += bin/vkframe_test

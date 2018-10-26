@@ -1,24 +1,7 @@
-#ifndef TOPDAX_VKRENDERER_H
-#define TOPDAX_VKRENDERER_H
+#ifndef RENDERER_VKRENDERER_H
+#define RENDERER_VKRENDERER_H
 
-#include <vulkan/vulkan.h>
-#include <renderer/vkframe.h>
-
-/** Vulkan Swapchain */
-struct vkswapchain {
-	/** Swapchain */
-	VkSwapchainKHR swapchain;
-	/** Render pass */
-	VkRenderPass renderpass;
-	/** Rendered frames */
-	struct vkframe frames[16];
-	/** Number of frames in swapchain */
-	uint32_t nframes;
-	/** Semaphore signaled when image is acquired from swapchain */
-	VkSemaphore acquire_sem;
-	/** Semaphore signaled when image is rendered */
-	VkSemaphore render_sem;
-};
+#include <renderer/vkswapchain.h>
 
 /** Vulkan Renderer Instance */
 struct vkrenderer {
