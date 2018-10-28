@@ -165,12 +165,6 @@ static VkResult vkswapchain_init_render_pass(struct vkswapchain *swc,
 	return vkCreateRenderPass(rdr->device, &info, NULL, &swc->renderpass);
 }
 
-/**
- * Initialize swapchain struct
- * @param swc Specifies pointer to vkswapchain struct to initialize
- * @param rdr Specifies renderer to get parameters from
- * @returns zero on sucess, or non-zero otherwise
- */
 int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr)
 {
 	if (vkswapchain_create(&swc->swapchain, rdr) != VK_SUCCESS) {
@@ -185,11 +179,46 @@ int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr)
 	return vkswapchain_init_frames(swc, rdr) != VK_SUCCESS;
 }
 
-/**
- * Terminate swapchain
- * @param swc Specifies pointer to vkswapchain to terminate
- * @param dev Spwcifies Vulkan device to remove swapchain from
- */
+VkResult vkswapchain_render(const struct vkswapchain *swc,
+			    const struct vkrenderer *rdr)
+{
+	uint32_t image_index;
+	VkResult result = vkAcquireNextImageKHR(rdr->device, swc->swapchain,
+						UINT64_MAX, swc->acquire_sem,
+						VK_NULL_HANDLE, &image_index);
+	if (result != VK_SUCCESS)
+		return result;
+	const VkPipelineStageFlags wait_stages[] = {
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+	};
+	VkSubmitInfo submit_info = {
+		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.pNext = NULL,
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &swc->acquire_sem,
+		.pWaitDstStageMask = wait_stages,
+		.commandBufferCount = 1,
+		.pCommandBuffers = &swc->frames[image_index].cmds,
+		.signalSemaphoreCount = 1,
+		.pSignalSemaphores = &swc->render_sem,
+	};
+	result = vkQueueSubmit(rdr->graphics_queue, 1, &submit_info,
+			       VK_NULL_HANDLE);
+	if (result != VK_SUCCESS)
+		return result;
+	VkPresentInfoKHR present_info = {
+		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		.pNext = NULL,
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &swc->render_sem,
+		.swapchainCount = 1,
+		.pSwapchains = &swc->swapchain,
+		.pImageIndices = &image_index,
+		.pResults = NULL,
+	};
+	return vkQueuePresentKHR(rdr->present_queue, &present_info);
+}
+
 void vkswapchain_terminate(const struct vkswapchain *swc, VkDevice dev)
 {
 	for (size_t i = 0; i < swc->nframes; ++i) {

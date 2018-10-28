@@ -108,7 +108,6 @@ int application_main(int argc, char **argv)
 	setup_debug_logger(vk);
 #endif
 	topdax_window_init(&window, vk);
-	static size_t frame = 0;
 	while (!glfwWindowShouldClose(window.id)) {
 		glfwPollEvents();
 		vkswapchain_render(&window.renderer.swapchain,

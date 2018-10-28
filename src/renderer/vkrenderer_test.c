@@ -60,28 +60,6 @@ vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool,
 	mock(device, commandPool, pAllocator);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkAcquireNextImageKHR(VkDevice device, VkSwapchainKHR swapchain,
-		      uint64_t timeout, VkSemaphore semaphore, VkFence fence,
-		      uint32_t * pImageIndex)
-{
-	return (VkResult) mock(device, swapchain, timeout, semaphore, fence,
-			       pImageIndex);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL
-vkQueueSubmit(VkQueue queue, uint32_t submitCount,
-	      const VkSubmitInfo * pSubmits, VkFence fence)
-{
-	return (VkResult) mock(queue, submitCount, pSubmits, fence);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL
-vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR * pPresentInfo)
-{
-	return (VkResult) mock(queue, pPresentInfo);
-}
-
 VKAPI_ATTR VkResult VKAPI_CALL vkDeviceWaitIdle(VkDevice device)
 {
 	return (VkResult) mock(device);
@@ -97,7 +75,7 @@ void vkswapchain_terminate(const struct vkswapchain *swc, VkDevice dev)
 	mock(swc, dev);
 }
 
-Ensure(vkrenderer_init_returns_zero_on_success)
+Ensure(init_returns_zero_on_success)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
@@ -112,7 +90,7 @@ Ensure(vkrenderer_init_returns_zero_on_success)
 	assert_that(error, is_equal_to(0));
 }
 
-Ensure(vkrenderer_init_returns_non_zero_when_no_configs)
+Ensure(init_returns_non_zero_when_no_configs)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
@@ -122,7 +100,7 @@ Ensure(vkrenderer_init_returns_non_zero_when_no_configs)
 	assert_that(error, is_not_equal_to(0));
 }
 
-Ensure(vkrenderer_init_returns_non_zero_on_device_fail)
+Ensure(init_returns_non_zero_on_device_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
@@ -133,7 +111,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_device_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
-Ensure(vkrenderer_init_returns_non_zero_on_command_pool_fail)
+Ensure(init_returns_non_zero_on_command_pool_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
@@ -147,7 +125,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_command_pool_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
-Ensure(vkrenderer_init_returns_non_zero_on_swapchain_fail)
+Ensure(init_returns_non_zero_on_swapchain_fail)
 {
 	VkInstance instance = (VkInstance) 1;
 	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
@@ -162,42 +140,7 @@ Ensure(vkrenderer_init_returns_non_zero_on_swapchain_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
-Ensure(vkswapchain_render_returns_error_on_image_acquire_fail)
-{
-	struct vkrenderer vkr = { 0 };
-	expect(vkAcquireNextImageKHR, will_return(VK_NOT_READY));
-	VkResult error = vkswapchain_render(&vkr.swapchain, &vkr);
-	assert_that(error, is_equal_to(VK_NOT_READY));
-}
-
-Ensure(vkswapchain_render_returns_error_on_submit_fail)
-{
-	struct vkrenderer vkr = { 0 };
-	uint32_t image_index = 0;
-	expect(vkAcquireNextImageKHR,
-	       will_set_contents_of_parameter(pImageIndex, &image_index,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS));
-	expect(vkQueueSubmit, will_return(VK_NOT_READY));
-	VkResult error = vkswapchain_render(&vkr.swapchain, &vkr);
-	assert_that(error, is_equal_to(VK_NOT_READY));
-}
-
-Ensure(vkswapchain_render_returns_error_on_present_fail)
-{
-	struct vkrenderer vkr = { 0 };
-	uint32_t image_index = 0;
-	expect(vkAcquireNextImageKHR,
-	       will_set_contents_of_parameter(pImageIndex, &image_index,
-					      sizeof(uint32_t)),
-	       will_return(VK_SUCCESS));
-	expect(vkQueueSubmit, will_return(VK_SUCCESS));
-	expect(vkQueuePresentKHR, will_return(VK_NOT_READY));
-	VkResult error = vkswapchain_render(&vkr.swapchain, &vkr);
-	assert_that(error, is_equal_to(VK_NOT_READY));
-}
-
-Ensure(vkrenderer_terminate_destroys_all_resources)
+Ensure(terminate_destroys_all_resources)
 {
 	struct vkrenderer vkr = { 0 };
 	expect(vkDeviceWaitIdle);
@@ -213,15 +156,12 @@ int main(int argc, char **argv)
 	(void)(argc);
 	(void)(argv);
 	TestSuite *vkr = create_named_test_suite("VKRenderer");
-	add_test(vkr, vkrenderer_init_returns_zero_on_success);
-	add_test(vkr, vkrenderer_init_returns_non_zero_when_no_configs);
-	add_test(vkr, vkrenderer_init_returns_non_zero_on_device_fail);
-	add_test(vkr, vkrenderer_init_returns_non_zero_on_command_pool_fail);
-	add_test(vkr, vkrenderer_init_returns_non_zero_on_swapchain_fail);
-	add_test(vkr, vkswapchain_render_returns_error_on_image_acquire_fail);
-	add_test(vkr, vkswapchain_render_returns_error_on_submit_fail);
-	add_test(vkr, vkswapchain_render_returns_error_on_present_fail);
-	add_test(vkr, vkrenderer_terminate_destroys_all_resources);
+	add_test(vkr, init_returns_zero_on_success);
+	add_test(vkr, init_returns_non_zero_when_no_configs);
+	add_test(vkr, init_returns_non_zero_on_device_fail);
+	add_test(vkr, init_returns_non_zero_on_command_pool_fail);
+	add_test(vkr, init_returns_non_zero_on_swapchain_fail);
+	add_test(vkr, terminate_destroys_all_resources);
 	TestReporter *reporter = create_text_reporter();
 	int exit_code = run_test_suite(vkr, reporter);
 	destroy_reporter(reporter);

@@ -88,46 +88,6 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	return vkswapchain_init(&rdr->swapchain, rdr);
 }
 
-VkResult vkswapchain_render(const struct vkswapchain *swc,
-			    const struct vkrenderer *rdr)
-{
-	uint32_t image_index;
-	VkResult result = vkAcquireNextImageKHR(rdr->device, swc->swapchain,
-						UINT64_MAX, swc->acquire_sem,
-						VK_NULL_HANDLE, &image_index);
-	if (result != VK_SUCCESS)
-		return result;
-	const VkPipelineStageFlags wait_stages[] = {
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-	};
-	VkSubmitInfo submit_info = {
-		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		.pNext = NULL,
-		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &swc->acquire_sem,
-		.pWaitDstStageMask = wait_stages,
-		.commandBufferCount = 1,
-		.pCommandBuffers = &swc->frames[image_index].cmds,
-		.signalSemaphoreCount = 1,
-		.pSignalSemaphores = &swc->render_sem,
-	};
-	result = vkQueueSubmit(rdr->graphics_queue, 1, &submit_info,
-			       VK_NULL_HANDLE);
-	if (result != VK_SUCCESS)
-		return result;
-	VkPresentInfoKHR present_info = {
-		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-		.pNext = NULL,
-		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &swc->render_sem,
-		.swapchainCount = 1,
-		.pSwapchains = &swc->swapchain,
-		.pImageIndices = &image_index,
-		.pResults = NULL,
-	};
-	return vkQueuePresentKHR(rdr->present_queue, &present_info);
-}
-
 void vkrenderer_terminate(const struct vkrenderer *rdr)
 {
 	vkDeviceWaitIdle(rdr->device);

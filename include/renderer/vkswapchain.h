@@ -35,6 +35,14 @@ extern "C" {
 int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr);
 
 /**
+ * Render to surface associated with renderer
+ * @param swc Specifies pointer to swapchain used as target
+ * @param rdr Specifies pointer to renderer
+ * @returns VK_SUCCESS on success, or VkError error otherwise
+ */
+VkResult vkswapchain_render(const struct vkswapchain *swc,
+			    const struct vkrenderer *rdr);
+/**
  * Terminate swapchain
  * @param swc Specifies pointer to vkswapchain to terminate
  * @param dev Spwcifies Vulkan device to remove swapchain from

@@ -59,14 +59,6 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
  */
 void vkrenderer_terminate(const struct vkrenderer *rdr);
 
-/**
- * Render to surface associated with renderer
- * @param swc Specifies pointer to swapchain used as target
- * @param rdr Specifies pointer to renderer
- * @returns VK_SUCCESS on success, or VkError error otherwise
- */
-VkResult vkswapchain_render(const struct vkswapchain *swc,
-			    const struct vkrenderer *rdr);
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 }
