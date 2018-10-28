@@ -214,27 +214,7 @@ Ensure(configure_fails_when_no_surface_modes_available)
 	assert_that(result, is_not_equal_to(0));
 }
 
-Ensure(configure_selects_mailbox_mode_when_available)
-{
-	struct vkrenderer rdr;
-	VkPresentModeKHR modes[] = {
-		VK_PRESENT_MODE_FIFO_KHR,
-		VK_PRESENT_MODE_MAILBOX_KHR,
-		VK_PRESENT_MODE_IMMEDIATE_KHR
-	};
-	uint32_t nmodes = ARRAY_SIZE(modes);
-	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
-	       will_set_contents_of_parameter(pPresentModeCount, &nmodes,
-					      sizeof(uint32_t)),
-	       will_set_contents_of_parameter(pPresentModes, modes,
-					      sizeof(VkPresentModeKHR) *
-					      nmodes), will_return(VK_SUCCESS));
-	int result = vkrenderer_configure_surface_present_mode(&rdr);
-	assert_that(result, is_equal_to(0));
-	assert_that(rdr.srf_mode, is_equal_to(VK_PRESENT_MODE_MAILBOX_KHR));
-}
-
-Ensure(configure_selects_fifo_mode_when_no_mailbox)
+Ensure(configure_selects_fifo_mode)
 {
 	struct vkrenderer rdr;
 	VkPresentModeKHR modes[] = {
@@ -324,8 +304,7 @@ int main(int argc, char **argv)
 	add_test(vkr, configure_finds_bgra_unorm_srgb_format_in_available);
 	add_test(vkr, configure_fails_when_no_memory_for_surface_modes);
 	add_test(vkr, configure_fails_when_no_surface_modes_available);
-	add_test(vkr, configure_selects_mailbox_mode_when_available);
-	add_test(vkr, configure_selects_fifo_mode_when_no_mailbox);
+	add_test(vkr, configure_selects_fifo_mode);
 	TestReporter *reporter = create_text_reporter();
 	int exit_code = run_test_suite(vkr, reporter);
 	destroy_reporter(reporter);

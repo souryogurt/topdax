@@ -49,12 +49,6 @@ void vkrenderer_terminate(const struct vkrenderer *rdr)
 	mock(rdr);
 }
 
-VkResult vkswapchain_render(const struct vkswapchain *swc,
-			    const struct vkrenderer *rdr)
-{
-	return (VkResult) mock(swc, rdr);
-}
-
 VKAPI_ATTR void VKAPI_CALL
 vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface,
 		    const VkAllocationCallbacks * pAllocator)
@@ -78,9 +72,6 @@ Ensure(topdax_window_init_creates_window)
 	expect(glfwSetWindowUserPointer);
 	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
 	expect(vkrenderer_init, when(rdr, is_equal_to(&win.renderer)));
-	expect(vkswapchain_render,
-	       when(swc, is_equal_to(&win.renderer.swapchain)),
-	       when(rdr, is_equal_to(&win.renderer)));
 	int error = topdax_window_init(&win, vk);
 	assert_that(error, is_equal_to(0));
 }

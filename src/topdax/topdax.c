@@ -17,9 +17,12 @@
 #include "logger.h"
 #include "topdax.h"
 #include "window.h"
+#include <renderer/vkrenderer.h>
 
-/** Topdax application instance */
-static struct topdax app;
+/** Vulkan instance */
+static VkInstance vk;
+/** Main window */
+static struct topdax_window window;
 
 /** Arguments parser */
 static struct argp argp;
@@ -98,21 +101,24 @@ int application_main(int argc, char **argv)
 	if (!glfwInit())
 		return EXIT_FAILURE;
 
-	if (vk_instance_create(&app.vk) != VK_SUCCESS) {
+	if (vk_instance_create(&vk) != VK_SUCCESS) {
 		return EXIT_FAILURE;
 	}
 #ifndef NDEBUG
-	setup_debug_logger(app.vk);
+	setup_debug_logger(vk);
 #endif
-	topdax_window_init(&app.window, app.vk);
-	while (!glfwWindowShouldClose(app.window.id)) {
-		glfwWaitEvents();
+	topdax_window_init(&window, vk);
+	static size_t frame = 0;
+	while (!glfwWindowShouldClose(window.id)) {
+		glfwPollEvents();
+		vkswapchain_render(&window.renderer.swapchain,
+				   &window.renderer);
 	}
-	topdax_window_destroy(&app.window);
+	topdax_window_destroy(&window);
 #ifndef NDEBUG
-	destroy_debug_logger(app.vk);
+	destroy_debug_logger(vk);
 #endif
-	vkDestroyInstance(app.vk, NULL);
+	vkDestroyInstance(vk, NULL);
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }

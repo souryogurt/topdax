@@ -67,25 +67,6 @@ int vkrenderer_configure_surface_format(struct vkrenderer *rdr)
 	return 0;
 }
 
-/**
- * Select suitable presentation mode from available
- * @param modes Specifies array of available presentation modes on device
- * @param nmodes Specifies number of elements in @a modes array
- * @param mode Specifies pointer to memory where selected mode must be stored
- */
-static void select_surface_present_mode(const VkPresentModeKHR * modes,
-					uint32_t nmodes,
-					VkPresentModeKHR * mode)
-{
-	for (uint32_t i = 0; i < nmodes; ++i) {
-		if (modes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
-			*mode = modes[i];
-			return;
-		}
-	}
-	*mode = VK_PRESENT_MODE_FIFO_KHR;
-}
-
 int vkrenderer_configure_surface_present_mode(struct vkrenderer *rdr)
 {
 	VkPresentModeKHR modes[32];
@@ -95,7 +76,7 @@ int vkrenderer_configure_surface_present_mode(struct vkrenderer *rdr)
 							   &nmodes, modes);
 	if (result != VK_SUCCESS || nmodes == 0)
 		return -1;
-	select_surface_present_mode(modes, nmodes, &rdr->srf_mode);
+	rdr->srf_mode = VK_PRESENT_MODE_FIFO_KHR;
 	return 0;
 }
 

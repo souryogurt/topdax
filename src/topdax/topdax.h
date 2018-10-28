@@ -1,17 +1,6 @@
 #ifndef TOPDAX_TOPDAX_H
 #define TOPDAX_TOPDAX_H
 
-#include <vulkan/vulkan_core.h>
-#include "window.h"
-
-/** Topdax Application */
-struct topdax {
-	/** Vulkan instance */
-	VkInstance vk;
-	/** Main window */
-	struct topdax_window window;
-};
-
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 extern "C" {

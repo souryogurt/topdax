@@ -14,10 +14,13 @@
 #include <cgreen/mocks.h>
 
 #include <application/utils.h>
+#include <vulkan/vulkan_core.h>
 #include <GLFW/glfw3.h>
 #include "topdax.h"
 
 struct topdax_window;
+struct vkswapchain;
+struct vkrenderer;
 
 GLFWAPI int glfwInit(void)
 {
@@ -85,7 +88,7 @@ error_t __wrap_argp_parse(const struct argp *__restrict __argp,
 			      argp_bug_address);
 }
 
-GLFWAPI void glfwWaitEvents(void)
+GLFWAPI void glfwPollEvents(void)
 {
 	mock();
 }
@@ -93,6 +96,12 @@ GLFWAPI void glfwWaitEvents(void)
 GLFWAPI int glfwWindowShouldClose(GLFWwindow * window)
 {
 	return (int)mock(window);
+}
+
+VkResult vkswapchain_render(const struct vkswapchain *swc,
+			    const struct vkrenderer *rdr)
+{
+	return (VkResult) mock(swc, rdr);
 }
 
 Ensure(main_returns_zero_on_success)
@@ -112,7 +121,8 @@ Ensure(main_returns_zero_on_success)
 #endif
 	expect(topdax_window_init);
 	expect(glfwWindowShouldClose, will_return(0));
-	expect(glfwWaitEvents);
+	expect(glfwPollEvents);
+	expect(vkswapchain_render);
 	expect(glfwWindowShouldClose, will_return(1));
 	expect(topdax_window_destroy);
 #ifndef NDEBUG

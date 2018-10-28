@@ -25,7 +25,6 @@ int topdax_window_init(struct topdax_window *win, VkInstance instance)
 		return 1;
 	}
 	vkrenderer_init(&win->renderer, instance, win->surface);
-	vkswapchain_render(&win->renderer.swapchain, &win->renderer);
 	return 0;
 }
 
