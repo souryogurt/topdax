@@ -75,6 +75,12 @@ void vkswapchain_terminate(const struct vkswapchain *swc, VkDevice dev)
 	mock(swc, dev);
 }
 
+VkResult vkswapchain_render(const struct vkswapchain *swc,
+			    const struct vkrenderer *rdr)
+{
+	return (VkResult) mock(swc, rdr);
+}
+
 Ensure(init_returns_zero_on_success)
 {
 	VkInstance instance = (VkInstance) 1;
@@ -140,6 +146,31 @@ Ensure(init_returns_non_zero_on_swapchain_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
+Ensure(render_returns_zero_on_success)
+{
+	struct vkrenderer vkr = { 0 };
+	expect(vkswapchain_render,
+	       when(swc, is_equal_to(&vkr.swcs[0])),
+	       when(rdr, is_equal_to(&vkr)), will_return(VK_SUCCESS));
+	int error = vkrenderer_render(&vkr);
+	assert_that(error, is_equal_to(0));
+}
+
+Ensure(render_recreates_swapchain)
+{
+	struct vkrenderer vkr = { 0 };
+	expect(vkswapchain_render,
+	       when(swc, is_equal_to(&vkr.swcs[0])),
+	       when(rdr, is_equal_to(&vkr)),
+	       will_return(VK_ERROR_OUT_OF_DATE_KHR));
+	expect(vkswapchain_init, when(swc, is_equal_to(&vkr.swcs[1])));
+	expect(vkswapchain_render,
+	       when(swc, is_equal_to(&vkr.swcs[1])),
+	       when(rdr, is_equal_to(&vkr)), will_return(VK_SUCCESS));
+	int error = vkrenderer_render(&vkr);
+	assert_that(error, is_equal_to(0));
+}
+
 Ensure(terminate_destroys_all_resources)
 {
 	struct vkrenderer vkr = { 0 };
@@ -161,6 +192,8 @@ int main(int argc, char **argv)
 	add_test(vkr, init_returns_non_zero_on_device_fail);
 	add_test(vkr, init_returns_non_zero_on_command_pool_fail);
 	add_test(vkr, init_returns_non_zero_on_swapchain_fail);
+	add_test(vkr, render_returns_zero_on_success);
+	add_test(vkr, render_recreates_swapchain);
 	add_test(vkr, terminate_destroys_all_resources);
 	TestReporter *reporter = create_text_reporter();
 	int exit_code = run_test_suite(vkr, reporter);

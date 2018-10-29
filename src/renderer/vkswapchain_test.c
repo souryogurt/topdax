@@ -200,7 +200,7 @@ Ensure(render_returns_error_on_image_acquire_fail)
 {
 	struct vkrenderer vkr = { 0 };
 	expect(vkAcquireNextImageKHR, will_return(VK_NOT_READY));
-	VkResult error = vkswapchain_render(&vkr.swapchain, &vkr);
+	VkResult error = vkswapchain_render(&vkr.swcs[0], &vkr);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
@@ -213,7 +213,7 @@ Ensure(render_returns_error_on_submit_fail)
 					      sizeof(uint32_t)),
 	       will_return(VK_SUCCESS));
 	expect(vkQueueSubmit, will_return(VK_NOT_READY));
-	VkResult error = vkswapchain_render(&vkr.swapchain, &vkr);
+	VkResult error = vkswapchain_render(&vkr.swcs[0], &vkr);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
@@ -227,7 +227,7 @@ Ensure(render_returns_error_on_present_fail)
 	       will_return(VK_SUCCESS));
 	expect(vkQueueSubmit, will_return(VK_SUCCESS));
 	expect(vkQueuePresentKHR, will_return(VK_NOT_READY));
-	VkResult error = vkswapchain_render(&vkr.swapchain, &vkr);
+	VkResult error = vkswapchain_render(&vkr.swcs[0], &vkr);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 

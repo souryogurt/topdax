@@ -98,10 +98,9 @@ GLFWAPI int glfwWindowShouldClose(GLFWwindow * window)
 	return (int)mock(window);
 }
 
-VkResult vkswapchain_render(const struct vkswapchain *swc,
-			    const struct vkrenderer *rdr)
+int vkrenderer_render(struct vkrenderer *rdr)
 {
-	return (VkResult) mock(swc, rdr);
+	return (int)mock(rdr);
 }
 
 Ensure(main_returns_zero_on_success)
@@ -122,7 +121,7 @@ Ensure(main_returns_zero_on_success)
 	expect(topdax_window_init);
 	expect(glfwWindowShouldClose, will_return(0));
 	expect(glfwPollEvents);
-	expect(vkswapchain_render);
+	expect(vkrenderer_render);
 	expect(glfwWindowShouldClose, will_return(1));
 	expect(topdax_window_destroy);
 #ifndef NDEBUG

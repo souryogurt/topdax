@@ -110,8 +110,7 @@ int application_main(int argc, char **argv)
 	topdax_window_init(&window, vk);
 	while (!glfwWindowShouldClose(window.id)) {
 		glfwPollEvents();
-		vkswapchain_render(&window.renderer.swapchain,
-				   &window.renderer);
+		vkrenderer_render(&window.renderer);
 	}
 	topdax_window_destroy(&window);
 #ifndef NDEBUG

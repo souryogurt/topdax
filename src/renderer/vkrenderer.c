@@ -85,13 +85,25 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_init_command_pool(rdr) != VK_SUCCESS) {
 		return -1;
 	}
-	return vkswapchain_init(&rdr->swapchain, rdr);
+	rdr->swc_index = 0;
+	return vkswapchain_init(&rdr->swcs[rdr->swc_index], rdr);
+}
+
+int vkrenderer_render(struct vkrenderer *rdr)
+{
+	VkResult result = vkswapchain_render(&rdr->swcs[rdr->swc_index], rdr);
+	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		rdr->swc_index += 1;
+		vkswapchain_init(&rdr->swcs[rdr->swc_index], rdr);
+		result = vkswapchain_render(&rdr->swcs[rdr->swc_index], rdr);
+	}
+	return result != VK_SUCCESS;
 }
 
 void vkrenderer_terminate(const struct vkrenderer *rdr)
 {
 	vkDeviceWaitIdle(rdr->device);
-	vkswapchain_terminate(&rdr->swapchain, rdr->device);
+	vkswapchain_terminate(&rdr->swcs[rdr->swc_index], rdr->device);
 	vkDestroyCommandPool(rdr->device, rdr->cmd_pool, NULL);
 	vkDestroyDevice(rdr->device, NULL);
 }

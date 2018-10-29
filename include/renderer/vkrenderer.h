@@ -33,8 +33,10 @@ struct vkrenderer {
 	VkPresentModeKHR srf_mode;
 	/** Command pool */
 	VkCommandPool cmd_pool;
-	/** Chain of render images */
-	struct vkswapchain swapchain;
+	/** An array of swapchains */
+	struct vkswapchain swcs[8];
+	/** Current swapchain */
+	size_t swc_index;
 };
 
 #ifdef __cplusplus
@@ -52,6 +54,13 @@ extern "C" {
  */
 int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 		    const VkSurfaceKHR surface);
+
+/**
+ * Renders an image to attached surface
+ * @param rdr Specifies pointer to renderer
+ * @returns zero on success, and non-zero otherwise
+ */
+int vkrenderer_render(struct vkrenderer *rdr);
 
 /**
  * Terminates Vulkan renderer instance

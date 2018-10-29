@@ -78,7 +78,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEndCommandBuffer(VkCommandBuffer commandBuffer)
 Ensure(vkframe_init_returns_error_on_framebuffer_fail)
 {
 	struct vkframe frame;
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_NOT_READY));
@@ -89,7 +89,7 @@ Ensure(vkframe_init_returns_error_on_framebuffer_fail)
 Ensure(vkframe_init_returns_error_on_getting_view_fail)
 {
 	struct vkframe frame;
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_NOT_READY));
 	int error = vkframe_init(&frame, &rdr, image);
@@ -99,7 +99,7 @@ Ensure(vkframe_init_returns_error_on_getting_view_fail)
 Ensure(vkframe_init_returns_error_on_command_buffer_fail)
 {
 	struct vkframe frame;
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
@@ -111,7 +111,7 @@ Ensure(vkframe_init_returns_error_on_command_buffer_fail)
 Ensure(vkframe_init_returns_vk_success_on_success)
 {
 	struct vkframe frame;
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
@@ -127,7 +127,7 @@ Ensure(vkframe_init_returns_vk_success_on_success)
 Ensure(vkframe_init_returns_error_on_end_cmd_buffer)
 {
 	struct vkframe frame;
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
@@ -143,7 +143,7 @@ Ensure(vkframe_init_returns_error_on_end_cmd_buffer)
 Ensure(vkframe_init_returns_error_on_begin_cmd_buffer)
 {
 	struct vkframe frame;
-	struct vkrenderer rdr;
+	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
@@ -155,7 +155,7 @@ Ensure(vkframe_init_returns_error_on_begin_cmd_buffer)
 
 Ensure(vkframe_destroy_destroys_all_resources)
 {
-	struct vkframe frame;
+	struct vkframe frame = { 0 };
 	VkDevice device = VK_NULL_HANDLE;
 	expect(vkDestroyFramebuffer);
 	expect(vkDestroyImageView);
