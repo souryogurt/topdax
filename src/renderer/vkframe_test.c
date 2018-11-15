@@ -80,9 +80,10 @@ Ensure(vkframe_init_returns_error_on_framebuffer_fail)
 	struct vkframe frame;
 	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
+	VkRenderPass rpass = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_NOT_READY));
-	int error = vkframe_init(&frame, &rdr, image);
+	int error = vkframe_init(&frame, rpass, &rdr, image);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
@@ -91,8 +92,9 @@ Ensure(vkframe_init_returns_error_on_getting_view_fail)
 	struct vkframe frame;
 	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
+	VkRenderPass rpass = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_NOT_READY));
-	int error = vkframe_init(&frame, &rdr, image);
+	int error = vkframe_init(&frame, rpass, &rdr, image);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
@@ -101,10 +103,11 @@ Ensure(vkframe_init_returns_error_on_command_buffer_fail)
 	struct vkframe frame;
 	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
+	VkRenderPass rpass = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
 	expect(vkAllocateCommandBuffers, will_return(VK_NOT_READY));
-	int error = vkframe_init(&frame, &rdr, image);
+	int error = vkframe_init(&frame, rpass, &rdr, image);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
@@ -113,6 +116,7 @@ Ensure(vkframe_init_returns_vk_success_on_success)
 	struct vkframe frame;
 	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
+	VkRenderPass rpass = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
 	expect(vkAllocateCommandBuffers, will_return(VK_SUCCESS));
@@ -120,7 +124,7 @@ Ensure(vkframe_init_returns_vk_success_on_success)
 	expect(vkCmdBeginRenderPass, will_return(VK_SUCCESS));
 	expect(vkCmdEndRenderPass, will_return(VK_SUCCESS));
 	expect(vkEndCommandBuffer, will_return(VK_SUCCESS));
-	int error = vkframe_init(&frame, &rdr, image);
+	int error = vkframe_init(&frame, rpass, &rdr, image);
 	assert_that(error, is_equal_to(VK_SUCCESS));
 }
 
@@ -129,6 +133,7 @@ Ensure(vkframe_init_returns_error_on_end_cmd_buffer)
 	struct vkframe frame;
 	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
+	VkRenderPass rpass = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
 	expect(vkAllocateCommandBuffers, will_return(VK_SUCCESS));
@@ -136,7 +141,7 @@ Ensure(vkframe_init_returns_error_on_end_cmd_buffer)
 	expect(vkCmdBeginRenderPass, will_return(VK_SUCCESS));
 	expect(vkCmdEndRenderPass, will_return(VK_SUCCESS));
 	expect(vkEndCommandBuffer, will_return(VK_NOT_READY));
-	int error = vkframe_init(&frame, &rdr, image);
+	int error = vkframe_init(&frame, rpass, &rdr, image);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 
@@ -145,11 +150,12 @@ Ensure(vkframe_init_returns_error_on_begin_cmd_buffer)
 	struct vkframe frame;
 	struct vkrenderer rdr = { 0 };
 	VkImage image = VK_NULL_HANDLE;
+	VkRenderPass rpass = VK_NULL_HANDLE;
 	expect(vkCreateImageView, will_return(VK_SUCCESS));
 	expect(vkCreateFramebuffer, will_return(VK_SUCCESS));
 	expect(vkAllocateCommandBuffers, will_return(VK_SUCCESS));
 	expect(vkBeginCommandBuffer, will_return(VK_NOT_READY));
-	int error = vkframe_init(&frame, &rdr, image);
+	int error = vkframe_init(&frame, rpass, &rdr, image);
 	assert_that(error, is_equal_to(VK_NOT_READY));
 }
 

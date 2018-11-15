@@ -83,13 +83,17 @@ static int vkswapchain_init_frames(struct vkswapchain *swc,
 				   const struct vkrenderer *rdr)
 {
 	VkImage images[ARRAY_SIZE(swc->frames)];
-	swc->nframes = ARRAY_SIZE(images);
-	VkResult result = vkGetSwapchainImagesKHR(rdr->device, swc->swapchain,
-						  &swc->nframes, images);
-	if (result != VK_SUCCESS)
+	uint32_t nimages = ARRAY_SIZE(images);
+	VkResult err = vkGetSwapchainImagesKHR(rdr->device, swc->swapchain,
+					       &nimages, images);
+	if (err != VK_SUCCESS)
 		return -1;
-	for (size_t i = 0; i < swc->nframes; ++i) {
-		if (vkframe_init(&swc->frames[i], rdr, images[i]) != VK_SUCCESS) {
+
+	for (swc->nframes = 0; swc->nframes < nimages; ++swc->nframes) {
+		struct vkframe *frame = &swc->frames[swc->nframes];
+		VkImage image = images[swc->nframes];
+		err = vkframe_init(frame, swc->rpass, rdr, image);
+		if (err != VK_SUCCESS) {
 			return -1;
 		}
 	}
@@ -98,17 +102,19 @@ static int vkswapchain_init_frames(struct vkswapchain *swc,
 
 /**
  * Initializes renderpass for renderer
- * @param swc Specifies swapchain to create renderpass for
- * @param rdr Specifies renderer to get params from
+ * @param rpass Specifies renderpass to initialize
+ * @param format Specifies format of render targets
+ * @param dev Specifies device to use
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-static VkResult vkswapchain_init_render_pass(struct vkswapchain *swc,
-					     const struct vkrenderer *rdr)
+static VkResult vkswapchain_init_render_pass(VkRenderPass * rpass,
+					     const VkFormat format,
+					     const VkDevice dev)
 {
 	VkAttachmentDescription attachments[] = {
 		{
 		 .flags = 0,
-		 .format = rdr->srf_format.format,
+		 .format = format,
 		 .samples = VK_SAMPLE_COUNT_1_BIT,
 		 .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
 		 .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
@@ -162,7 +168,7 @@ static VkResult vkswapchain_init_render_pass(struct vkswapchain *swc,
 		.dependencyCount = ARRAY_SIZE(dependencies),
 		.pDependencies = dependencies,
 	};
-	return vkCreateRenderPass(rdr->device, &info, NULL, &swc->renderpass);
+	return vkCreateRenderPass(dev, &info, NULL, rpass);
 }
 
 int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr)
@@ -170,10 +176,12 @@ int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr)
 	if (vkswapchain_create(&swc->swapchain, rdr) != VK_SUCCESS) {
 		return -1;
 	}
-	if (vkswapchain_init_render_pass(swc, rdr) != VK_SUCCESS) {
+	const VkFormat fmt = rdr->srf_format.format;
+	const VkDevice dev = rdr->device;
+	if (vkswapchain_init_render_pass(&swc->rpass, fmt, dev) != VK_SUCCESS) {
 		return -1;
 	}
-	if (vkswapchain_create_sync_objects(swc, rdr->device) != VK_SUCCESS) {
+	if (vkswapchain_create_sync_objects(swc, dev) != VK_SUCCESS) {
 		return -1;
 	}
 	return vkswapchain_init_frames(swc, rdr) != VK_SUCCESS;
@@ -226,6 +234,6 @@ void vkswapchain_terminate(const struct vkswapchain *swc, VkDevice dev)
 	}
 	vkDestroySemaphore(dev, swc->render_sem, NULL);
 	vkDestroySemaphore(dev, swc->acquire_sem, NULL);
-	vkDestroyRenderPass(dev, swc->renderpass, NULL);
+	vkDestroyRenderPass(dev, swc->rpass, NULL);
 	vkDestroySwapchainKHR(dev, swc->swapchain, NULL);
 }

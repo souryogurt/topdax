@@ -9,11 +9,11 @@ struct vkswapchain {
 	/** Swapchain */
 	VkSwapchainKHR swapchain;
 	/** Render pass */
-	VkRenderPass renderpass;
+	VkRenderPass rpass;
 	/** Rendered frames */
 	struct vkframe frames[16];
 	/** Number of frames in swapchain */
-	uint32_t nframes;
+	size_t nframes;
 	/** Semaphore signaled when image is acquired from swapchain */
 	VkSemaphore acquire_sem;
 	/** Semaphore signaled when image is rendered */

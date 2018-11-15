@@ -55,10 +55,10 @@ vkDestroyRenderPass(VkDevice device, VkRenderPass renderPass,
 }
 
 VkResult
-vkframe_init(struct vkframe *frame, const struct vkrenderer *rdr,
-	     const VkImage image)
+vkframe_init(struct vkframe *frame, const VkRenderPass rpass,
+	     const struct vkrenderer *rdr, const VkImage image)
 {
-	return (VkResult) mock(frame, rdr, image);
+	return (VkResult) mock(frame, rpass, rdr, image);
 }
 
 void vkframe_destroy(const struct vkframe *frame, const VkDevice device)

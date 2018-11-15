@@ -7,12 +7,14 @@ struct vkrenderer;
 
 /** Presentable frame in swapchain */
 struct vkframe {
-	/** Image in swapchain */
-	VkImage image;
+	/** Attached buffer*/
+	VkFramebuffer buffer;
 	/** View to image in swapchain */
 	VkImageView view;
-	/** Attached framebuffer*/
-	VkFramebuffer framebuffer;
+	/** Image in swapchain */
+	VkImage image;
+	/** Frame dimensions */
+	VkExtent2D size;
 	/** Primary command buffer */
 	VkCommandBuffer cmds;
 };
@@ -25,12 +27,13 @@ extern "C" {
 /**
  * Initializes swapchain frame
  * @param frame Specifies frame to initialize
+ * @param rpass Specifies render pass the frame will be compatible with
  * @param rdr Specifies renderer this frame belongs to
  * @param image Specifies swapchain image to init frame on
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-VkResult vkframe_init(struct vkframe *frame, const struct vkrenderer *rdr,
-		      const VkImage image);
+VkResult vkframe_init(struct vkframe *frame, const VkRenderPass rpass,
+		      const struct vkrenderer *rdr, const VkImage image);
 
 /**
  * Destroys frame resources
