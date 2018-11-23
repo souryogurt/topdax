@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <application/utils.h>
 #include <renderer/vkrenderer.h>
 #include "renderer/vkframe.h"
 #include "renderer/vkswapchain.h"
@@ -85,17 +86,30 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_init_command_pool(rdr) != VK_SUCCESS) {
 		return -1;
 	}
+
 	rdr->swc_index = 0;
-	return vkswapchain_init(&rdr->swcs[rdr->swc_index], rdr);
+	return vkswapchain_init(&rdr->swcs[rdr->swc_index], rdr,
+				VK_NULL_HANDLE);
 }
 
 int vkrenderer_render(struct vkrenderer *rdr)
 {
-	VkResult result = vkswapchain_render(&rdr->swcs[rdr->swc_index], rdr);
+	struct vkswapchain *swc = &rdr->swcs[rdr->swc_index];
+	VkResult result = vkswapchain_render(swc, rdr);
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-		rdr->swc_index += 1;
-		vkswapchain_init(&rdr->swcs[rdr->swc_index], rdr);
-		result = vkswapchain_render(&rdr->swcs[rdr->swc_index], rdr);
+		vkDeviceWaitIdle(rdr->device);
+		size_t swc_index = (rdr->swc_index + 1) % ARRAY_SIZE(rdr->swcs);
+		struct vkswapchain *new_swc = &rdr->swcs[swc_index];
+		if (vkrenderer_configure_swapchain(rdr)) {
+			return -1;
+		}
+		if (vkswapchain_init(new_swc, rdr, swc->swapchain)) {
+			return -1;
+		}
+		vkswapchain_terminate(swc, rdr->device);
+		rdr->swc_index = swc_index;
+		swc = new_swc;
+		result = vkswapchain_render(swc, rdr);
 	}
 	return result != VK_SUCCESS;
 }

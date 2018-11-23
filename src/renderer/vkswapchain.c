@@ -40,10 +40,12 @@ static VkResult vkswapchain_create_sync_objects(struct vkswapchain *swc,
  * Create Vulkan swapchain for renderer
  * @param swapchain Specifies pointer to destination variable of swapchain
  * @param rdr Specifies renderer to use for creation
+ * @param old_swc Specifies handle of old swapchain, or VK_NULL_HANDLE
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
 static VkResult vkswapchain_create(VkSwapchainKHR * swapchain,
-				   const struct vkrenderer *rdr)
+				   const struct vkrenderer *rdr,
+				   const VkSwapchainKHR old_swc)
 {
 	uint32_t indeces[] = { rdr->graphic, rdr->present };
 	uint32_t nindeces = ARRAY_SIZE(indeces);
@@ -68,7 +70,7 @@ static VkResult vkswapchain_create(VkSwapchainKHR * swapchain,
 		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 		.presentMode = rdr->srf_mode,
 		.clipped = VK_TRUE,
-		.oldSwapchain = VK_NULL_HANDLE,
+		.oldSwapchain = old_swc,
 	};
 	return vkCreateSwapchainKHR(rdr->device, &info, NULL, swapchain);
 }
@@ -171,9 +173,10 @@ static VkResult vkswapchain_init_render_pass(VkRenderPass * rpass,
 	return vkCreateRenderPass(dev, &info, NULL, rpass);
 }
 
-int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr)
+int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr,
+		     const VkSwapchainKHR old_swc)
 {
-	if (vkswapchain_create(&swc->swapchain, rdr) != VK_SUCCESS) {
+	if (vkswapchain_create(&swc->swapchain, rdr, old_swc) != VK_SUCCESS) {
 		return -1;
 	}
 	const VkFormat fmt = rdr->srf_format.format;

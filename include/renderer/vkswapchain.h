@@ -30,9 +30,11 @@ extern "C" {
  * Initialize swapchain struct
  * @param swc Specifies pointer to vkswapchain struct to initialize
  * @param rdr Specifies renderer to get parameters from
+ * @param old Specifies handle of old swapchain, or VK_NULL_HANDLE
  * @returns zero on sucess, or non-zero otherwise
  */
-int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr);
+int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr,
+		     const VkSwapchainKHR old_swc);
 
 /**
  * Render to surface associated with renderer

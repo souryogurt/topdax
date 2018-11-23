@@ -34,7 +34,7 @@ struct vkrenderer {
 	/** Command pool */
 	VkCommandPool cmd_pool;
 	/** An array of swapchains */
-	struct vkswapchain swcs[8];
+	struct vkswapchain swcs[2];
 	/** Current swapchain */
 	size_t swc_index;
 };

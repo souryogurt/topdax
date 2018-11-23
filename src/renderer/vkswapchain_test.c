@@ -117,7 +117,7 @@ Ensure(init_returns_zero_on_success)
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
 	expect(vkframe_init, will_return(VK_SUCCESS));
-	int error = vkswapchain_init(&swc, &vkr);
+	int error = vkswapchain_init(&swc, &vkr, VK_NULL_HANDLE);
 	assert_that(error, is_equal_to(0));
 }
 
@@ -126,7 +126,7 @@ Ensure(init_returns_non_zero_on_swapchain_fail)
 	struct vkrenderer vkr = { 0 };
 	struct vkswapchain swc = { 0 };
 	expect(vkCreateSwapchainKHR, will_return(VK_NOT_READY));
-	int error = vkswapchain_init(&swc, &vkr);
+	int error = vkswapchain_init(&swc, &vkr, VK_NULL_HANDLE);
 	assert_that(error, is_not_equal_to(0));
 }
 
@@ -136,7 +136,7 @@ Ensure(init_returns_non_zero_on_renderpass_fail)
 	struct vkswapchain swc = { 0 };
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
 	expect(vkCreateRenderPass, will_return(VK_NOT_READY));
-	int error = vkswapchain_init(&swc, &vkr);
+	int error = vkswapchain_init(&swc, &vkr, VK_NULL_HANDLE);
 	assert_that(error, is_not_equal_to(0));
 }
 
@@ -147,7 +147,7 @@ Ensure(init_returns_non_zero_on_sync_objects_fail)
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
 	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_NOT_READY));
-	int error = vkswapchain_init(&swc, &vkr);
+	int error = vkswapchain_init(&swc, &vkr, VK_NULL_HANDLE);
 	assert_that(error, is_not_equal_to(0));
 }
 
@@ -160,7 +160,7 @@ Ensure(init_returns_non_zero_on_getting_images_fail)
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
 	expect(vkGetSwapchainImagesKHR, will_return(VK_INCOMPLETE));
-	int error = vkswapchain_init(&swc, &vkr);
+	int error = vkswapchain_init(&swc, &vkr, VK_NULL_HANDLE);
 	assert_that(error, is_not_equal_to(0));
 }
 
@@ -178,7 +178,7 @@ Ensure(init_returns_non_zero_on_frame_init_fail)
 					      sizeof(uint32_t)),
 	       will_return(VK_SUCCESS));
 	expect(vkframe_init, will_return(VK_ERROR_INITIALIZATION_FAILED));
-	int error = vkswapchain_init(&swc, &vkr);
+	int error = vkswapchain_init(&swc, &vkr, VK_NULL_HANDLE);
 	assert_that(error, is_not_equal_to(0));
 }
 

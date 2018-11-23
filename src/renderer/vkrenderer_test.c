@@ -65,14 +65,20 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDeviceWaitIdle(VkDevice device)
 	return (VkResult) mock(device);
 }
 
-int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr)
+int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr,
+		     const VkSwapchainKHR old_swc)
 {
-	return (int)mock(swc, rdr);
+	return (int)mock(swc, rdr, old_swc);
 }
 
 void vkswapchain_terminate(const struct vkswapchain *swc, VkDevice dev)
 {
 	mock(swc, dev);
+}
+
+int vkrenderer_configure_swapchain(struct vkrenderer *rdr)
+{
+	return (int)mock(rdr);
 }
 
 VkResult vkswapchain_render(const struct vkswapchain *swc,
@@ -163,12 +169,50 @@ Ensure(render_recreates_swapchain)
 	       when(swc, is_equal_to(&vkr.swcs[0])),
 	       when(rdr, is_equal_to(&vkr)),
 	       will_return(VK_ERROR_OUT_OF_DATE_KHR));
-	expect(vkswapchain_init, when(swc, is_equal_to(&vkr.swcs[1])));
+	expect(vkDeviceWaitIdle, when(device, is_equal_to(vkr.device)));
+	expect(vkrenderer_configure_swapchain, will_return(0),
+	       when(rdr, is_equal_to(&vkr)));
+	expect(vkswapchain_init, will_return(0),
+	       when(swc, is_equal_to(&vkr.swcs[1])));
+	expect(vkswapchain_terminate, when(swc, is_equal_to(&vkr.swcs[0])));
 	expect(vkswapchain_render,
 	       when(swc, is_equal_to(&vkr.swcs[1])),
 	       when(rdr, is_equal_to(&vkr)), will_return(VK_SUCCESS));
 	int error = vkrenderer_render(&vkr);
 	assert_that(error, is_equal_to(0));
+	assert_that(vkr.swc_index, is_equal_to(1));
+}
+
+Ensure(render_returns_non_zero_on_swapchain_config_fail)
+{
+	struct vkrenderer vkr = { 0 };
+	expect(vkswapchain_render,
+	       when(swc, is_equal_to(&vkr.swcs[0])),
+	       when(rdr, is_equal_to(&vkr)),
+	       will_return(VK_ERROR_OUT_OF_DATE_KHR));
+	expect(vkDeviceWaitIdle, when(device, is_equal_to(vkr.device)));
+	expect(vkrenderer_configure_swapchain, will_return(1),
+	       when(rdr, is_equal_to(&vkr)));
+	int error = vkrenderer_render(&vkr);
+	assert_that(error, is_not_equal_to(0));
+	assert_that(vkr.swc_index, is_equal_to(0));
+}
+
+Ensure(render_returns_non_zero_on_swapchain_init_fail)
+{
+	struct vkrenderer vkr = { 0 };
+	expect(vkswapchain_render,
+	       when(swc, is_equal_to(&vkr.swcs[0])),
+	       when(rdr, is_equal_to(&vkr)),
+	       will_return(VK_ERROR_OUT_OF_DATE_KHR));
+	expect(vkDeviceWaitIdle, when(device, is_equal_to(vkr.device)));
+	expect(vkrenderer_configure_swapchain, will_return(0),
+	       when(rdr, is_equal_to(&vkr)));
+	expect(vkswapchain_init, will_return(1),
+	       when(swc, is_equal_to(&vkr.swcs[1])));
+	int error = vkrenderer_render(&vkr);
+	assert_that(error, is_not_equal_to(0));
+	assert_that(vkr.swc_index, is_equal_to(0));
 }
 
 Ensure(terminate_destroys_all_resources)
@@ -194,6 +238,8 @@ int main(int argc, char **argv)
 	add_test(vkr, init_returns_non_zero_on_swapchain_fail);
 	add_test(vkr, render_returns_zero_on_success);
 	add_test(vkr, render_recreates_swapchain);
+	add_test(vkr, render_returns_non_zero_on_swapchain_config_fail);
+	add_test(vkr, render_returns_non_zero_on_swapchain_init_fail);
 	add_test(vkr, terminate_destroys_all_resources);
 	TestReporter *reporter = create_text_reporter();
 	int exit_code = run_test_suite(vkr, reporter);

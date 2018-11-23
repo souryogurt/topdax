@@ -160,4 +160,5 @@ void vkframe_destroy(const struct vkframe *frame, const VkDevice device)
 {
 	vkDestroyFramebuffer(device, frame->buffer, NULL);
 	vkDestroyImageView(device, frame->view, NULL);
+	/* TODO: Free command buffer */
 }
