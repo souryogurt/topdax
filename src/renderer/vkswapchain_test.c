@@ -39,21 +39,6 @@ vkGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
 			       pSwapchainImages);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateRenderPass(VkDevice device, const VkRenderPassCreateInfo * pCreateInfo,
-		   const VkAllocationCallbacks * pAllocator,
-		   VkRenderPass * pRenderPass)
-{
-	return (VkResult) mock(device, pCreateInfo, pAllocator, pRenderPass);
-}
-
-VKAPI_ATTR void VKAPI_CALL
-vkDestroyRenderPass(VkDevice device, VkRenderPass renderPass,
-		    const VkAllocationCallbacks * pAllocator)
-{
-	mock(device, renderPass, pAllocator);
-}
-
 VkResult
 vkframe_init(struct vkframe *frame, const VkRenderPass rpass,
 	     const struct vkrenderer *rdr, const VkImage image)
@@ -108,7 +93,6 @@ Ensure(init_returns_zero_on_success)
 	struct vkrenderer vkr = { 0 };
 	struct vkswapchain swc = { 0 };
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	uint32_t nimgs = 1;
 	expect(vkGetSwapchainImagesKHR,
 	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
@@ -130,22 +114,11 @@ Ensure(init_returns_non_zero_on_swapchain_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
-Ensure(init_returns_non_zero_on_renderpass_fail)
-{
-	struct vkrenderer vkr = { 0 };
-	struct vkswapchain swc = { 0 };
-	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_NOT_READY));
-	int error = vkswapchain_init(&swc, &vkr, VK_NULL_HANDLE);
-	assert_that(error, is_not_equal_to(0));
-}
-
 Ensure(init_returns_non_zero_on_sync_objects_fail)
 {
 	struct vkrenderer vkr = { 0 };
 	struct vkswapchain swc = { 0 };
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_NOT_READY));
 	int error = vkswapchain_init(&swc, &vkr, VK_NULL_HANDLE);
 	assert_that(error, is_not_equal_to(0));
@@ -156,7 +129,6 @@ Ensure(init_returns_non_zero_on_getting_images_fail)
 	struct vkrenderer vkr = { 0 };
 	struct vkswapchain swc = { 0 };
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
 	expect(vkGetSwapchainImagesKHR, will_return(VK_INCOMPLETE));
@@ -169,7 +141,6 @@ Ensure(init_returns_non_zero_on_frame_init_fail)
 	struct vkrenderer vkr = { 0 };
 	struct vkswapchain swc = { 0 };
 	expect(vkCreateSwapchainKHR, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
 	uint32_t nimgs = 1;
@@ -191,7 +162,6 @@ Ensure(terminate_destroys_all_resources)
 	expect(vkframe_destroy);
 	expect(vkDestroySemaphore);
 	expect(vkDestroySemaphore);
-	expect(vkDestroyRenderPass);
 	expect(vkDestroySwapchainKHR);
 	vkswapchain_terminate(&swc, dev);
 }
@@ -238,7 +208,6 @@ int main(int argc, char **argv)
 	TestSuite *swc = create_named_test_suite("VKSwapchain");
 	add_test(swc, init_returns_zero_on_success);
 	add_test(swc, init_returns_non_zero_on_swapchain_fail);
-	add_test(swc, init_returns_non_zero_on_renderpass_fail);
 	add_test(swc, init_returns_non_zero_on_sync_objects_fail);
 	add_test(swc, init_returns_non_zero_on_getting_images_fail);
 	add_test(swc, init_returns_non_zero_on_frame_init_fail);

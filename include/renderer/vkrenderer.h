@@ -33,6 +33,8 @@ struct vkrenderer {
 	VkPresentModeKHR srf_mode;
 	/** Command pool */
 	VkCommandPool cmd_pool;
+	/** Render pass */
+	VkRenderPass rpass;
 	/** An array of swapchains */
 	struct vkswapchain swcs[2];
 	/** Current swapchain */

@@ -60,6 +60,21 @@ vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool,
 	mock(device, commandPool, pAllocator);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL
+vkCreateRenderPass(VkDevice device, const VkRenderPassCreateInfo * pCreateInfo,
+		   const VkAllocationCallbacks * pAllocator,
+		   VkRenderPass * pRenderPass)
+{
+	return (VkResult) mock(device, pCreateInfo, pAllocator, pRenderPass);
+}
+
+VKAPI_ATTR void VKAPI_CALL
+vkDestroyRenderPass(VkDevice device, VkRenderPass renderPass,
+		    const VkAllocationCallbacks * pAllocator)
+{
+	mock(device, renderPass, pAllocator);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL vkDeviceWaitIdle(VkDevice device)
 {
 	return (VkResult) mock(device);
@@ -97,6 +112,7 @@ Ensure(init_returns_zero_on_success)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
+	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	expect(vkswapchain_init, will_return(0));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_equal_to(0));
@@ -137,6 +153,21 @@ Ensure(init_returns_non_zero_on_command_pool_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
+Ensure(init_returns_non_zero_on_renderpass_fail)
+{
+	VkInstance instance = (VkInstance) 1;
+	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	struct vkrenderer vkr = { 0 };
+	expect(vkrenderer_configure, will_return(0));
+	expect(vkCreateDevice, will_return(VK_SUCCESS));
+	expect(vkGetDeviceQueue);
+	expect(vkGetDeviceQueue);
+	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
+	expect(vkCreateRenderPass, will_return(VK_NOT_READY));
+	int error = vkrenderer_init(&vkr, instance, surface);
+	assert_that(error, is_not_equal_to(0));
+}
+
 Ensure(init_returns_non_zero_on_swapchain_fail)
 {
 	VkInstance instance = (VkInstance) 1;
@@ -147,6 +178,7 @@ Ensure(init_returns_non_zero_on_swapchain_fail)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
+	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	expect(vkswapchain_init, will_return(-1));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_not_equal_to(0));
@@ -219,6 +251,7 @@ Ensure(terminate_destroys_all_resources)
 {
 	struct vkrenderer vkr = { 0 };
 	expect(vkDeviceWaitIdle);
+	expect(vkDestroyRenderPass);
 	expect(vkswapchain_terminate);
 	expect(vkDestroyCommandPool);
 	expect(vkDestroyDevice);
@@ -235,6 +268,7 @@ int main(int argc, char **argv)
 	add_test(vkr, init_returns_non_zero_when_no_configs);
 	add_test(vkr, init_returns_non_zero_on_device_fail);
 	add_test(vkr, init_returns_non_zero_on_command_pool_fail);
+	add_test(vkr, init_returns_non_zero_on_renderpass_fail);
 	add_test(vkr, init_returns_non_zero_on_swapchain_fail);
 	add_test(vkr, render_returns_zero_on_success);
 	add_test(vkr, render_recreates_swapchain);

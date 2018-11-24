@@ -8,8 +8,6 @@
 struct vkswapchain {
 	/** Swapchain */
 	VkSwapchainKHR swapchain;
-	/** Render pass */
-	VkRenderPass rpass;
 	/** Rendered frames */
 	struct vkframe frames[16];
 	/** Number of frames in swapchain */
