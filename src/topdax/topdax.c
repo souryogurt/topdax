@@ -31,9 +31,9 @@ static struct argp argp;
 static const VkApplicationInfo topdax_app_info = {
 	.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
 	.pApplicationName = PACKAGE,
-	.applicationVersion = VK_MAKE_VERSION(0, 3, 1),
+	.applicationVersion = VK_MAKE_VERSION(0, 4, 0),
 	.pEngineName = PACKAGE,
-	.engineVersion = VK_MAKE_VERSION(0, 3, 1),
+	.engineVersion = VK_MAKE_VERSION(0, 4, 0),
 	.apiVersion = VK_API_VERSION_1_1
 };
 
