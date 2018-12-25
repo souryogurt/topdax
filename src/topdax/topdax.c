@@ -28,16 +28,15 @@ static struct topdax_window window;
 static struct argp argp;
 
 /** Vulkan compatible application version */
-static const uint32_t application_version =
-VK_MAKE_VERSION(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+#define VK_APP_VERSION VK_MAKE_VERSION(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH)
 
 /** Topdax application information */
 static const VkApplicationInfo topdax_app_info = {
 	.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
 	.pApplicationName = PACKAGE,
-	.applicationVersion = application_version,
+	.applicationVersion = VK_APP_VERSION,
 	.pEngineName = PACKAGE,
-	.engineVersion = application_version,
+	.engineVersion = VK_APP_VERSION,
 	.apiVersion = VK_API_VERSION_1_1
 };
 
