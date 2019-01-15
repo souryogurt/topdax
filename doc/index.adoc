@@ -1,0 +1,6 @@
+include::attributes.adoc[]
+
+= Documentation for {ProjectName}
+:context: {ProjectNameID}
+
+include::installing-on-linux.adoc[leveloffset=+1]

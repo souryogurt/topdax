@@ -1,0 +1,4 @@
+:toc:
+:ProjectName: @PACKAGE_NAME@
+:ProjectNameID: @PACKAGE_TARNAME@
+:ProjectVersion: @VERSION@

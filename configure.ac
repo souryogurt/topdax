@@ -12,13 +12,26 @@ AC_PROG_CC
 AC_PROG_RANLIB
 AM_PROG_AR
 
+AC_CHECK_PROGS([ASCIIDOCTOR], [asciidoctor])
+AS_IF([test -n "$ASCIIDOCTOR"],
+      [AC_CHECK_PROG([GEM], [gem], [yes])]
+)
+AS_IF([test "x$GEM" = "xyes"],
+      [AS_IF([gem which -q --silent "asciidoctor-diagram"],
+	     [have_asciidoctor_diagram=yes],
+	     [have_asciidoctor_diagram=yes])
+      ],
+      [have_asciidoctor_diagram=no]
+)
+AM_CONDITIONAL([HAVE_ASCIIDOCTOR], [test -n "$ASCIIDOCTOR"])
+AM_CONDITIONAL([HAVE_ASCIIDOCTOR_DIAGRAM], [test "x$have_asciidoctor_diagram" = "xyes"])
+
 AC_CHECK_HEADER([GLFW/glfw3.h], [], [
   AC_MSG_ERROR([GLFW/glfw3.h not found])
 ])
 AC_CHECK_LIB([glfw], [glfwInit], [], [
   AC_MSG_ERROR([libglfw not found])
 ])
-AC_DEFINE([TOPDAX_USE_PLATFORM_GLFW], [1], [Use GLFW for application and window])
 
 AC_CHECK_HEADER([vulkan/vulkan.h], [], [
   AC_MSG_ERROR([vulkan/vulkan.h not found])
@@ -48,5 +61,5 @@ AS_IF([test "x$have_cgreen" != "xyes"],
 ])
 AM_CONDITIONAL([HAVE_CGREEN], [test "x$have_cgreen" != "xno"])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile doc/attributes.adoc])
 AC_OUTPUT
