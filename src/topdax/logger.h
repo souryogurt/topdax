@@ -12,15 +12,15 @@ extern "C" {
 
 /**
  * Setup global debug logger for Vulkan instance
- * @param instance Vulkan instance handle on which logger must be set
+ * @param vkn Vulkan instance handle on which logger must be set
  */
-void setup_debug_logger(VkInstance instance);
+void setup_debug_logger(VkInstance vkn);
 
 /**
  * Destroy global debug logger on Vulkan instance
- * @param instance Vulkan instance handle on which logger must be destroyed
+ * @param vkn Vulkan instance handle on which logger must be destroyed
  */
-void destroy_debug_logger(VkInstance instance);
+void destroy_debug_logger(VkInstance vkn);
 
 /**
  * Prints Vulkan errors to stderr

@@ -38,11 +38,11 @@ vk_debug_print(VkDebugUtilsMessageSeverityFlagBitsEXT sev,
 	return VK_FALSE;
 }
 
-void setup_debug_logger(VkInstance instance)
+void setup_debug_logger(VkInstance vkn)
 {
 	PFN_vkCreateDebugUtilsMessengerEXT create_debug_msgr;
 	create_debug_msgr = (PFN_vkCreateDebugUtilsMessengerEXT)
-	    vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+	    vkGetInstanceProcAddr(vkn, "vkCreateDebugUtilsMessengerEXT");
 	const VkDebugUtilsMessengerCreateInfoEXT msgr_info = {
 		.sType =
 		    VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
@@ -61,13 +61,13 @@ void setup_debug_logger(VkInstance instance)
 		.pfnUserCallback = &vk_debug_print,
 		.pUserData = NULL
 	};
-	create_debug_msgr(instance, &msgr_info, NULL, &vk_debug_messenger);
+	create_debug_msgr(vkn, &msgr_info, NULL, &vk_debug_messenger);
 }
 
-void destroy_debug_logger(VkInstance instance)
+void destroy_debug_logger(VkInstance vkn)
 {
 	PFN_vkDestroyDebugUtilsMessengerEXT destroy_debug_msgr;
 	destroy_debug_msgr = (PFN_vkDestroyDebugUtilsMessengerEXT)
-	    vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-	destroy_debug_msgr(instance, vk_debug_messenger, NULL);
+	    vkGetInstanceProcAddr(vkn, "vkDestroyDebugUtilsMessengerEXT");
+	destroy_debug_msgr(vkn, vk_debug_messenger, NULL);
 }

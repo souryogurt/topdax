@@ -20,7 +20,7 @@
 #include <renderer/vkrenderer.h>
 
 /** Vulkan instance */
-static VkInstance vk;
+static VkInstance vkn;
 /** Main window */
 static struct topdax_window window;
 
@@ -104,22 +104,22 @@ int application_main(int argc, char **argv)
 	if (!glfwInit())
 		return EXIT_FAILURE;
 
-	if (vk_instance_create(&vk) != VK_SUCCESS) {
+	if (vk_instance_create(&vkn) != VK_SUCCESS) {
 		return EXIT_FAILURE;
 	}
 #ifndef NDEBUG
-	setup_debug_logger(vk);
+	setup_debug_logger(vkn);
 #endif
-	topdax_window_init(&window, vk);
+	topdax_window_init(&window, vkn);
 	while (!glfwWindowShouldClose(window.id)) {
 		glfwPollEvents();
 		vkrenderer_render(&window.renderer);
 	}
 	topdax_window_destroy(&window);
 #ifndef NDEBUG
-	destroy_debug_logger(vk);
+	destroy_debug_logger(vkn);
 #endif
-	vkDestroyInstance(vk, NULL);
+	vkDestroyInstance(vkn, NULL);
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }

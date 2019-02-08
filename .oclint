@@ -1,0 +1,8 @@
+rule-configurations:
+  - key: CYCLOMATIC_COMPLEXITY
+    value: 5
+  - key: NESTED_BLOCK_DEPTH
+    value: 3
+  - key: TOO_MANY_PARAMETERS
+    value: 6
+enable-global-analysis: true
