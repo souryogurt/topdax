@@ -1,4 +1,5 @@
-:toc:
+:toc: left
 :ProjectName: @PACKAGE_NAME@
 :ProjectNameID: @PACKAGE_TARNAME@
 :ProjectVersion: @VERSION@
+:source-highlighter: pygments

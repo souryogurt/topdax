@@ -1,0 +1,132 @@
+// Module included in the following assemblies:
+//
+// understanding-architecture.adoc
+
+[id='architecture-{context}']
+= Architecture
+
+Below is an architecture overview. 
+
+[plantuml, architecture, png]
+----
+class topdax <<static>>{
+ - {static} vkn : VkInstance
+ - {static} window: topdax_window
+ - {static} argp: argp
+ - {static} topdax_app_info: VkApplicationInfo
+
+ + {static} application_main(argc, argv) : int
+ - {static} get_vk_extensions(extensions, size) : int
+ - {static} vk_instance_create(VkInstance) : VkResult
+}
+
+class logger <<static>> {
+ + {static} setup_debug_logger(VkInstance) : void
+ + {static} destroy_debug_logger(VkInstance) : void
+ + {static} vk_debug_print(sev, type, cdata, udata) : VkBool32
+}
+
+class topdax_window {
+ - vk: VkInstance
+ - id: GLFWwindow*
+ - surface: VkSurfaceKHR
+ - renderer: vkrenderer
+
+ + init(VkInstance) : int
+ + destroy() : void
+}
+
+class vkrenderer {
+ - srf: VkSurfaceKHR
+ - phy: VkPhysicalDevice
+ - features: VkPhysicalDeviceFeatures
+ - extensions: string[]
+ - nextensions: uint32_t
+ - graphic: uint32_t
+ - present: uint32_t
+ - device: VkDevice
+ - graphic_queue: VkQueue
+ - present_queue: VkQueue
+ - srf_caps: VkSurfaceCapabilitiesKHR
+ - srf_format: VkSurfaceFormatKHR
+ - srf_mode: VkPresentModeKHR
+ - cmd_pool: VkCommandPool cmd_pool
+ - rpass: VkRenderPass rpass 
+ - swcs: vkswapchain[2]
+ - swc_index: size_t swc_index
+
+ + init(VkInstance, VkSurface): int
+ + render(): int
+ + terminate(): void
+
+ ~ configure(VkInstance): int
+ ~ configure_families(): int
+ ~ configure_swapchain(): int
+ ~ configure_surface_format(): int
+ ~ configure_surface_present_mode(): int
+
+ - init_render_pass(VkRenderPass, VkFormat, VkDevice): VkResult
+ - init_command_pool(): VkResult
+ - create_device(): VkResult
+
+ - configure_device(): int
+ - configure_extensions(): void
+ - configure_features(): void
+
+ - {static} set_family_properties(VkPhysicalDevice, VkSurface, family_properties, fam): void
+ - {static} select_universal_families(family_properties, graph, present): int
+ - {static} select_families(family_properties, graph, present): int
+
+ - {static} select_surface_format(VkSurfaceFormat[], nfmts, fmt): void
+ - {static} select_simple_surface_format(VkSurfaceFormat[], nfmts, gmt): int
+}
+
+class family_properties {
+ - count: uint32_t
+ - fams: VkQueueFamilyProperties[]
+ - present: VkBool32[]
+ - graphic: VkBool32[]
+}
+
+class vkswapchain {
+ - swapchain: VkSwapchainKHR
+ - frames: vkframe[16]
+ - nframes: size_t
+ - acquire_sem: VkSemaphore
+ - renser_sem: VkSemaphore
+
+ + init(vkrenderer, VkSwapchainKHR): int
+ + render(vkrenderer): VkResut
+ + terminate(VkDevice): void
+
+ - init_frames(vkrenderer): int
+ - create(vkrenderer, VkSwapchainKHR): VkResult
+ - create_sync_objects(VkDevice): VkResult
+}
+
+class vkframe {
+ - buffer: VkFramebuffer
+ - view: VkImageView
+ - image: VkImage
+ - size: VkExtent2D
+ - cmds: VkCommandBuffer
+
+ + init(VkRenderPass, vkrenderer, VkImage): VkResult
+ + destroy(VkDevice): void
+
+ - record(VkRenderPass): VkResult
+ - alloc_cmds(VkCommandPool, VkDevice): VkResult
+ - init_view(VkFormat, VkDevice): VkResult
+ - init_framebuffer(VkRenderPass, VkDevice): VkResult
+}
+
+topdax *-- topdax_window
+topdax *-- logger
+
+topdax_window *-- vkrenderer
+
+vkrenderer *-- "1..2" vkswapchain
+vkrenderer -- family_properties
+
+vkswapchain *-- "16" vkframe
+----

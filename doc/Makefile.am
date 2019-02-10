@@ -1,6 +1,8 @@
 html_asciidoc_sources = doc/index.adoc\
-			doc/installing-on-linux.adoc\
-			doc/modules/installing-topdax.adoc
+			doc/installing.adoc\
+			doc/modules/installing-on-linux.adoc\
+			doc/understanding-architecture.adoc\
+			doc/modules/architecture.adoc
 
 EXTRA_DIST += $(html_asciidoc_sources)
 
@@ -22,6 +24,8 @@ install-html-asciidoc: doc/index.html
 		$(MKDIR_P) "$(DESTDIR)$(htmldir)" || exit 1;
 	@echo " $(INSTALL_DATA) doc/index.html '$(DESTDIR)$(htmldir)'"; \
 		$(INSTALL_DATA) doc/index.html "$(DESTDIR)$(htmldir)" || exit $$?;
+	@echo " $(INSTALL_DATA) doc/architecture.png '$(DESTDIR)$(htmldir)'"; \
+		$(INSTALL_DATA) doc/architecture.png "$(DESTDIR)$(htmldir)" || exit $$?;
 
 uninstall-html-asciidoc:
 	@echo " ( cd '$(DESTDIR)$(htmldir)' && rm -f "index.html")"; \

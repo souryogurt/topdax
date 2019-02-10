@@ -1,0 +1,24 @@
+// Module included in the following assemblies:
+//
+// installing.adoc
+
+[id='installing-on-linux-{context}']
+= Installing on Linux
+
+To install {ProjectName} on Linux copy-paste following snippet into the console:
+
+[source,shell]
+----
+# Clone the repository
+git clone https://github.com/souryogurt/topdax.git
+# Go to cloned folder
+cd topdax
+# Generate `configure` script
+autoreconf -if
+# Configure the package
+./configure
+# Build the package
+make
+# Instal the package to default location
+make install
+----
