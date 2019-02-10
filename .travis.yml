@@ -1,6 +1,5 @@
 language: c
-sudo: false
-dist: trusty
+dist: xenial
 cache:
   apt: true
   ccache: true
@@ -10,6 +9,7 @@ cache:
 addons:
   apt:
     packages:
+    - libgl1-mesa-dev
     - libmirclient-dev
     - libwayland-dev
     - libx11-xcb-dev
@@ -38,15 +38,6 @@ install:
         cd ${TRAVIS_BUILD_DIR}
     - |
         cd ${TRAVIS_BUILD_DIR}/..
-        git clone --depth 1 https://github.com/glfw/glfw.git
-        cd glfw
-        mkdir build
-        cd build
-        cmake -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/../local ..
-        make -j $core_count install
-        cd ${TRAVIS_BUILD_DIR}
-    - |
-        cd ${TRAVIS_BUILD_DIR}/..
         git clone --depth 1 https://github.com/KhronosGroup/Vulkan-Headers.git
         cd Vulkan-Headers
         mkdir build
@@ -65,6 +56,15 @@ install:
         cd ${TRAVIS_BUILD_DIR}
     - |
         cd ${TRAVIS_BUILD_DIR}/..
+        git clone --depth 1 https://github.com/glfw/glfw.git
+        cd glfw
+        mkdir build
+        cd build
+        cmake -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/../local ..
+        make -j $core_count install
+        cd ${TRAVIS_BUILD_DIR}
+    - |
+        cd ${TRAVIS_BUILD_DIR}/..
         git clone --depth 1 https://github.com/cgreen-devs/cgreen.git
         cd cgreen
         mkdir build
@@ -76,7 +76,7 @@ install:
 before_script: autoreconf -i
 
 script:
-    - CPPFLAGS="-I/usr/include" CFLAGS="--std=gnu99 -Wall -Wextra" ./configure --enable-code-coverage --with-unit-tests --prefix=${TRAVIS_BUILD_DIR}/../local
+    - CPPFLAGS="-I/usr/include" CFLAGS="--std=gnu11 -Wall -Wextra" ./configure --enable-code-coverage --with-unit-tests --prefix=${TRAVIS_BUILD_DIR}/../local
     - build-wrapper-linux-x86-64 --out-dir bw-output make
     - VERBOSE=1 make check
     - gcov -a -c src/*/*.o
