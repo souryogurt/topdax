@@ -1,6 +1,9 @@
 #ifndef TOPDAX_TOPDAX_H
 #define TOPDAX_TOPDAX_H
 
+/** Returns array size */
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 extern "C" {

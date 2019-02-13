@@ -13,7 +13,6 @@
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
-#include <application/utils.h>
 #include <vulkan/vulkan_core.h>
 #include <GLFW/glfw3.h>
 #include "topdax.h"

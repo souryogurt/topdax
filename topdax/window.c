@@ -7,7 +7,6 @@
 #endif
 
 #include "window.h"
-#include <application/utils.h>
 #include <renderer/vkrenderer.h>
 #include "topdax.h"
 

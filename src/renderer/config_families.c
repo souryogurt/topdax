@@ -8,7 +8,6 @@
 
 #include <stdint.h>
 
-#include <application/utils.h>
 #include <vulkan/vulkan_core.h>
 #include <renderer/vkrenderer.h>
 

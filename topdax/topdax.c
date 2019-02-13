@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <application/utils.h>
 #include <GLFW/glfw3.h>
 #include "logger.h"
 #include "topdax.h"

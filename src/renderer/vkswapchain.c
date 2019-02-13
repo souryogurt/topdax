@@ -9,7 +9,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <application/utils.h>
 #include "renderer/vkframe.h"
 #include <renderer/vkrenderer.h>
 #include <renderer/vkswapchain.h>

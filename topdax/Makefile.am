@@ -10,7 +10,6 @@ topdax_topdax_LDADD = topdax/libtopdax.a topdax/libtopdax_window.a\
 noinst_LIBRARIES += topdax/libtopdax.a
 topdax_libtopdax_a_SOURCES = topdax/topdax.c
 topdax_libtopdax_a_SOURCES += topdax/topdax.h
-topdax_libtopdax_a_SOURCES += include/application/utils.h
 topdax_libtopdax_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 
 noinst_LIBRARIES += topdax/libtopdax_window.a

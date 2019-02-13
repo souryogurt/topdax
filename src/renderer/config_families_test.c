@@ -12,7 +12,6 @@
 #include <cgreen/mocks.h>
 
 #include <vulkan/vulkan_core.h>
-#include <application/utils.h>
 #include <renderer/vkrenderer.h>
 #include "vkrenderer.h"
 

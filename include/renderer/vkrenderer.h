@@ -3,6 +3,9 @@
 
 #include <renderer/vkswapchain.h>
 
+/** Returns array size */
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 /** Vulkan Renderer Instance */
 struct vkrenderer {
 	/** Target surface presenting rendered image */
