@@ -10,6 +10,6 @@ noinst_LIBRARIES =
 TESTS =
 check_PROGRAMS =
 
-include src/topdax/Makefile.am
+include topdax/Makefile.am
 include src/renderer/Makefile.am
 include doc/Makefile.am
