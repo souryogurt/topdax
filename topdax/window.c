@@ -7,8 +7,6 @@
 #endif
 
 #include "window.h"
-#include <renderer/vkrenderer.h>
-#include "topdax.h"
 
 int topdax_window_init(struct topdax_window *win, VkInstance instance)
 {

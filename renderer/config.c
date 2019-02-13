@@ -10,7 +10,6 @@
 #include <string.h>
 
 #include <vulkan/vulkan_core.h>
-#include <renderer/vkrenderer.h>
 #include "vkrenderer.h"
 
 /**

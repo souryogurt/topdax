@@ -18,7 +18,6 @@
 #include "topdax.h"
 
 struct topdax_window;
-struct vkswapchain;
 struct vkrenderer;
 
 GLFWAPI int glfwInit(void)

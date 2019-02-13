@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 #include <vulkan/vulkan_core.h>
-#include <renderer/vkrenderer.h>
+#include "vkrenderer.h"
 
 /** Queue Family Properties */
 struct family_properties {

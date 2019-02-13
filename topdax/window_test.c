@@ -9,7 +9,6 @@
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
-#include "topdax.h"
 #include "window.h"
 
 struct vkrenderer;

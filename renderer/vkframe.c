@@ -8,9 +8,8 @@
 
 #include <stddef.h>
 
-#include "renderer/vkframe.h"
-#include <renderer/vkrenderer.h>
-#include "renderer/vkswapchain.h"
+#include "vkframe.h"
+#include "vkrenderer.h"
 #include <vulkan/vulkan_core.h>
 
 /**

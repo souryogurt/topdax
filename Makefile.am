@@ -1,5 +1,4 @@
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS = -I$(srcdir)/include
 
 @CODE_COVERAGE_RULES@
 EXTRA_DIST = LICENSE
@@ -11,5 +10,5 @@ TESTS =
 check_PROGRAMS =
 
 include topdax/Makefile.am
-include src/renderer/Makefile.am
+include renderer/Makefile.am
 include doc/Makefile.am

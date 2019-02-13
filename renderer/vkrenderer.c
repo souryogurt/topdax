@@ -7,12 +7,9 @@
 #endif
 
 #include <stddef.h>
-#include <stdint.h>
 
-#include <renderer/vkrenderer.h>
-#include "renderer/vkframe.h"
-#include "renderer/vkswapchain.h"
 #include "vkrenderer.h"
+#include "vkswapchain.h"
 
 /**
  * Create Vulkan device for renderer

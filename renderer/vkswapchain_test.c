@@ -11,8 +11,10 @@
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
-#include <renderer/vkrenderer.h>
-#include <renderer/vkswapchain.h>
+#include "vkswapchain.h"
+#include "vkrenderer.h"
+
+struct vkframe;
 
 VKAPI_ATTR VkResult VKAPI_CALL
 vkCreateSwapchainKHR(VkDevice device,

@@ -8,7 +8,6 @@
 
 #include <argp.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -17,6 +16,7 @@
 #include "topdax.h"
 #include "window.h"
 #include <renderer/vkrenderer.h>
+#include <vulkan/vulkan_core.h>
 
 /** Vulkan instance */
 static VkInstance vkn;

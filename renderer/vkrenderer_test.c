@@ -11,8 +11,9 @@
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
-#include <renderer/vkrenderer.h>
 #include "vkrenderer.h"
+
+struct vkswapchain;
 
 int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance)
 {
