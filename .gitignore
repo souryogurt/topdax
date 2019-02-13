@@ -169,6 +169,9 @@ autom4te.cache/
 /stamp-h1
 /lib/*
 /bin/*
+/topdax/topdax
+/topdax/*.a
+/topdax/*_test
 /tags
 /test-driver
 *.trs
