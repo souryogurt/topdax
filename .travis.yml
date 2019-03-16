@@ -10,8 +10,7 @@ addons:
 
 before_script:
     - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "autoreconf -if"
-    - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "CPPFLAGS="-I/usr/include" CFLAGS="--std=gnu11 -Wall -Wextra" \
-  ./configure --enable-code-coverage --with-unit-tests"
+    - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "CPPFLAGS="-I/usr/include" CFLAGS="--std=gnu11 -Wall -Wextra" ./configure --enable-code-coverage --with-unit-tests"
     - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "make check"
     - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "gcov -a -c topdax/*.o renderer/*.o"
     - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "cd source && build-wrapper-linux-x86-64 --out-dir bw-output make"
