@@ -12,6 +12,7 @@ before_script:
     - docker run -it -v "$PWD":/build/source souryogurt/topdax-build
 
 script:
+    - build-wrapper-linux-x86-64 --out-dir bw-output make
     - git fetch --unshallow
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
     - git fetch origin
