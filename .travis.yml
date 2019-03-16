@@ -9,7 +9,7 @@ addons:
 
 
 before_script: 
-    - docker run -it -v "$PWD":/build/source souryogurt/topdax-builder
+    - docker run -it -v "$PWD":/build/source souryogurt/topdax-build
 
 script:
     - git fetch --unshallow
