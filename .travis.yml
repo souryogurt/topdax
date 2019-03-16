@@ -8,11 +8,15 @@ addons:
       secure: "Uiav5t25keqIYTvvLgB67zV4XLXXe0mnI1Zlb/VwcuN0wuwsD4g3I3B//IGPi+ZoqU27EOG9rROgY78euy10HDytmeRW2m4xiGkmdydAVP9yZ6qNr3LCRAoQ5t4uO6yPsxBFQAONGXsgWPJSIdtvnyFLuXDLEaJdxZbPqyretRdavHPPGUCBgTn4Fwaksny+xEiamAkmKPG7YwBKbN6DvkWCcFDecxmb7ozm6MUMhemS/jONSX8kenK3GiVrPUt5Ya2SNgWZWfP2PIhd6c3ek6FW5FLsout8Wv2lAVD7xvhA30sZbIcpvaYA3lcrAJKqKR6uTB7FiDdgnG//oAReXrreWxV4y3S5wMRfU72pVQP/6OndZ76mzL0FY8usbIOWly/8Z/JHL0/a0fxAvnLE7sBpoh970xPM3C///e5n4OUBWmnVcCVdVgLL9hArLPh+V6ZjwvoPUfxCrEsCgVRAr5QAekUxBzmgu1wwo5HNqZQxP6JkB5ph/3NnPhN6krVMagDljn+MWLqY3AHzAH+e1FkIkAudw7MikhrcVcJQCI3hExbhIjEcOQ6V95lrTmmMu2qoWzIGkmpSKrqexBzfWmvqpm/wbWgLA7dQ8nTW7bCgLgcyrTDVXQmRlb3mu+mkrhIZpohqMYUJc0/IP5kchlgDpZA31maXcnBRQNmEh6A="
 
 
-before_script: 
-    - docker run -it -v "$PWD":/build/source souryogurt/topdax-build
+before_script:
+    - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "autoreconf -if"
+    - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "CPPFLAGS="-I/usr/include" CFLAGS="--std=gnu11 -Wall -Wextra" \
+  ./configure --enable-code-coverage --with-unit-tests"
+    - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "make check"
+    - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "gcov -a -c topdax/*.o renderer/*.o"
+    - docker run -it -v "$PWD":/build souryogurt/topdax-build:latest sh -c "cd source && build-wrapper-linux-x86-64 --out-dir bw-output make"
 
 script:
-    - build-wrapper-linux-x86-64 --out-dir bw-output make
     - git fetch --unshallow
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
     - git fetch origin
