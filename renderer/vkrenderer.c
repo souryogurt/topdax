@@ -21,11 +21,11 @@ static VkResult vkrenderer_create_device(struct vkrenderer *rdr)
 	float queue_priorities = 1.0F;
 	VkDeviceQueueCreateInfo qinfos[2] = {
 		{
-		 .queueFamilyIndex = rdr->graphic,
-		 },
+			.queueFamilyIndex = rdr->graphic,
+		},
 		{
-		 .queueFamilyIndex = rdr->present,
-		 },
+			.queueFamilyIndex = rdr->present,
+		},
 	};
 	uint32_t nqinfos = (rdr->graphic == rdr->present) ? 1 : 2;
 	for (size_t i = 0; i < nqinfos; ++i) {
@@ -74,55 +74,56 @@ static VkResult vkrenderer_init_command_pool(struct vkrenderer *rdr)
  * @param dev Specifies device to use
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-static VkResult vkrenderer_init_render_pass(VkRenderPass * rpass,
+static VkResult vkrenderer_init_render_pass(VkRenderPass *rpass,
 					    const VkFormat format,
 					    const VkDevice dev)
 {
 	VkAttachmentDescription attachments[] = {
 		{
-		 .flags = 0,
-		 .format = format,
-		 .samples = VK_SAMPLE_COUNT_1_BIT,
-		 .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-		 .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-		 .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-		 .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-		 .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-		 .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-		 },
+			.flags = 0,
+			.format = format,
+			.samples = VK_SAMPLE_COUNT_1_BIT,
+			.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+			.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+			.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+			.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+			.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+		},
 	};
 	VkAttachmentReference attachment_refs[] = {
 		{
-		 .attachment = 0,
-		 .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-		 },
+			.attachment = 0,
+			.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+		},
 	};
 	VkSubpassDescription subpasses[] = {
 		{
-		 .flags = 0,
-		 .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
-		 .inputAttachmentCount = 0,
-		 .pInputAttachments = NULL,
-		 .colorAttachmentCount = ARRAY_SIZE(attachment_refs),
-		 .pColorAttachments = attachment_refs,
-		 .pResolveAttachments = NULL,
-		 .pDepthStencilAttachment = NULL,
-		 .preserveAttachmentCount = 0,
-		 .pPreserveAttachments = NULL,
-		 },
+			.flags = 0,
+			.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+			.inputAttachmentCount = 0,
+			.pInputAttachments = NULL,
+			.colorAttachmentCount = ARRAY_SIZE(attachment_refs),
+			.pColorAttachments = attachment_refs,
+			.pResolveAttachments = NULL,
+			.pDepthStencilAttachment = NULL,
+			.preserveAttachmentCount = 0,
+			.pPreserveAttachments = NULL,
+		},
 	};
 	VkSubpassDependency dependencies[] = {
 		{
-		 .srcSubpass = VK_SUBPASS_EXTERNAL,
-		 .dstSubpass = 0,
-		 .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		 .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		 .srcAccessMask = 0,
-		 .dstAccessMask =
-		 VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-		 VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-		 .dependencyFlags = 0,
-		 },
+			.srcSubpass = VK_SUBPASS_EXTERNAL,
+			.dstSubpass = 0,
+			.srcStageMask =
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			.dstStageMask =
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			.srcAccessMask = 0,
+			.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+					 VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+			.dependencyFlags = 0,
+		},
 	};
 	VkRenderPassCreateInfo info = {
 		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,

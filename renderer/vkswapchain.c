@@ -41,14 +41,15 @@ static VkResult vkswapchain_create_sync_objects(struct vkswapchain *swc,
  * @param old_swc Specifies handle of old swapchain, or VK_NULL_HANDLE
  * @returns VK_SUCCESS on success, or VkResult error otherwise
  */
-static VkResult vkswapchain_create(VkSwapchainKHR * swapchain,
+static VkResult vkswapchain_create(VkSwapchainKHR *swapchain,
 				   const struct vkrenderer *rdr,
 				   const VkSwapchainKHR old_swc)
 {
 	uint32_t indeces[] = { rdr->graphic, rdr->present };
 	uint32_t nindeces = ARRAY_SIZE(indeces);
 	VkSharingMode sharing_mode = (rdr->graphic == rdr->present) ?
-	    VK_SHARING_MODE_EXCLUSIVE : VK_SHARING_MODE_CONCURRENT;
+					     VK_SHARING_MODE_EXCLUSIVE :
+					     VK_SHARING_MODE_CONCURRENT;
 	uint32_t image_count = rdr->srf_caps.minImageCount;
 	VkSwapchainCreateInfoKHR info = {
 		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,

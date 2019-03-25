@@ -19,22 +19,22 @@ GLFWAPI void glfwWindowHint(int hint, int value)
 }
 
 GLFWAPI GLFWwindow *glfwCreateWindow(int width, int height, const char *title,
-				     GLFWmonitor * monitor, GLFWwindow * share)
+				     GLFWmonitor *monitor, GLFWwindow *share)
 {
-	return (GLFWwindow *) mock(width, height, title, monitor, share);
+	return (GLFWwindow *)mock(width, height, title, monitor, share);
 }
 
-GLFWAPI void glfwSetWindowUserPointer(GLFWwindow * window, void *pointer)
+GLFWAPI void glfwSetWindowUserPointer(GLFWwindow *window, void *pointer)
 {
 	mock(window, pointer);
 }
 
-GLFWAPI VkResult
-glfwCreateWindowSurface(VkInstance instance, GLFWwindow * window,
-			const VkAllocationCallbacks * allocator,
-			VkSurfaceKHR * surface)
+GLFWAPI VkResult glfwCreateWindowSurface(VkInstance instance,
+					 GLFWwindow *window,
+					 const VkAllocationCallbacks *allocator,
+					 VkSurfaceKHR *surface)
 {
-	return (VkResult) mock(instance, window, allocator, surface);
+	return (VkResult)mock(instance, window, allocator, surface);
 }
 
 int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
@@ -50,23 +50,20 @@ void vkrenderer_terminate(const struct vkrenderer *rdr)
 
 VKAPI_ATTR void VKAPI_CALL
 vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface,
-		    const VkAllocationCallbacks * pAllocator)
+		    const VkAllocationCallbacks *pAllocator)
 {
 	mock(instance, surface, pAllocator);
 }
 
 Ensure(topdax_window_init_creates_window)
 {
-	GLFWwindow *window = (GLFWwindow *) 1;
+	GLFWwindow *window = (GLFWwindow *)1;
 	struct topdax_window win = { 0 };
 	VkInstance vk = VK_NULL_HANDLE;
-	expect(glfwWindowHint,
-	       when(hint, is_equal_to(GLFW_CLIENT_API)),
+	expect(glfwWindowHint, when(hint, is_equal_to(GLFW_CLIENT_API)),
 	       when(value, is_equal_to(GLFW_NO_API)));
-	expect(glfwCreateWindow,
-	       will_return(window),
-	       when(width, is_equal_to(960)),
-	       when(height, is_equal_to(540)),
+	expect(glfwCreateWindow, will_return(window),
+	       when(width, is_equal_to(960)), when(height, is_equal_to(540)),
 	       when(title, is_equal_to_string("Topdax")));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
@@ -79,8 +76,7 @@ Ensure(topdax_window_init_returns_non_zero_on_fail)
 {
 	struct topdax_window win = { 0 };
 	VkInstance vk = VK_NULL_HANDLE;
-	expect(glfwWindowHint,
-	       when(hint, is_equal_to(GLFW_CLIENT_API)),
+	expect(glfwWindowHint, when(hint, is_equal_to(GLFW_CLIENT_API)),
 	       when(value, is_equal_to(GLFW_NO_API)));
 	expect(glfwCreateWindow, will_return(NULL));
 	int error = topdax_window_init(&win, vk);
@@ -89,11 +85,10 @@ Ensure(topdax_window_init_returns_non_zero_on_fail)
 
 Ensure(topdax_window_init_returns_non_zero_on_surface_fail)
 {
-	GLFWwindow *window = (GLFWwindow *) 1;
+	GLFWwindow *window = (GLFWwindow *)1;
 	struct topdax_window win = { 0 };
 	VkInstance vk = VK_NULL_HANDLE;
-	expect(glfwWindowHint,
-	       when(hint, is_equal_to(GLFW_CLIENT_API)),
+	expect(glfwWindowHint, when(hint, is_equal_to(GLFW_CLIENT_API)),
 	       when(value, is_equal_to(GLFW_NO_API)));
 	expect(glfwCreateWindow, will_return(window));
 	expect(glfwSetWindowUserPointer);

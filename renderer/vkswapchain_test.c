@@ -16,36 +16,32 @@
 
 struct vkframe;
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateSwapchainKHR(VkDevice device,
-		     const VkSwapchainCreateInfoKHR * pCreateInfo,
-		     const VkAllocationCallbacks * pAllocator,
-		     VkSwapchainKHR * pSwapchain)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateSwapchainKHR(
+	VkDevice device, const VkSwapchainCreateInfoKHR *pCreateInfo,
+	const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain)
 {
-	return (VkResult) mock(device, pCreateInfo, pAllocator, pSwapchain);
+	return (VkResult)mock(device, pCreateInfo, pAllocator, pSwapchain);
 }
 
 VKAPI_ATTR void VKAPI_CALL
 vkDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain,
-		      const VkAllocationCallbacks * pAllocator)
+		      const VkAllocationCallbacks *pAllocator)
 {
 	mock(device, swapchain, pAllocator);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
-			uint32_t * pSwapchainImageCount,
-			VkImage * pSwapchainImages)
+VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainImagesKHR(
+	VkDevice device, VkSwapchainKHR swapchain,
+	uint32_t *pSwapchainImageCount, VkImage *pSwapchainImages)
 {
-	return (VkResult) mock(device, swapchain, pSwapchainImageCount,
-			       pSwapchainImages);
+	return (VkResult)mock(device, swapchain, pSwapchainImageCount,
+			      pSwapchainImages);
 }
 
-VkResult
-vkframe_init(struct vkframe *frame, const VkRenderPass rpass,
-	     const struct vkrenderer *rdr, const VkImage image)
+VkResult vkframe_init(struct vkframe *frame, const VkRenderPass rpass,
+		      const struct vkrenderer *rdr, const VkImage image)
 {
-	return (VkResult) mock(frame, rpass, rdr, image);
+	return (VkResult)mock(frame, rpass, rdr, image);
 }
 
 void vkframe_destroy(const struct vkframe *frame, const VkDevice device)
@@ -53,41 +49,40 @@ void vkframe_destroy(const struct vkframe *frame, const VkDevice device)
 	mock(frame, device);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateSemaphore(VkDevice device, const VkSemaphoreCreateInfo * pCreateInfo,
-		  const VkAllocationCallbacks * pAllocator,
-		  VkSemaphore * pSemaphore)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateSemaphore(
+	VkDevice device, const VkSemaphoreCreateInfo *pCreateInfo,
+	const VkAllocationCallbacks *pAllocator, VkSemaphore *pSemaphore)
 {
-	return (VkResult) mock(device, pCreateInfo, pAllocator, pSemaphore);
+	return (VkResult)mock(device, pCreateInfo, pAllocator, pSemaphore);
 }
 
 VKAPI_ATTR void VKAPI_CALL
 vkDestroySemaphore(VkDevice device, VkSemaphore semaphore,
-		   const VkAllocationCallbacks * pAllocator)
+		   const VkAllocationCallbacks *pAllocator)
 {
 	mock(device, semaphore, pAllocator);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkAcquireNextImageKHR(VkDevice device, VkSwapchainKHR swapchain,
-		      uint64_t timeout, VkSemaphore semaphore, VkFence fence,
-		      uint32_t * pImageIndex)
+VKAPI_ATTR VkResult VKAPI_CALL vkAcquireNextImageKHR(
+	VkDevice device, VkSwapchainKHR swapchain, uint64_t timeout,
+	VkSemaphore semaphore, VkFence fence, uint32_t *pImageIndex)
 {
-	return (VkResult) mock(device, swapchain, timeout, semaphore, fence,
-			       pImageIndex);
+	return (VkResult)mock(device, swapchain, timeout, semaphore, fence,
+			      pImageIndex);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit(VkQueue queue,
+					     uint32_t submitCount,
+					     const VkSubmitInfo *pSubmits,
+					     VkFence fence)
+{
+	return (VkResult)mock(queue, submitCount, pSubmits, fence);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
-vkQueueSubmit(VkQueue queue, uint32_t submitCount,
-	      const VkSubmitInfo * pSubmits, VkFence fence)
+vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo)
 {
-	return (VkResult) mock(queue, submitCount, pSubmits, fence);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL
-vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR * pPresentInfo)
-{
-	return (VkResult) mock(queue, pPresentInfo);
+	return (VkResult)mock(queue, pPresentInfo);
 }
 
 Ensure(init_returns_zero_on_success)
@@ -98,7 +93,7 @@ Ensure(init_returns_zero_on_success)
 	uint32_t nimgs = 1;
 	expect(vkGetSwapchainImagesKHR,
 	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
-					      sizeof(uint32_t)),
+					      sizeof(nimgs)),
 	       will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
 	expect(vkCreateSemaphore, will_return(VK_SUCCESS));
@@ -148,7 +143,7 @@ Ensure(init_returns_non_zero_on_frame_init_fail)
 	uint32_t nimgs = 1;
 	expect(vkGetSwapchainImagesKHR,
 	       will_set_contents_of_parameter(pSwapchainImageCount, &nimgs,
-					      sizeof(uint32_t)),
+					      sizeof(nimgs)),
 	       will_return(VK_SUCCESS));
 	expect(vkframe_init, will_return(VK_ERROR_INITIALIZATION_FAILED));
 	int error = vkswapchain_init(&swc, &vkr, VK_NULL_HANDLE);
@@ -182,7 +177,7 @@ Ensure(render_returns_error_on_submit_fail)
 	uint32_t image_index = 0;
 	expect(vkAcquireNextImageKHR,
 	       will_set_contents_of_parameter(pImageIndex, &image_index,
-					      sizeof(uint32_t)),
+					      sizeof(image_index)),
 	       will_return(VK_SUCCESS));
 	expect(vkQueueSubmit, will_return(VK_NOT_READY));
 	VkResult error = vkswapchain_render(&vkr.swcs[0], &vkr);
@@ -195,7 +190,7 @@ Ensure(render_returns_error_on_present_fail)
 	uint32_t image_index = 0;
 	expect(vkAcquireNextImageKHR,
 	       will_set_contents_of_parameter(pImageIndex, &image_index,
-					      sizeof(uint32_t)),
+					      sizeof(image_index)),
 	       will_return(VK_SUCCESS));
 	expect(vkQueueSubmit, will_return(VK_SUCCESS));
 	expect(vkQueuePresentKHR, will_return(VK_NOT_READY));

@@ -15,11 +15,10 @@
 #include "vkrenderer.h"
 
 VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumeratePhysicalDevices(VkInstance instance, uint32_t * pPhysicalDeviceCount,
-			   VkPhysicalDevice * pPhysicalDevices)
+vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
+			   VkPhysicalDevice *pPhysicalDevices)
 {
-	return (VkResult) mock(instance, pPhysicalDeviceCount,
-			       pPhysicalDevices);
+	return (VkResult)mock(instance, pPhysicalDeviceCount, pPhysicalDevices);
 }
 
 int vkrenderer_configure_families(struct vkrenderer *rdr)
@@ -36,8 +35,7 @@ Ensure(configure_fails_when_not_enough_memory_for_devices_list)
 {
 	VkInstance instance = VK_NULL_HANDLE;
 	struct vkrenderer rdr = { 0 };
-	expect(vkEnumeratePhysicalDevices,
-	       will_return(VK_INCOMPLETE),
+	expect(vkEnumeratePhysicalDevices, will_return(VK_INCOMPLETE),
 	       when(instance, is_equal_to(instance)));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
@@ -50,7 +48,7 @@ Ensure(configure_fails_when_no_devices_available)
 	uint32_t nphy = 0;
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
+					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
@@ -64,9 +62,9 @@ Ensure(configure_selects_suitable_device)
 	uint32_t nphy = ARRAY_SIZE(phy);
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(VkPhysicalDevice) * nphy),
+					      sizeof(*phy) * nphy),
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
+					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(vkrenderer_configure_families, will_return(0));
 	expect(vkrenderer_configure_swapchain, will_return(0));
@@ -83,9 +81,9 @@ Ensure(configure_fails_when_no_suitable_families_available)
 	uint32_t nphy = ARRAY_SIZE(phy);
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(VkPhysicalDevice) * nphy),
+					      sizeof(*phy) * nphy),
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
+					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(vkrenderer_configure_families, will_return(-1));
 	never_expect(vkrenderer_configure_swapchain, will_return(0));
@@ -101,9 +99,9 @@ Ensure(configure_fails_when_no_suitable_swapchain_available)
 	uint32_t nphy = ARRAY_SIZE(phy);
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(VkPhysicalDevice) * nphy),
+					      sizeof(*phy) * nphy),
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(uint32_t)),
+					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(vkrenderer_configure_families, will_return(0));
 	expect(vkrenderer_configure_swapchain, will_return(-1));

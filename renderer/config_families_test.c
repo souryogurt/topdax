@@ -14,22 +14,19 @@
 #include <vulkan/vulkan_core.h>
 #include "vkrenderer.h"
 
-VKAPI_ATTR void VKAPI_CALL
-vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice physicalDevice,
-					 uint32_t * pQueueFamilyCount,
-					 VkQueueFamilyProperties * pQueueFamily)
+VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties(
+	VkPhysicalDevice physicalDevice, uint32_t *pQueueFamilyCount,
+	VkQueueFamilyProperties *pQueueFamily)
 {
 	mock(physicalDevice, pQueueFamilyCount, pQueueFamily);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkGetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice physicalDevice,
-				     uint32_t queueFamilyIndex,
-				     VkSurfaceKHR surface,
-				     VkBool32 * pSupported)
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceSupportKHR(
+	VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex,
+	VkSurfaceKHR surface, VkBool32 *pSupported)
 {
-	return (VkResult) mock(physicalDevice, queueFamilyIndex, surface,
-			       pSupported);
+	return (VkResult)mock(physicalDevice, queueFamilyIndex, surface,
+			      pSupported);
 }
 
 Ensure(configure_selects_universal_queue_family)
@@ -37,23 +34,21 @@ Ensure(configure_selects_universal_queue_family)
 	struct vkrenderer rdr;
 	VkQueueFamilyProperties fams[] = {
 		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
+			.queueFlags = VK_QUEUE_GRAPHICS_BIT,
+			.queueCount = 1,
+		},
 	};
 	uint32_t nfams = ARRAY_SIZE(fams);
 	VkBool32 present[] = { VK_TRUE };
 	expect(vkGetPhysicalDeviceQueueFamilyProperties,
 	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
+					      sizeof(nfams)),
 	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
+					      sizeof(*fams) * nfams));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(queueFamilyIndex, is_equal_to(0)),
 	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
+					      sizeof(*present)),
 	       will_return(VK_SUCCESS));
 	int result = vkrenderer_configure_families(&rdr);
 	assert_that(result, is_equal_to(0));
@@ -66,32 +61,30 @@ Ensure(configure_selects_separate_families_when_no_universal)
 	struct vkrenderer rdr;
 	VkQueueFamilyProperties fams[] = {
 		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
+			.queueFlags = VK_QUEUE_GRAPHICS_BIT,
+			.queueCount = 1,
+		},
 		{
-		 .queueFlags = 0,
-		 .queueCount = 1,
-		 },
+			.queueFlags = 0,
+			.queueCount = 1,
+		},
 	};
 	uint32_t nfams = ARRAY_SIZE(fams);
 	VkBool32 present[] = { VK_FALSE, VK_TRUE };
 	expect(vkGetPhysicalDeviceQueueFamilyProperties,
 	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
+					      sizeof(nfams)),
 	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
+					      sizeof(*fams) * nfams));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(queueFamilyIndex, is_equal_to(0)),
 	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
+					      sizeof(*present)),
 	       will_return(VK_SUCCESS));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(queueFamilyIndex, is_equal_to(1)),
 	       will_set_contents_of_parameter(pSupported, &present[1],
-					      sizeof(VkBool32)),
+					      sizeof(*present)),
 	       will_return(VK_SUCCESS));
 	int result = vkrenderer_configure_families(&rdr);
 	assert_that(result, is_equal_to(0));
@@ -104,32 +97,30 @@ Ensure(configure_fails_when_no_suitable_families)
 	struct vkrenderer rdr;
 	VkQueueFamilyProperties fams[] = {
 		{
-		 .queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		 .queueCount = 1,
-		 },
+			.queueFlags = VK_QUEUE_GRAPHICS_BIT,
+			.queueCount = 1,
+		},
 		{
-		 .queueFlags = VK_QUEUE_COMPUTE_BIT,
-		 .queueCount = 1,
-		 },
+			.queueFlags = VK_QUEUE_COMPUTE_BIT,
+			.queueCount = 1,
+		},
 	};
 	uint32_t nfams = ARRAY_SIZE(fams);
 	VkBool32 present[] = { VK_FALSE, VK_FALSE };
 	expect(vkGetPhysicalDeviceQueueFamilyProperties,
 	       will_set_contents_of_parameter(pQueueFamilyCount, &nfams,
-					      sizeof(uint32_t)),
+					      sizeof(nfams)),
 	       will_set_contents_of_parameter(pQueueFamily, fams,
-					      sizeof(VkQueueFamilyProperties) *
-					      nfams)
-	    );
+					      sizeof(*fams) * nfams));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(queueFamilyIndex, is_equal_to(0)),
 	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(VkBool32)),
+					      sizeof(*present)),
 	       will_return(VK_SUCCESS));
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(queueFamilyIndex, is_equal_to(1)),
 	       will_set_contents_of_parameter(pSupported, &present[1],
-					      sizeof(VkBool32)),
+					      sizeof(*present)),
 	       will_return(VK_SUCCESS));
 	int result = vkrenderer_configure_families(&rdr);
 	assert_that(result, is_not_equal_to(0));

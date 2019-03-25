@@ -14,53 +14,50 @@
 #include "vkrenderer.h"
 
 VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateImageView(VkDevice device, const VkImageViewCreateInfo * pCreateInfo,
-		  const VkAllocationCallbacks * pAllocator, VkImageView * pView)
+vkCreateImageView(VkDevice device, const VkImageViewCreateInfo *pCreateInfo,
+		  const VkAllocationCallbacks *pAllocator, VkImageView *pView)
 {
-	return (VkResult) mock(device, pCreateInfo, pAllocator, pView);
+	return (VkResult)mock(device, pCreateInfo, pAllocator, pView);
 }
 
 VKAPI_ATTR void VKAPI_CALL
 vkDestroyImageView(VkDevice device, VkImageView imageView,
-		   const VkAllocationCallbacks * pAllocator)
+		   const VkAllocationCallbacks *pAllocator)
 {
 	mock(device, imageView, pAllocator);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateFramebuffer(VkDevice device,
-		    const VkFramebufferCreateInfo * pCreateInfo,
-		    const VkAllocationCallbacks * pAllocator,
-		    VkFramebuffer * pFramebuffer)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateFramebuffer(
+	VkDevice device, const VkFramebufferCreateInfo *pCreateInfo,
+	const VkAllocationCallbacks *pAllocator, VkFramebuffer *pFramebuffer)
 {
-	return (VkResult) mock(device, pCreateInfo, pAllocator, pFramebuffer);
+	return (VkResult)mock(device, pCreateInfo, pAllocator, pFramebuffer);
 }
 
 VKAPI_ATTR void VKAPI_CALL
 vkDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer,
-		     const VkAllocationCallbacks * pAllocator)
+		     const VkAllocationCallbacks *pAllocator)
 {
 	mock(device, framebuffer, pAllocator);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkAllocateCommandBuffers(VkDevice device,
-			 const VkCommandBufferAllocateInfo * pAllocateInfo,
-			 VkCommandBuffer * pCommandBuffers)
+VKAPI_ATTR VkResult VKAPI_CALL vkAllocateCommandBuffers(
+	VkDevice device, const VkCommandBufferAllocateInfo *pAllocateInfo,
+	VkCommandBuffer *pCommandBuffers)
 {
-	return (VkResult) mock(device, pAllocateInfo, pCommandBuffers);
+	return (VkResult)mock(device, pAllocateInfo, pCommandBuffers);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 vkBeginCommandBuffer(VkCommandBuffer commandBuffer,
-		     const VkCommandBufferBeginInfo * pBeginInfo)
+		     const VkCommandBufferBeginInfo *pBeginInfo)
 {
-	return (VkResult) mock(commandBuffer, pBeginInfo);
+	return (VkResult)mock(commandBuffer, pBeginInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL
 vkCmdBeginRenderPass(VkCommandBuffer commandBuffer,
-		     const VkRenderPassBeginInfo * pRenderPassBegin,
+		     const VkRenderPassBeginInfo *pRenderPassBegin,
 		     VkSubpassContents contents)
 {
 	mock(commandBuffer, pRenderPassBegin, contents);
@@ -73,7 +70,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass(VkCommandBuffer commandBuffer)
 
 VKAPI_ATTR VkResult VKAPI_CALL vkEndCommandBuffer(VkCommandBuffer commandBuffer)
 {
-	return (VkResult) mock(commandBuffer);
+	return (VkResult)mock(commandBuffer);
 }
 
 Ensure(vkframe_init_returns_error_on_framebuffer_fail)

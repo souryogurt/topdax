@@ -30,23 +30,20 @@ GLFWAPI void glfwTerminate(void)
 	mock();
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo *
-						pCreateInfo,
-						const VkAllocationCallbacks *
-						pAllocator,
-						VkInstance * pInstance)
+VKAPI_ATTR VkResult VKAPI_CALL
+vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo,
+		 const VkAllocationCallbacks *pAllocator, VkInstance *pInstance)
 {
-	return (VkResult) mock(pCreateInfo, pAllocator, pInstance);
+	return (VkResult)mock(pCreateInfo, pAllocator, pInstance);
 }
 
-VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance,
-					     const VkAllocationCallbacks *
-					     pAllocator)
+VKAPI_ATTR void VKAPI_CALL
+vkDestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator)
 {
 	mock(instance, pAllocator);
 }
 
-GLFWAPI const char **glfwGetRequiredInstanceExtensions(uint32_t * count)
+GLFWAPI const char **glfwGetRequiredInstanceExtensions(uint32_t *count)
 {
 	return (const char **)mock(count);
 }
@@ -73,17 +70,15 @@ void topdax_window_destroy(struct topdax_window *win)
 	mock(win);
 }
 
-error_t __wrap_argp_parse(const struct argp *__restrict __argp,
-			  int __argc, char **__restrict __argv,
-			  unsigned __flags, int *__restrict __arg_index,
-			  void *__restrict __input)
+error_t __wrap_argp_parse(const struct argp *__restrict __argp, int __argc,
+			  char **__restrict __argv, unsigned __flags,
+			  int *__restrict __arg_index, void *__restrict __input)
 {
 	const char *argp_doc = __argp->doc;
 	const char *argp_version = argp_program_version;
 	const char *argp_bug_address = argp_program_bug_address;
-	return (error_t) mock(__argp, __argc, __argv, __flags, __arg_index,
-			      __input, argp_doc, argp_version,
-			      argp_bug_address);
+	return (error_t)mock(__argp, __argc, __argv, __flags, __arg_index,
+			     __input, argp_doc, argp_version, argp_bug_address);
 }
 
 GLFWAPI void glfwPollEvents(void)
@@ -91,7 +86,7 @@ GLFWAPI void glfwPollEvents(void)
 	mock();
 }
 
-GLFWAPI int glfwWindowShouldClose(GLFWwindow * window)
+GLFWAPI int glfwWindowShouldClose(GLFWwindow *window)
 {
 	return (int)mock(window);
 }
@@ -108,10 +103,9 @@ Ensure(main_returns_zero_on_success)
 	char *argv[] = { "./topdax", NULL };
 	expect(__wrap_argp_parse);
 	expect(glfwInit, will_return(1));
-	expect(glfwGetRequiredInstanceExtensions,
-	       will_return(wsi_exts),
+	expect(glfwGetRequiredInstanceExtensions, will_return(wsi_exts),
 	       will_set_contents_of_parameter(count, &wsi_size,
-					      sizeof(uint32_t)));
+					      sizeof(wsi_size)));
 	expect(vkCreateInstance);
 #ifndef NDEBUG
 	expect(setup_debug_logger);
@@ -155,10 +149,9 @@ Ensure(main_returns_non_zero_on_vulkan_instance_init_fail)
 	char *argv[] = { "./topdax", NULL };
 	expect(__wrap_argp_parse, will_return(EXIT_SUCCESS));
 	expect(glfwInit, will_return(1));
-	expect(glfwGetRequiredInstanceExtensions,
-	       will_return(wsi_exts),
+	expect(glfwGetRequiredInstanceExtensions, will_return(wsi_exts),
 	       will_set_contents_of_parameter(count, &wsi_size,
-					      sizeof(uint32_t)));
+					      sizeof(wsi_size)));
 	int exit_code = application_main(1, &argv[0]);
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }

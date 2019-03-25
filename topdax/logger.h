@@ -28,7 +28,7 @@ void destroy_debug_logger(VkInstance vkn);
 VKAPI_ATTR VkBool32 VKAPI_CALL
 vk_debug_print(VkDebugUtilsMessageSeverityFlagBitsEXT sev,
 	       VkDebugUtilsMessageTypeFlagsEXT messageType,
-	       const VkDebugUtilsMessengerCallbackDataEXT * pCallbackData,
+	       const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
 	       void *pUserData);
 
 #ifdef __cplusplus

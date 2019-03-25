@@ -17,28 +17,26 @@
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
 vkGetInstanceProcAddr(VkInstance instance, const char *pName)
 {
-	return (PFN_vkVoidFunction) mock(instance, pName);
+	return (PFN_vkVoidFunction)mock(instance, pName);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateDebugUtilsMessengerEXT(VkInstance instance,
-			       const VkDebugUtilsMessengerCreateInfoEXT *
-			       pCreateInfo,
-			       const VkAllocationCallbacks * pAllocator,
-			       VkDebugUtilsMessengerEXT * pMessenger)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(
+	VkInstance instance,
+	const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+	const VkAllocationCallbacks *pAllocator,
+	VkDebugUtilsMessengerEXT *pMessenger)
 {
-	return (VkResult) mock(instance, pCreateInfo, pAllocator, pMessenger);
+	return (VkResult)mock(instance, pCreateInfo, pAllocator, pMessenger);
 }
 
-VKAPI_ATTR void VKAPI_CALL
-vkDestroyDebugUtilsMessengerEXT(VkInstance instance,
-				VkDebugUtilsMessengerEXT messenger,
-				const VkAllocationCallbacks * pAllocator)
+VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(
+	VkInstance instance, VkDebugUtilsMessengerEXT messenger,
+	const VkAllocationCallbacks *pAllocator)
 {
 	mock(instance, messenger, pAllocator);
 }
 
-int __wrap_fprintf(FILE * __restrict __stream, const char *__restrict __format,
+int __wrap_fprintf(FILE *__restrict __stream, const char *__restrict __format,
 		   ...)
 {
 	va_list args;
@@ -77,7 +75,7 @@ Ensure(logger_prints_messages_to_stderr)
 	VkBool32 res;
 	const VkDebugUtilsMessengerCallbackDataEXT CallbackData = {
 		.sType =
-		    VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT,
+			VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT,
 		.pNext = NULL,
 		.flags = 0,
 		.pMessageIdName = "MID",
@@ -91,8 +89,7 @@ Ensure(logger_prints_messages_to_stderr)
 		.pObjects = NULL
 	};
 
-	expect(__wrap_fprintf,
-	       when(__stream, is_equal_to(stderr)),
+	expect(__wrap_fprintf, when(__stream, is_equal_to(stderr)),
 	       when(__format, is_equal_to_string("%s: %s\n")),
 	       when(arg1, is_equal_to_string("verbose: ")),
 	       when(arg2, is_equal_to_string(CallbackData.pMessage)));
@@ -101,8 +98,7 @@ Ensure(logger_prints_messages_to_stderr)
 			     &CallbackData, NULL);
 	assert_that(res, is_equal_to(VK_FALSE));
 
-	expect(__wrap_fprintf,
-	       when(__stream, is_equal_to(stderr)),
+	expect(__wrap_fprintf, when(__stream, is_equal_to(stderr)),
 	       when(__format, is_equal_to_string("%s: %s\n")),
 	       when(arg1, is_equal_to_string("info: ")),
 	       when(arg2, is_equal_to_string(CallbackData.pMessage)));
@@ -111,8 +107,7 @@ Ensure(logger_prints_messages_to_stderr)
 			     &CallbackData, NULL);
 	assert_that(res, is_equal_to(VK_FALSE));
 
-	expect(__wrap_fprintf,
-	       when(__stream, is_equal_to(stderr)),
+	expect(__wrap_fprintf, when(__stream, is_equal_to(stderr)),
 	       when(__format, is_equal_to_string("%s: %s\n")),
 	       when(arg1, is_equal_to_string("warning: ")),
 	       when(arg2, is_equal_to_string(CallbackData.pMessage)));
@@ -121,8 +116,7 @@ Ensure(logger_prints_messages_to_stderr)
 			     &CallbackData, NULL);
 	assert_that(res, is_equal_to(VK_FALSE));
 
-	expect(__wrap_fprintf,
-	       when(__stream, is_equal_to(stderr)),
+	expect(__wrap_fprintf, when(__stream, is_equal_to(stderr)),
 	       when(__format, is_equal_to_string("%s: %s\n")),
 	       when(arg1, is_equal_to_string("error: ")),
 	       when(arg2, is_equal_to_string(CallbackData.pMessage)));

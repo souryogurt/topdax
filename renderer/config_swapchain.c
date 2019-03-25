@@ -18,9 +18,8 @@
  * @param fmt Specifies pointer to memory where selected format must be stored
  * @returns zero if format is found, and non-zero otherwise
  */
-static int select_simple_surface_format(const VkSurfaceFormatKHR * fmts,
-					uint32_t nfmts,
-					VkSurfaceFormatKHR * fmt)
+static int select_simple_surface_format(const VkSurfaceFormatKHR *fmts,
+					uint32_t nfmts, VkSurfaceFormatKHR *fmt)
 {
 	for (uint32_t i = 0; i < nfmts; ++i) {
 		if (fmts[i].format == VK_FORMAT_B8G8R8A8_UNORM &&
@@ -38,8 +37,8 @@ static int select_simple_surface_format(const VkSurfaceFormatKHR * fmts,
  * @param nfmts Specifies number of elements in @a fmts array
  * @param fmt Specifies pointer to memory where selected format must be stored
  */
-static void select_surface_format(const VkSurfaceFormatKHR * fmts,
-				  uint32_t nfmts, VkSurfaceFormatKHR * fmt)
+static void select_surface_format(const VkSurfaceFormatKHR *fmts,
+				  uint32_t nfmts, VkSurfaceFormatKHR *fmt)
 {
 	if (nfmts == 1 && fmts[0].format == VK_FORMAT_UNDEFINED) {
 		fmt->format = VK_FORMAT_B8G8R8A8_UNORM;

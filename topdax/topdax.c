@@ -27,7 +27,8 @@ static struct topdax_window window;
 static struct argp argp;
 
 /** Vulkan compatible application version */
-#define VK_APP_VERSION VK_MAKE_VERSION(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH)
+#define VK_APP_VERSION \
+	VK_MAKE_VERSION(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH)
 
 /** Topdax application information */
 static const VkApplicationInfo topdax_app_info = {
@@ -46,7 +47,7 @@ static const VkApplicationInfo topdax_app_info = {
  * @param size Specifies pointer to size of @a extensions array
  * @returns zero on success or non-zero otherwise
  */
-static int get_vk_extensions(const char **extensions, uint32_t * size)
+static int get_vk_extensions(const char **extensions, uint32_t *size)
 {
 	uint32_t wsi_count;
 	const char **wsi_exts = glfwGetRequiredInstanceExtensions(&wsi_count);
@@ -75,21 +76,22 @@ static int get_vk_extensions(const char **extensions, uint32_t * size)
  *                 instance is returned
  * @returns VK_SUCCESS on success
  */
-static VkResult vk_instance_create(VkInstance * instance)
+static VkResult vk_instance_create(VkInstance *instance)
 {
 	const char *extensions[100];
+	uint32_t nextensions = ARRAY_SIZE(extensions);
+	if (get_vk_extensions(extensions, &nextensions) != 0) {
+		return VK_ERROR_INITIALIZATION_FAILED;
+	}
 	VkInstanceCreateInfo vk_info = {
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		.pApplicationInfo = &topdax_app_info,
 		.enabledLayerCount = 0,
 		.ppEnabledLayerNames = NULL,
-		.enabledExtensionCount = ARRAY_SIZE(extensions),
+		.enabledExtensionCount = nextensions,
 		.ppEnabledExtensionNames = extensions
 	};
-	if (get_vk_extensions(extensions, &vk_info.enabledExtensionCount) == 0) {
-		return vkCreateInstance(&vk_info, NULL, instance);
-	}
-	return VK_ERROR_INITIALIZATION_FAILED;
+	return vkCreateInstance(&vk_info, NULL, instance);
 }
 
 int application_main(int argc, char **argv)

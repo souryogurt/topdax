@@ -20,65 +20,58 @@ int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance)
 	return (int)mock(rdr, instance);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice,
-					      const VkDeviceCreateInfo *
-					      pCreateInfo,
-					      const VkAllocationCallbacks *
-					      pAllocator, VkDevice * pDevice)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(
+	VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo *pCreateInfo,
+	const VkAllocationCallbacks *pAllocator, VkDevice *pDevice)
 {
-	return (VkResult) mock(physicalDevice, pCreateInfo, pAllocator,
-			       pDevice);
+	return (VkResult)mock(physicalDevice, pCreateInfo, pAllocator, pDevice);
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue(VkDevice device,
 					    uint32_t queueFamilyIndex,
 					    uint32_t queueIndex,
-					    VkQueue * pQueue)
+					    VkQueue *pQueue)
 {
 	mock(device, queueFamilyIndex, queueIndex, pQueue);
 }
 
-VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice device,
-					   const VkAllocationCallbacks *
-					   pAllocator)
+VKAPI_ATTR void VKAPI_CALL
+vkDestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator)
 {
 	mock(device, pAllocator);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateCommandPool(VkDevice device,
-		    const VkCommandPoolCreateInfo * pCreateInfo,
-		    const VkAllocationCallbacks * pAllocator,
-		    VkCommandPool * pCommandPool)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateCommandPool(
+	VkDevice device, const VkCommandPoolCreateInfo *pCreateInfo,
+	const VkAllocationCallbacks *pAllocator, VkCommandPool *pCommandPool)
 {
-	return (VkResult) mock(device, pCreateInfo, pAllocator, pCommandPool);
+	return (VkResult)mock(device, pCreateInfo, pAllocator, pCommandPool);
 }
 
 VKAPI_ATTR void VKAPI_CALL
 vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool,
-		     const VkAllocationCallbacks * pAllocator)
+		     const VkAllocationCallbacks *pAllocator)
 {
 	mock(device, commandPool, pAllocator);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateRenderPass(VkDevice device, const VkRenderPassCreateInfo * pCreateInfo,
-		   const VkAllocationCallbacks * pAllocator,
-		   VkRenderPass * pRenderPass)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(
+	VkDevice device, const VkRenderPassCreateInfo *pCreateInfo,
+	const VkAllocationCallbacks *pAllocator, VkRenderPass *pRenderPass)
 {
-	return (VkResult) mock(device, pCreateInfo, pAllocator, pRenderPass);
+	return (VkResult)mock(device, pCreateInfo, pAllocator, pRenderPass);
 }
 
 VKAPI_ATTR void VKAPI_CALL
 vkDestroyRenderPass(VkDevice device, VkRenderPass renderPass,
-		    const VkAllocationCallbacks * pAllocator)
+		    const VkAllocationCallbacks *pAllocator)
 {
 	mock(device, renderPass, pAllocator);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkDeviceWaitIdle(VkDevice device)
 {
-	return (VkResult) mock(device);
+	return (VkResult)mock(device);
 }
 
 int vkswapchain_init(struct vkswapchain *swc, const struct vkrenderer *rdr,
@@ -100,13 +93,13 @@ int vkrenderer_configure_swapchain(struct vkrenderer *rdr)
 VkResult vkswapchain_render(const struct vkswapchain *swc,
 			    const struct vkrenderer *rdr)
 {
-	return (VkResult) mock(swc, rdr);
+	return (VkResult)mock(swc, rdr);
 }
 
 Ensure(init_returns_zero_on_success)
 {
-	VkInstance instance = (VkInstance) 1;
-	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	VkInstance instance = (VkInstance)1;
+	VkSurfaceKHR surface = (VkSurfaceKHR)2;
 	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
@@ -121,8 +114,8 @@ Ensure(init_returns_zero_on_success)
 
 Ensure(init_returns_non_zero_when_no_configs)
 {
-	VkInstance instance = (VkInstance) 1;
-	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	VkInstance instance = (VkInstance)1;
+	VkSurfaceKHR surface = (VkSurfaceKHR)2;
 	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(1));
 	int error = vkrenderer_init(&vkr, instance, surface);
@@ -131,8 +124,8 @@ Ensure(init_returns_non_zero_when_no_configs)
 
 Ensure(init_returns_non_zero_on_device_fail)
 {
-	VkInstance instance = (VkInstance) 1;
-	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	VkInstance instance = (VkInstance)1;
+	VkSurfaceKHR surface = (VkSurfaceKHR)2;
 	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_ERROR_INITIALIZATION_FAILED));
@@ -142,8 +135,8 @@ Ensure(init_returns_non_zero_on_device_fail)
 
 Ensure(init_returns_non_zero_on_command_pool_fail)
 {
-	VkInstance instance = (VkInstance) 1;
-	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	VkInstance instance = (VkInstance)1;
+	VkSurfaceKHR surface = (VkSurfaceKHR)2;
 	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
@@ -156,8 +149,8 @@ Ensure(init_returns_non_zero_on_command_pool_fail)
 
 Ensure(init_returns_non_zero_on_renderpass_fail)
 {
-	VkInstance instance = (VkInstance) 1;
-	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	VkInstance instance = (VkInstance)1;
+	VkSurfaceKHR surface = (VkSurfaceKHR)2;
 	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
@@ -171,8 +164,8 @@ Ensure(init_returns_non_zero_on_renderpass_fail)
 
 Ensure(init_returns_non_zero_on_swapchain_fail)
 {
-	VkInstance instance = (VkInstance) 1;
-	VkSurfaceKHR surface = (VkSurfaceKHR) 2;
+	VkInstance instance = (VkInstance)1;
+	VkSurfaceKHR surface = (VkSurfaceKHR)2;
 	struct vkrenderer vkr = { 0 };
 	expect(vkrenderer_configure, will_return(0));
 	expect(vkCreateDevice, will_return(VK_SUCCESS));
@@ -188,8 +181,7 @@ Ensure(init_returns_non_zero_on_swapchain_fail)
 Ensure(render_returns_zero_on_success)
 {
 	struct vkrenderer vkr = { 0 };
-	expect(vkswapchain_render,
-	       when(swc, is_equal_to(&vkr.swcs[0])),
+	expect(vkswapchain_render, when(swc, is_equal_to(&vkr.swcs[0])),
 	       when(rdr, is_equal_to(&vkr)), will_return(VK_SUCCESS));
 	int error = vkrenderer_render(&vkr);
 	assert_that(error, is_equal_to(0));
@@ -198,8 +190,7 @@ Ensure(render_returns_zero_on_success)
 Ensure(render_recreates_swapchain)
 {
 	struct vkrenderer vkr = { 0 };
-	expect(vkswapchain_render,
-	       when(swc, is_equal_to(&vkr.swcs[0])),
+	expect(vkswapchain_render, when(swc, is_equal_to(&vkr.swcs[0])),
 	       when(rdr, is_equal_to(&vkr)),
 	       will_return(VK_ERROR_OUT_OF_DATE_KHR));
 	expect(vkDeviceWaitIdle, when(device, is_equal_to(vkr.device)));
@@ -208,8 +199,7 @@ Ensure(render_recreates_swapchain)
 	expect(vkswapchain_init, will_return(0),
 	       when(swc, is_equal_to(&vkr.swcs[1])));
 	expect(vkswapchain_terminate, when(swc, is_equal_to(&vkr.swcs[0])));
-	expect(vkswapchain_render,
-	       when(swc, is_equal_to(&vkr.swcs[1])),
+	expect(vkswapchain_render, when(swc, is_equal_to(&vkr.swcs[1])),
 	       when(rdr, is_equal_to(&vkr)), will_return(VK_SUCCESS));
 	int error = vkrenderer_render(&vkr);
 	assert_that(error, is_equal_to(0));
@@ -219,8 +209,7 @@ Ensure(render_recreates_swapchain)
 Ensure(render_returns_non_zero_on_swapchain_config_fail)
 {
 	struct vkrenderer vkr = { 0 };
-	expect(vkswapchain_render,
-	       when(swc, is_equal_to(&vkr.swcs[0])),
+	expect(vkswapchain_render, when(swc, is_equal_to(&vkr.swcs[0])),
 	       when(rdr, is_equal_to(&vkr)),
 	       will_return(VK_ERROR_OUT_OF_DATE_KHR));
 	expect(vkDeviceWaitIdle, when(device, is_equal_to(vkr.device)));
@@ -234,8 +223,7 @@ Ensure(render_returns_non_zero_on_swapchain_config_fail)
 Ensure(render_returns_non_zero_on_swapchain_init_fail)
 {
 	struct vkrenderer vkr = { 0 };
-	expect(vkswapchain_render,
-	       when(swc, is_equal_to(&vkr.swcs[0])),
+	expect(vkswapchain_render, when(swc, is_equal_to(&vkr.swcs[0])),
 	       when(rdr, is_equal_to(&vkr)),
 	       will_return(VK_ERROR_OUT_OF_DATE_KHR));
 	expect(vkDeviceWaitIdle, when(device, is_equal_to(vkr.device)));

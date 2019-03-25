@@ -30,9 +30,8 @@ struct family_properties {
  * @param present Specifies pointer where store presentation family index
  * @returns zero if indices are found, and non-zero otherwise
  */
-static int
-select_families(const struct family_properties *props, uint32_t * graph,
-		uint32_t * present)
+static int select_families(const struct family_properties *props,
+			   uint32_t *graph, uint32_t *present)
 {
 	*graph = props->count;
 	*present = props->count;
@@ -58,9 +57,8 @@ select_families(const struct family_properties *props, uint32_t * graph,
  * @param present Specifies pointer where store universal family index
  * @returns zero if family is found, and non-zero otherwise
  */
-static int
-select_universal_families(const struct family_properties *props,
-			  uint32_t * graph, uint32_t * present)
+static int select_universal_families(const struct family_properties *props,
+				     uint32_t *graph, uint32_t *present)
 {
 	for (uint32_t i = 0; i < props->count; ++i) {
 		if (props->present[i] && props->graphic[i]) {
@@ -79,9 +77,8 @@ select_universal_families(const struct family_properties *props,
  * @param fpr Specifies pointer to array of available family properties
  * @param fam Specifies family index to test
  */
-static void
-set_family_properties(VkPhysicalDevice phy, VkSurfaceKHR srf,
-		      struct family_properties *fpr, uint32_t fam)
+static void set_family_properties(VkPhysicalDevice phy, VkSurfaceKHR srf,
+				  struct family_properties *fpr, uint32_t fam)
 {
 	VkBool32 has_queue = fpr->fams[fam].queueCount > 0;
 	vkGetPhysicalDeviceSurfaceSupportKHR(phy, fam, srf, &fpr->present[fam]);

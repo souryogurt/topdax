@@ -23,7 +23,6 @@ static VkResult vkframe_init_framebuffer(struct vkframe *frame,
 					 const VkRenderPass rpass,
 					 const VkDevice device)
 {
-
 	const VkImageView attachments[] = { frame->view };
 	const VkFramebufferCreateInfo info = {
 		.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
@@ -116,10 +115,10 @@ static VkResult vkframe_record(const struct vkframe *frame,
 	if (result != VK_SUCCESS)
 		return result;
 	const VkClearValue clear_colors[] = {
-		{{{1.0F, 1.0F, 1.0F, 1.0F}}}
+		{ { { 1.0F, 1.0F, 1.0F, 1.0F } } }
 	};
 	const VkRect2D render_rect = {
-		.offset = {0, 0},
+		.offset = { 0, 0 },
 		.extent = frame->size,
 	};
 
