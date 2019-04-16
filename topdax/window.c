@@ -21,12 +21,11 @@ int topdax_window_init(struct topdax_window *win, VkInstance instance)
 	    VK_SUCCESS) {
 		return 1;
 	}
-	vkrenderer_init(&win->renderer, instance, win->surface);
 	return 0;
 }
 
-void topdax_window_destroy(struct topdax_window *win)
+void topdax_window_destroy(const struct topdax_window *win)
 {
-	vkrenderer_terminate(&win->renderer);
 	vkDestroySurfaceKHR(win->vk, win->surface, NULL);
+	glfwDestroyWindow(win->id);
 }

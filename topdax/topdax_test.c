@@ -81,6 +81,17 @@ error_t __wrap_argp_parse(const struct argp *__restrict __argp, int __argc,
 			     __input, argp_doc, argp_version, argp_bug_address);
 }
 
+int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
+		    VkSurfaceKHR surface)
+{
+	return (int)mock(rdr, instance, surface);
+}
+
+void vkrenderer_terminate(const struct vkrenderer *rdr)
+{
+	mock(rdr);
+}
+
 GLFWAPI void glfwPollEvents(void)
 {
 	mock();
@@ -111,10 +122,12 @@ Ensure(main_returns_zero_on_success)
 	expect(setup_debug_logger);
 #endif
 	expect(topdax_window_init);
+	expect(vkrenderer_init);
 	expect(glfwWindowShouldClose, will_return(0));
 	expect(glfwPollEvents);
 	expect(vkrenderer_render);
 	expect(glfwWindowShouldClose, will_return(1));
+	expect(vkrenderer_terminate);
 	expect(topdax_window_destroy);
 #ifndef NDEBUG
 	expect(destroy_debug_logger);
@@ -156,6 +169,45 @@ Ensure(main_returns_non_zero_on_vulkan_instance_init_fail)
 	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
 }
 
+Ensure(main_returns_non_zero_on_window_init_fail)
+{
+	const char *wsi_exts[] = { "VK_KHR_surface" };
+	const uint32_t wsi_size = ARRAY_SIZE(wsi_exts);
+	char *argv[] = { "./topdax", NULL };
+	expect(__wrap_argp_parse);
+	expect(glfwInit, will_return(1));
+	expect(glfwGetRequiredInstanceExtensions, will_return(wsi_exts),
+	       will_set_contents_of_parameter(count, &wsi_size,
+					      sizeof(wsi_size)));
+	expect(vkCreateInstance);
+#ifndef NDEBUG
+	expect(setup_debug_logger);
+#endif
+	expect(topdax_window_init, will_return(1));
+	int exit_code = application_main(1, &argv[0]);
+	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
+}
+
+Ensure(main_returns_non_zero_on_renderer_init_fail)
+{
+	const char *wsi_exts[] = { "VK_KHR_surface" };
+	const uint32_t wsi_size = ARRAY_SIZE(wsi_exts);
+	char *argv[] = { "./topdax", NULL };
+	expect(__wrap_argp_parse);
+	expect(glfwInit, will_return(1));
+	expect(glfwGetRequiredInstanceExtensions, will_return(wsi_exts),
+	       will_set_contents_of_parameter(count, &wsi_size,
+					      sizeof(wsi_size)));
+	expect(vkCreateInstance);
+#ifndef NDEBUG
+	expect(setup_debug_logger);
+#endif
+	expect(topdax_window_init);
+	expect(vkrenderer_init, will_return(1));
+	int exit_code = application_main(1, &argv[0]);
+	assert_that(exit_code, is_equal_to(EXIT_FAILURE));
+}
+
 int main(int argc, char **argv)
 {
 	(void)(argc);
@@ -165,6 +217,8 @@ int main(int argc, char **argv)
 	add_test(suite, main_returns_non_zero_on_glfw_fail);
 	add_test(suite, main_returns_non_zero_on_vulkan_instance_init_fail);
 	add_test(suite, main_returns_non_zero_when_help_requested);
+	add_test(suite, main_returns_non_zero_on_window_init_fail);
+	add_test(suite, main_returns_non_zero_on_renderer_init_fail);
 	TestReporter *reporter = create_text_reporter();
 	int exit_code = run_test_suite(suite, reporter);
 	destroy_reporter(reporter);

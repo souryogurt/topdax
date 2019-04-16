@@ -23,6 +23,9 @@ static VkInstance vkn;
 /** Main window */
 static struct topdax_window window;
 
+/** Renderer implementation */
+static struct vkrenderer renderer;
+
 /** Arguments parser */
 static struct argp argp;
 
@@ -111,11 +114,17 @@ int application_main(int argc, char **argv)
 #ifndef NDEBUG
 	setup_debug_logger(vkn);
 #endif
-	topdax_window_init(&window, vkn);
+	if (topdax_window_init(&window, vkn)) {
+		return EXIT_FAILURE;
+	}
+	if (vkrenderer_init(&renderer, vkn, window.surface)) {
+		return EXIT_FAILURE;
+	}
 	while (!glfwWindowShouldClose(window.id)) {
 		glfwPollEvents();
-		vkrenderer_render(&window.renderer);
+		vkrenderer_render(&renderer);
 	}
+	vkrenderer_terminate(&renderer);
 	topdax_window_destroy(&window);
 #ifndef NDEBUG
 	destroy_debug_logger(vkn);

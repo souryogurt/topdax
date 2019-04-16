@@ -24,6 +24,11 @@ GLFWAPI GLFWwindow *glfwCreateWindow(int width, int height, const char *title,
 	return (GLFWwindow *)mock(width, height, title, monitor, share);
 }
 
+GLFWAPI void glfwDestroyWindow(GLFWwindow *window)
+{
+	mock(window);
+}
+
 GLFWAPI void glfwSetWindowUserPointer(GLFWwindow *window, void *pointer)
 {
 	mock(window, pointer);
@@ -35,17 +40,6 @@ GLFWAPI VkResult glfwCreateWindowSurface(VkInstance instance,
 					 VkSurfaceKHR *surface)
 {
 	return (VkResult)mock(instance, window, allocator, surface);
-}
-
-int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
-		    VkSurfaceKHR surface)
-{
-	return (int)mock(rdr, instance, surface);
-}
-
-void vkrenderer_terminate(const struct vkrenderer *rdr)
-{
-	mock(rdr);
 }
 
 VKAPI_ATTR void VKAPI_CALL
@@ -67,7 +61,6 @@ Ensure(topdax_window_init_creates_window)
 	       when(title, is_equal_to_string("Topdax")));
 	expect(glfwSetWindowUserPointer);
 	expect(glfwCreateWindowSurface, will_return(VK_SUCCESS));
-	expect(vkrenderer_init, when(rdr, is_equal_to(&win.renderer)));
 	int error = topdax_window_init(&win, vk);
 	assert_that(error, is_equal_to(0));
 }
@@ -102,8 +95,8 @@ Ensure(topdax_window_init_returns_non_zero_on_surface_fail)
 Ensure(topdax_window_destroy_destroys_window)
 {
 	struct topdax_window win = { 0 };
-	expect(vkrenderer_terminate, when(rdr, is_equal_to(&win.renderer)));
 	expect(vkDestroySurfaceKHR, when(surface, is_equal_to(win.surface)));
+	expect(glfwDestroyWindow, when(window, is_equal_to(win.id)));
 	topdax_window_destroy(&win);
 }
 

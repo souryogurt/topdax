@@ -15,9 +15,6 @@ struct topdax_window {
 
 	/** Vulkan surface of this window */
 	VkSurfaceKHR surface;
-
-	/** Renderer implementation */
-	struct vkrenderer renderer;
 };
 
 #ifdef __cplusplus
@@ -38,7 +35,7 @@ int topdax_window_init(struct topdax_window *win, VkInstance instance);
  * Destroy main window
  * @param win Specifies pointer to window to initialize
  */
-void topdax_window_destroy(struct topdax_window *win);
+void topdax_window_destroy(const struct topdax_window *win);
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */
