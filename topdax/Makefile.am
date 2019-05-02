@@ -1,12 +1,12 @@
 bin_PROGRAMS += topdax/topdax
 topdax_topdax_SOURCES = topdax/entry.c
-topdax_topdax_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+topdax_topdax_CFLAGS = $(CODE_COVERAGE_CFLAGS) $(PTHREAD_CFLAGS)
 topdax_topdax_LDADD = topdax/libtopdax.a topdax/libtopdax_window.a\
 		      topdax/liblogger.a renderer/libvkrenderer.a\
 		      renderer/libvkswapchain.a renderer/libvkconfig.a\
 		      renderer/libvkconfig_families.a\
 		      renderer/libvkconfig_swapchain.a renderer/libvkframe.a\
-		      $(CODE_COVERAGE_LIBS)
+		      $(CODE_COVERAGE_LIBS) $(PTHREAD_LIBS)
 
 noinst_LIBRARIES += topdax/libtopdax.a
 topdax_libtopdax_a_SOURCES = topdax/topdax.c

@@ -10,6 +10,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <threads.h>
+#include <stdatomic.h>
+#include <stdbool.h>
 
 #include <GLFW/glfw3.h>
 #include "logger.h"
@@ -97,6 +100,16 @@ static VkResult vk_instance_create(VkInstance *instance)
 	return vkCreateInstance(&vk_info, NULL, instance);
 }
 
+static atomic_bool is_rendering;
+
+static int render_main(void *data)
+{
+	do {
+		vkrenderer_render(&renderer);
+	} while (is_rendering);
+	return 0;
+}
+
 int application_main(int argc, char **argv)
 {
 	argp_program_version = PACKAGE_STRING;
@@ -120,10 +133,14 @@ int application_main(int argc, char **argv)
 	if (vkrenderer_init(&renderer, vkn, window.surface)) {
 		return EXIT_FAILURE;
 	}
+	thrd_t render_thread;
+	atomic_init(&is_rendering, true);
+	thrd_create(&render_thread, render_main, NULL);
 	while (!glfwWindowShouldClose(window.id)) {
-		glfwPollEvents();
-		vkrenderer_render(&renderer);
+		glfwWaitEvents();
 	}
+	is_rendering = false;
+	thrd_join(render_thread, NULL);
 	vkrenderer_terminate(&renderer);
 	topdax_window_destroy(&window);
 #ifndef NDEBUG

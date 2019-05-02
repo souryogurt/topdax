@@ -40,6 +40,8 @@ AC_CHECK_LIB([vulkan], [vkCreateInstance], [], [
   AC_MSG_ERROR([libvulkan not found])
 ])
 
+AX_PTHREAD()
+
 AX_SPLIT_VERSION
 AC_DEFINE_UNQUOTED([VERSION_MAJOR], [${AX_MAJOR_VERSION}], [Major version number of package])
 AC_DEFINE_UNQUOTED([VERSION_MINOR], [${AX_MINOR_VERSION}], [Minor version number of package])
