@@ -7,6 +7,9 @@ topdax_topdax_LDADD = topdax/libtopdax.a topdax/libtopdax_window.a\
 		      renderer/libvkconfig_families.a\
 		      renderer/libvkconfig_swapchain.a renderer/libvkframe.a\
 		      $(CODE_COVERAGE_LIBS) $(PTHREAD_LIBS)
+if !HAVE_THREADS_H
+topdax_topdax_LDADD += topdax/libthreads.a
+endif
 
 noinst_LIBRARIES += topdax/libtopdax.a
 topdax_libtopdax_a_SOURCES = topdax/topdax.c
@@ -22,6 +25,13 @@ noinst_LIBRARIES += topdax/liblogger.a
 topdax_liblogger_a_SOURCES = topdax/logger.c
 topdax_liblogger_a_SOURCES += topdax/logger.h
 topdax_liblogger_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+
+if !HAVE_THREADS_H
+noinst_LIBRARIES += topdax/libthreads.a
+topdax_libthreads_a_SOURCES = topdax/threads_pthread.c
+topdax_libthreads_a_SOURCES += topdax/c11threads.h
+topdax_libthreads_a_CFLAGS = $(CODE_COVERAGE_CFLAGS)
+endif
 
 if HAVE_CGREEN
 TESTS += topdax/topdax_test

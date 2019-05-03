@@ -10,7 +10,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef HAVE_THREADS_H
 #include <threads.h>
+#else
+#include "c11threads.h"
+#endif
+
 #include <stdatomic.h>
 #include <stdbool.h>
 
@@ -100,13 +106,16 @@ static VkResult vk_instance_create(VkInstance *instance)
 	return vkCreateInstance(&vk_info, NULL, instance);
 }
 
-static atomic_bool is_rendering;
+struct thread_data {
+	atomic_bool is_running;
+};
 
 static int render_main(void *data)
 {
+	struct thread_data *thrd = (struct thread_data *)data;
 	do {
 		vkrenderer_render(&renderer);
-	} while (is_rendering);
+	} while (thrd->is_running);
 	return 0;
 }
 
@@ -133,13 +142,14 @@ int application_main(int argc, char **argv)
 	if (vkrenderer_init(&renderer, vkn, window.surface)) {
 		return EXIT_FAILURE;
 	}
+	struct thread_data rdr_data;
+	atomic_init(&rdr_data.is_running, true);
 	thrd_t render_thread;
-	atomic_init(&is_rendering, true);
-	thrd_create(&render_thread, render_main, NULL);
+	thrd_create(&render_thread, render_main, &rdr_data);
 	while (!glfwWindowShouldClose(window.id)) {
 		glfwWaitEvents();
 	}
-	is_rendering = false;
+	rdr_data.is_running = false;
 	thrd_join(render_thread, NULL);
 	vkrenderer_terminate(&renderer);
 	topdax_window_destroy(&window);

@@ -16,6 +16,11 @@
 #include <vulkan/vulkan_core.h>
 #include <GLFW/glfw3.h>
 #include "topdax.h"
+#ifdef HAVE_THREADS_H
+#include <threads.h>
+#else
+#include "c11threads.h"
+#endif
 
 struct topdax_window;
 struct vkrenderer;
@@ -92,7 +97,7 @@ void vkrenderer_terminate(const struct vkrenderer *rdr)
 	mock(rdr);
 }
 
-GLFWAPI void glfwPollEvents(void)
+GLFWAPI void glfwWaitEvents(void)
 {
 	mock();
 }
@@ -105,6 +110,16 @@ GLFWAPI int glfwWindowShouldClose(GLFWwindow *window)
 int vkrenderer_render(struct vkrenderer *rdr)
 {
 	return (int)mock(rdr);
+}
+
+int thrd_create(thrd_t *__thr, thrd_start_t __func, void *__arg)
+{
+	return (int)mock(__thr, __func, __arg);
+}
+
+int thrd_join(thrd_t __thr, int *__res)
+{
+	return (int)mock(__thr, __res);
 }
 
 Ensure(main_returns_zero_on_success)
@@ -123,10 +138,11 @@ Ensure(main_returns_zero_on_success)
 #endif
 	expect(topdax_window_init);
 	expect(vkrenderer_init);
+	expect(thrd_create);
 	expect(glfwWindowShouldClose, will_return(0));
-	expect(glfwPollEvents);
-	expect(vkrenderer_render);
+	expect(glfwWaitEvents);
 	expect(glfwWindowShouldClose, will_return(1));
+	expect(thrd_join);
 	expect(vkrenderer_terminate);
 	expect(topdax_window_destroy);
 #ifndef NDEBUG
