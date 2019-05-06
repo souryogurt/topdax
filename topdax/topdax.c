@@ -11,11 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_THREADS_H
 #include <threads.h>
-#else
-#include "c11threads.h"
-#endif
 
 #include <stdatomic.h>
 #include <stdbool.h>

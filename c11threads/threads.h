@@ -1,5 +1,5 @@
-#ifndef TOPDAX_THREADS_H
-#define TOPDAX_THREADS_H
+#ifndef C11THREADS_THREADS_H
+#define C11THREADS_THREADS_H
 
 typedef unsigned long int thrd_t;
 typedef int (*thrd_start_t)(void *);

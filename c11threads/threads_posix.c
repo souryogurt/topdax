@@ -6,7 +6,7 @@
 #include <config.h>
 #endif
 
-#include "c11threads.h"
+#include "threads.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <pthread.h>

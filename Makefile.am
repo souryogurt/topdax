@@ -9,6 +9,7 @@ noinst_LIBRARIES =
 TESTS =
 check_PROGRAMS =
 
+include c11threads/Makefile.am
 include topdax/Makefile.am
 include renderer/Makefile.am
 include doc/Makefile.am

@@ -172,6 +172,8 @@ autom4te.cache/
 /topdax/*_test
 /renderer/*_test
 /renderer/*.a
+/c11threads/*.a
+/c11threads/*_test
 /tags
 /test-driver
 *.trs

@@ -16,11 +16,7 @@
 #include <vulkan/vulkan_core.h>
 #include <GLFW/glfw3.h>
 #include "topdax.h"
-#ifdef HAVE_THREADS_H
 #include <threads.h>
-#else
-#include "c11threads.h"
-#endif
 
 struct topdax_window;
 struct vkrenderer;
