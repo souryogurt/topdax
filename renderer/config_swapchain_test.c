@@ -174,8 +174,8 @@ Ensure(configure_selects_first_when_no_bgra_unorm_srgb_format)
 	expect(vkGetPhysicalDeviceSurfaceFormatsKHR,
 	       will_set_contents_of_parameter(pSurfaceFormatCount, &nfmts,
 					      sizeof(nfmts)),
-	       will_set_contents_of_parameter(pSurfaceFormats, &fmts,
-					      sizeof(fmts) * nfmts));
+	       will_set_contents_of_parameter(pSurfaceFormats, fmts,
+					      sizeof(*fmts) * nfmts));
 	int result = vkrenderer_configure_surface_format(&rdr);
 	assert_that(result, is_equal_to(0));
 	assert_that(rdr.srf_format.format, is_equal_to(fmts[0].format));
@@ -257,8 +257,8 @@ Ensure(configure_selects_suitable_swapchain)
 	expect(vkGetPhysicalDeviceSurfacePresentModesKHR,
 	       will_set_contents_of_parameter(pPresentModeCount, &nmodes,
 					      sizeof(nmodes)),
-	       will_set_contents_of_parameter(pPresentModes, &modes,
-					      sizeof(&modes) * nmodes),
+	       will_set_contents_of_parameter(pPresentModes, modes,
+					      sizeof(*modes) * nmodes),
 	       will_return(VK_SUCCESS));
 	int result = vkrenderer_configure_swapchain(&rdr);
 	assert_that(result, is_equal_to(0));
