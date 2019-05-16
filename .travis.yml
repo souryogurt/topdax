@@ -71,6 +71,7 @@ script:
     - CPPFLAGS="-I/usr/include" CFLAGS="--std=gnu11 -Wall -Wextra" ./configure --enable-code-coverage --with-unit-tests --prefix=${TRAVIS_BUILD_DIR}/../local
     - build-wrapper-linux-x86-64 --out-dir bw-output make V=1
     - VERBOSE=1 make check
+    - ccache -s
     - gcov -a -c topdax/*.o renderer/*.o
     - git fetch --unshallow
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
