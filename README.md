@@ -18,15 +18,25 @@ Installation
 Install topdax from sources, by running:
 
 ```sh
-$ apt install gcc autoconf libglfw3-dev
-$ git clone https://github.com/souryogurt/topdax.git
-$ cd topdax
-$ autoreconf -if
-$ ./configure
-$ make
-$ make install
+apt install gcc autoconf libglfw3-dev
+git clone https://github.com/souryogurt/topdax.git
+cd topdax
+autoreconf -if
+./configure
+make
+make install
 ```
 
+Development
+-----------
+
+To build topdax for development:
+```sh
+mkdir debug
+cd debug
+CFLAGS="-Wall -Wextra --std=gnu18 -pedantic -Og -g -fsanitize=address,undefined -fno-common -fsanitize-address-use-after-scope -fno-omit-frame-pointer " ../configure
+make
+```
 
 Contribute
 ----------
