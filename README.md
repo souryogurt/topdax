@@ -18,7 +18,7 @@ Installation
 Install topdax from sources, by running:
 
 ```sh
-apt install gcc autoconf libglfw3-dev
+apt install gcc autoconf libtool libglfw3-dev
 git clone https://github.com/souryogurt/topdax.git
 cd topdax
 autoreconf -if
