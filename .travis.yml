@@ -37,28 +37,28 @@ install:
         echo "LDFLAGS=-L${TRAVIS_BUILD_DIR}/../local/lib" >> config.site
         cd ${TRAVIS_BUILD_DIR}
     - |
-        cd vulkan-headers
+        cd vendor/vulkan-headers
         mkdir build
         cd build
         cmake -DCMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/../local ..
         make -j $core_count install
         cd ${TRAVIS_BUILD_DIR}
     - |
-        cd vulkan-loader
+        cd vendor/vulkan-loader
         mkdir build
         cd build
         cmake -DVULKAN_HEADERS_INSTALL_DIR=${TRAVIS_BUILD_DIR}/../local -DCMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/../local ..
         make -j $core_count install
         cd ${TRAVIS_BUILD_DIR}
     - |
-        cd glfw
+        cd vendor/glfw
         mkdir build
         cd build
         cmake -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/../local ..
         make -j $core_count install
         cd ${TRAVIS_BUILD_DIR}
     - |
-        cd cgreen
+        cd vendor/cgreen
         mkdir build
         cd build
         cmake -DCMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/../local ..
