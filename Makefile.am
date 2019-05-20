@@ -5,7 +5,7 @@ EXTRA_DIST = LICENSE
 dist_doc_DATA = README.md
 
 bin_PROGRAMS =
-noinst_LIBRARIES =
+noinst_LTLIBRARIES =
 TESTS =
 check_PROGRAMS =
 

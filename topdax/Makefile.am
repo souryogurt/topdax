@@ -1,43 +1,43 @@
 bin_PROGRAMS += topdax/topdax
 topdax_topdax_SOURCES = topdax/entry.c
-topdax_topdax_LDADD = topdax/libtopdax.a\
-		      topdax/libtopdax_window.a\
-		      topdax/liblogger.a\
-		      renderer/libvkrenderer.a\
-		      renderer/libvkswapchain.a\
-		      renderer/libvkconfig.a\
-		      renderer/libvkconfig_families.a\
-		      renderer/libvkconfig_swapchain.a\
-		      renderer/libvkframe.a\
+topdax_topdax_LDADD = topdax/libtopdax.la\
+		      topdax/libtopdax_window.la\
+		      topdax/liblogger.la\
+		      renderer/libvkrenderer.la\
+		      renderer/libvkswapchain.la\
+		      renderer/libvkconfig.la\
+		      renderer/libvkconfig_families.la\
+		      renderer/libvkconfig_swapchain.la\
+		      renderer/libvkframe.la\
 		      $(CODE_COVERAGE_LIBS)
 
-noinst_LIBRARIES += topdax/libtopdax.a
-topdax_libtopdax_a_SOURCES = topdax/topdax.c\
-			     topdax/topdax.h
+noinst_LTLIBRARIES += topdax/libtopdax.la
+topdax_libtopdax_la_SOURCES = topdax/topdax.c\
+			      topdax/topdax.h
 
-noinst_LIBRARIES += topdax/libtopdax_window.a
-topdax_libtopdax_window_a_SOURCES = topdax/window.c\
-				    topdax/window.h
+noinst_LTLIBRARIES += topdax/libtopdax_window.la
+topdax_libtopdax_window_la_SOURCES = topdax/window.c\
+				     topdax/window.h
 
-noinst_LIBRARIES += topdax/liblogger.a
-topdax_liblogger_a_SOURCES = topdax/logger.c\
-			     topdax/logger.h
+noinst_LTLIBRARIES += topdax/liblogger.la
+topdax_liblogger_la_SOURCES = topdax/logger.c\
+			      topdax/logger.h
 
 if HAVE_CGREEN
 TESTS += topdax/topdax_test
 check_PROGRAMS += topdax/topdax_test
 topdax_topdax_test_SOURCES = topdax/topdax_test.c
-topdax_topdax_test_LDADD = topdax/libtopdax.a -lcgreen $(CODE_COVERAGE_LIBS)
+topdax_topdax_test_LDADD = topdax/libtopdax.la -lcgreen $(CODE_COVERAGE_LIBS)
 topdax_topdax_test_LDFLAGS = -Wl,--wrap=argp_parse
 
 TESTS += topdax/topdax_window_test
 check_PROGRAMS += topdax/topdax_window_test
 topdax_topdax_window_test_SOURCES = topdax/window_test.c
-topdax_topdax_window_test_LDADD = topdax/libtopdax_window.a -lcgreen $(CODE_COVERAGE_LIBS)
+topdax_topdax_window_test_LDADD = topdax/libtopdax_window.la -lcgreen $(CODE_COVERAGE_LIBS)
 
 TESTS += topdax/logger_test
 check_PROGRAMS += topdax/logger_test
 topdax_logger_test_SOURCES = topdax/logger_test.c
-topdax_logger_test_LDADD = topdax/liblogger.a -lcgreen $(CODE_COVERAGE_LIBS)
+topdax_logger_test_LDADD = topdax/liblogger.la -lcgreen $(CODE_COVERAGE_LIBS)
 topdax_logger_test_LDFLAGS = -Wl,--wrap=fprintf
 endif

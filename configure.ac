@@ -9,8 +9,8 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AM_MAINTAINER_MODE([enable])
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_RANLIB
 AM_PROG_AR
+LT_INIT([win32-dll])
 
 AC_CHECK_PROGS([ASCIIDOCTOR], [asciidoctor])
 AS_IF([test -n "$ASCIIDOCTOR"],
