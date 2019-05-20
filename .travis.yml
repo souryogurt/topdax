@@ -69,8 +69,7 @@ before_script: autoreconf -i
 
 script:
     - CPPFLAGS="-I/usr/include" CFLAGS="--std=gnu11 -Wall -Wextra" ./configure --enable-code-coverage --with-unit-tests --prefix=${TRAVIS_BUILD_DIR}/../local
-    - build-wrapper-linux-x86-64 --out-dir bw-output make
-    - VERBOSE=1 make check
+    - VERBOSE=1 build-wrapper-linux-x86-64 --out-dir bw-output make check
     - gcov -a -c topdax/*.o renderer/*.o
     - git fetch --unshallow
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
