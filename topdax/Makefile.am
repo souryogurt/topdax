@@ -1,7 +1,6 @@
 bin_PROGRAMS += topdax/topdax
 topdax_topdax_SOURCES = topdax/entry.c
 topdax_topdax_LDADD = topdax/libtopdax.la\
-		      topdax/libtopdax_window.la\
 		      topdax/liblogger.la\
 		      renderer/libvkrenderer.la\
 		      renderer/libvkswapchain.la\
@@ -15,10 +14,6 @@ noinst_LTLIBRARIES += topdax/libtopdax.la
 topdax_libtopdax_la_SOURCES = topdax/topdax.c\
 			      topdax/topdax.h
 
-noinst_LTLIBRARIES += topdax/libtopdax_window.la
-topdax_libtopdax_window_la_SOURCES = topdax/window.c\
-				     topdax/window.h
-
 noinst_LTLIBRARIES += topdax/liblogger.la
 topdax_liblogger_la_SOURCES = topdax/logger.c\
 			      topdax/logger.h
@@ -29,11 +24,6 @@ check_PROGRAMS += topdax/topdax_test
 topdax_topdax_test_SOURCES = topdax/topdax_test.c
 topdax_topdax_test_LDADD = topdax/libtopdax.la -lcgreen $(CODE_COVERAGE_LIBS)
 topdax_topdax_test_LDFLAGS = -Wl,--wrap=argp_parse
-
-TESTS += topdax/topdax_window_test
-check_PROGRAMS += topdax/topdax_window_test
-topdax_topdax_window_test_SOURCES = topdax/window_test.c
-topdax_topdax_window_test_LDADD = topdax/libtopdax_window.la -lcgreen $(CODE_COVERAGE_LIBS)
 
 TESTS += topdax/logger_test
 check_PROGRAMS += topdax/logger_test

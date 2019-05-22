@@ -11,17 +11,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <GLFW/glfw3.h>
 #include "logger.h"
 #include "topdax.h"
-#include "window.h"
 #include <renderer/vkrenderer.h>
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
 
 /** Vulkan instance */
 static VkInstance vkn;
-/** Main window */
-static struct topdax_window window;
 
 /** Renderer implementation */
 static struct vkrenderer renderer;
@@ -99,37 +96,56 @@ static VkResult vk_instance_create(VkInstance *instance)
 
 int application_main(int argc, char **argv)
 {
+	int exit_code = EXIT_SUCCESS;
 	argp_program_version = PACKAGE_STRING;
 	argp_program_bug_address = PACKAGE_BUGREPORT;
 	argp.doc = "The program that renders triangle using Vulkan API";
-	if (argp_parse(&argp, argc, argv, 0, NULL, NULL))
-		return EXIT_FAILURE;
-
-	if (!glfwInit())
-		return EXIT_FAILURE;
-
+	if (argp_parse(&argp, argc, argv, 0, NULL, NULL)) {
+		exit_code = EXIT_FAILURE;
+		goto exit;
+	}
+	if (!glfwInit()) {
+		exit_code = EXIT_FAILURE;
+		goto exit;
+	}
 	if (vk_instance_create(&vkn) != VK_SUCCESS) {
-		return EXIT_FAILURE;
+		exit_code = EXIT_FAILURE;
+		goto glfw_terminate;
 	}
 #ifndef NDEBUG
 	setup_debug_logger(vkn);
 #endif
-	if (topdax_window_init(&window, vkn)) {
-		return EXIT_FAILURE;
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	GLFWwindow *win = glfwCreateWindow(960, 540, "Topdax", NULL, NULL);
+	if (win == NULL) {
+		exit_code = EXIT_FAILURE;
+		goto destroy_instance;
 	}
-	if (vkrenderer_init(&renderer, vkn, window.surface)) {
-		return EXIT_FAILURE;
+	VkSurfaceKHR srf;
+	if (glfwCreateWindowSurface(vkn, win, NULL, &srf) != VK_SUCCESS) {
+		exit_code = EXIT_FAILURE;
+		goto destroy_window;
 	}
-	while (!glfwWindowShouldClose(window.id)) {
+	if (vkrenderer_init(&renderer, vkn, srf)) {
+		exit_code = EXIT_FAILURE;
+		goto destroy_surface;
+	}
+	while (!glfwWindowShouldClose(win)) {
 		glfwPollEvents();
 		vkrenderer_render(&renderer);
 	}
 	vkrenderer_terminate(&renderer);
-	topdax_window_destroy(&window);
+destroy_surface:
+	vkDestroySurfaceKHR(vkn, srf, NULL);
+destroy_window:
+	glfwDestroyWindow(win);
 #ifndef NDEBUG
 	destroy_debug_logger(vkn);
 #endif
+destroy_instance:
 	vkDestroyInstance(vkn, NULL);
+glfw_terminate:
 	glfwTerminate();
-	return EXIT_SUCCESS;
+exit:
+	return exit_code;
 }
