@@ -80,11 +80,9 @@ static int select_universal_families(const struct family_properties *props,
 static void set_family_properties(VkPhysicalDevice phy, VkSurfaceKHR srf,
 				  struct family_properties *fpr, uint32_t fam)
 {
-	VkBool32 has_queue = fpr->fams[fam].queueCount > 0;
 	vkGetPhysicalDeviceSurfaceSupportKHR(phy, fam, srf, &fpr->present[fam]);
 	fpr->graphic[fam] = fpr->fams[fam].queueFlags & VK_QUEUE_GRAPHICS_BIT;
-	fpr->present[fam] = has_queue && fpr->present[fam];
-	fpr->graphic[fam] = has_queue && fpr->graphic[fam];
+	fpr->present[fam] = fpr->present[fam];
 }
 
 /**
