@@ -11,6 +11,7 @@
 
 #include <vulkan/vulkan_core.h>
 #include "vkrenderer.h"
+#include "phy_device.h"
 
 /**
  * Configure device features
@@ -34,6 +35,33 @@ static void vkrenderer_configure_extensions(struct vkrenderer *rdr)
 	/* TODO: check that required extension is really supported */
 	rdr->extensions = req_dev_extensions;
 	rdr->nextensions = ARRAY_SIZE(req_dev_extensions);
+}
+
+/**
+ * Choose graphics and presentation families
+ * @param rdr Specifies renderer to choose families for
+ * @returns zero if indices are found, and non-zero otherwise
+ */
+static int vkrenderer_configure_families(struct vkrenderer *rdr)
+{
+	VkQueueFamilyProperties fams[32];
+	struct phy_device dev = {
+		.nfams = ARRAY_SIZE(fams),
+		.fams = fams,
+	};
+	phy_device_init(&dev, rdr->phy);
+
+	if (phy_find_universal_family(&dev, rdr->srf, &rdr->graphic)) {
+		rdr->present = rdr->graphic;
+		return 0;
+	}
+	if (!phy_find_graphic_family(&dev, &rdr->graphic)) {
+		return -1;
+	}
+	if (!phy_find_present_family(&dev, rdr->srf, &rdr->present)) {
+		return -1;
+	}
+	return 0;
 }
 
 /**

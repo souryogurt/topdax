@@ -5,7 +5,7 @@ topdax_topdax_LDADD = topdax/libtopdax.la\
 		      renderer/libvkrenderer.la\
 		      renderer/libvkswapchain.la\
 		      renderer/libvkconfig.la\
-		      renderer/libvkconfig_families.la\
+		      renderer/libphy_device.la\
 		      renderer/libvkconfig_swapchain.la\
 		      renderer/libvkframe.la\
 		      $(CODE_COVERAGE_LIBS)

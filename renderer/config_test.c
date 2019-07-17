@@ -13,6 +13,7 @@
 
 #include <vulkan/vulkan_core.h>
 #include "vkrenderer.h"
+#include "phy_device.h"
 
 VKAPI_ATTR VkResult VKAPI_CALL
 vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
@@ -21,9 +22,26 @@ vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
 	return (VkResult)mock(instance, pPhysicalDeviceCount, pPhysicalDevices);
 }
 
-int vkrenderer_configure_families(struct vkrenderer *rdr)
+void phy_device_init(struct phy_device *dev, VkPhysicalDevice phy)
 {
-	return (int)mock(rdr);
+	mock(dev, phy);
+}
+
+bool phy_find_graphic_family(const struct phy_device *dev, uint32_t *index)
+{
+	return (bool)mock(dev, index);
+}
+
+bool phy_find_present_family(const struct phy_device *dev, VkSurfaceKHR srf,
+			     uint32_t *index)
+{
+	return (bool)mock(dev, srf, index);
+}
+
+bool phy_find_universal_family(const struct phy_device *dev, VkSurfaceKHR srf,
+			       uint32_t *index)
+{
+	return (bool)mock(dev, srf, index);
 }
 
 int vkrenderer_configure_swapchain(struct vkrenderer *rdr)
@@ -66,7 +84,8 @@ Ensure(configure_selects_suitable_device)
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
 					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkrenderer_configure_families, will_return(0));
+	expect(phy_device_init);
+	expect(phy_find_universal_family, will_return(true));
 	expect(vkrenderer_configure_swapchain, will_return(0));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_equal_to(0));
@@ -85,7 +104,9 @@ Ensure(configure_fails_when_no_suitable_families_available)
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
 					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkrenderer_configure_families, will_return(-1));
+	expect(phy_device_init);
+	expect(phy_find_universal_family, will_return(false));
+	expect(phy_find_graphic_family, will_return(false));
 	never_expect(vkrenderer_configure_swapchain, will_return(0));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
@@ -103,7 +124,10 @@ Ensure(configure_fails_when_no_suitable_swapchain_available)
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
 					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(vkrenderer_configure_families, will_return(0));
+	expect(phy_device_init);
+	expect(phy_find_universal_family, will_return(false));
+	expect(phy_find_graphic_family, will_return(true));
+	expect(phy_find_present_family, will_return(true));
 	expect(vkrenderer_configure_swapchain, will_return(-1));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
