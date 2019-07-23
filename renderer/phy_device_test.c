@@ -45,163 +45,52 @@ Ensure(phy_device_init_fills_properties)
 	assert_that(dev.phy, is_equal_to(phy));
 }
 
-Ensure(phy_find_graphic_family_returns_true_on_success)
+Ensure(phy_family_count_returns_number_of_families)
 {
-	VkQueueFamilyProperties fams[] = {
-		{
-			.queueFlags = 0,
-		},
-		{
-			.queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		},
-
-	};
 	struct phy_device dev = {
-		.nfams = 2,
-		.fams = fams,
+		.nfams = 3,
 	};
-	uint32_t index = 0;
-	bool found = phy_find_graphic_family(&dev, &index);
-	assert_that(found, is_true);
-	assert_that(index, is_equal_to(1));
+	assert_that(phy_family_count(&dev), is_equal_to(3));
 }
 
-Ensure(phy_find_graphic_family_returns_false_on_fail)
+Ensure(phy_family_can_graphics_returns_support_of_graphics_ops)
 {
-	VkQueueFamilyProperties fams[] = {
-		{
-			.queueFlags = 0,
-		},
-		{
-			.queueFlags = VK_QUEUE_COMPUTE_BIT,
-		},
-
-	};
+	VkQueueFamilyProperties props;
 	struct phy_device dev = {
-		.nfams = 2,
-		.fams = fams,
+		.nfams = 1,
+		.fams = &props,
 	};
-	uint32_t index = 0;
-	bool found = phy_find_graphic_family(&dev, &index);
-	assert_that(found, is_false);
+
+	props.queueFlags = VK_QUEUE_GRAPHICS_BIT;
+	assert_that(phy_family_can_graphics(&dev, 0), is_true);
+
+	props.queueFlags = VK_QUEUE_COMPUTE_BIT;
+	assert_that(phy_family_can_graphics(&dev, 0), is_false);
 }
 
-Ensure(phy_find_present_family_returns_true_on_success)
+Ensure(phy_family_can_present_returns_support_of_present_ops)
 {
+	VkBool32 present;
+	VkSurfaceKHR srf = (VkSurfaceKHR)!VK_NULL_HANDLE;
 	struct phy_device dev = {
-		.nfams = 2,
 		.phy = (VkPhysicalDevice)!VK_NULL_HANDLE,
 	};
-	VkSurfaceKHR srf = (VkSurfaceKHR)!VK_NULL_HANDLE;
-	uint32_t index = 0;
 
-	VkBool32 present[] = { VK_FALSE, VK_TRUE };
+	present = VK_TRUE;
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(*present)),
+	       will_set_contents_of_parameter(pSupported, &present,
+					      sizeof(present)),
 	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(queueFamilyIndex, is_equal_to(1)),
-	       will_set_contents_of_parameter(pSupported, &present[1],
-					      sizeof(*present)),
-	       will_return(VK_SUCCESS));
-	bool found = phy_find_present_family(&dev, srf, &index);
-	assert_that(found, is_true);
-	assert_that(index, is_equal_to(1));
-}
+	assert_that(phy_family_can_present(&dev, 0, srf), is_true);
 
-Ensure(phy_find_present_family_returns_false_on_fail)
-{
-	struct phy_device dev = {
-		.nfams = 2,
-		.phy = (VkPhysicalDevice)!VK_NULL_HANDLE,
-	};
-	VkSurfaceKHR srf = (VkSurfaceKHR)!VK_NULL_HANDLE;
-	uint32_t index = 0;
-
-	VkBool32 present[] = { VK_FALSE, VK_FALSE };
+	present = VK_FALSE;
 	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
 	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(*present)),
+	       will_set_contents_of_parameter(pSupported, &present,
+					      sizeof(present)),
 	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(queueFamilyIndex, is_equal_to(1)),
-	       will_set_contents_of_parameter(pSupported, &present[1],
-					      sizeof(*present)),
-	       will_return(VK_SUCCESS));
-	bool found = phy_find_present_family(&dev, srf, &index);
-	assert_that(found, is_false);
-}
-
-Ensure(phy_find_universal_family_returns_true_on_success)
-{
-	VkQueueFamilyProperties fams[] = {
-		{
-			.queueFlags = 0,
-		},
-		{
-			.queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		},
-
-	};
-	VkBool32 present[] = { VK_FALSE, VK_TRUE };
-	struct phy_device dev = {
-		.nfams = 2,
-		.fams = fams,
-		.phy = (VkPhysicalDevice)!VK_NULL_HANDLE,
-	};
-	VkSurfaceKHR srf = (VkSurfaceKHR)!VK_NULL_HANDLE;
-	uint32_t index = 0;
-
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(*present)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(queueFamilyIndex, is_equal_to(1)),
-	       will_set_contents_of_parameter(pSupported, &present[1],
-					      sizeof(*present)),
-	       will_return(VK_SUCCESS));
-	bool found = phy_find_universal_family(&dev, srf, &index);
-	assert_that(found, is_true);
-	assert_that(index, is_equal_to(1));
-}
-
-Ensure(phy_find_universal_family_returns_false_on_fail)
-{
-	VkQueueFamilyProperties fams[] = {
-		{
-			.queueFlags = 0,
-		},
-		{
-			.queueFlags = VK_QUEUE_GRAPHICS_BIT,
-		},
-
-	};
-	VkBool32 present[] = { VK_FALSE, VK_FALSE };
-	struct phy_device dev = {
-		.nfams = 2,
-		.fams = fams,
-		.phy = (VkPhysicalDevice)!VK_NULL_HANDLE,
-	};
-	VkSurfaceKHR srf = (VkSurfaceKHR)!VK_NULL_HANDLE;
-	uint32_t index = 0;
-
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(queueFamilyIndex, is_equal_to(0)),
-	       will_set_contents_of_parameter(pSupported, &present[0],
-					      sizeof(*present)),
-	       will_return(VK_SUCCESS));
-	expect(vkGetPhysicalDeviceSurfaceSupportKHR,
-	       when(queueFamilyIndex, is_equal_to(1)),
-	       will_set_contents_of_parameter(pSupported, &present[1],
-					      sizeof(*present)),
-	       will_return(VK_SUCCESS));
-	bool found = phy_find_universal_family(&dev, srf, &index);
-	assert_that(found, is_false);
+	assert_that(phy_family_can_present(&dev, 0, srf), is_false);
 }
 
 int main(int argc, char **argv)
@@ -210,12 +99,9 @@ int main(int argc, char **argv)
 	(void)(argv);
 	TestSuite *phy = create_named_test_suite("phy_device");
 	add_test(phy, phy_device_init_fills_properties);
-	add_test(phy, phy_find_graphic_family_returns_true_on_success);
-	add_test(phy, phy_find_graphic_family_returns_false_on_fail);
-	add_test(phy, phy_find_present_family_returns_true_on_success);
-	add_test(phy, phy_find_present_family_returns_false_on_fail);
-	add_test(phy, phy_find_universal_family_returns_true_on_success);
-	add_test(phy, phy_find_universal_family_returns_false_on_fail);
+	add_test(phy, phy_family_count_returns_number_of_families);
+	add_test(phy, phy_family_can_graphics_returns_support_of_graphics_ops);
+	add_test(phy, phy_family_can_present_returns_support_of_present_ops);
 	TestReporter *reporter = create_text_reporter();
 	int exit_code = run_test_suite(phy, reporter);
 	destroy_reporter(reporter);

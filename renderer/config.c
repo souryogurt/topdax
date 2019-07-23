@@ -14,70 +14,122 @@
 #include "phy_device.h"
 
 /**
- * Configure device features
- * @param rdr Specifies renderer to configure
+ * Setup device features
+ * @param rdr Specifies renderer to setup
+ * @param dev Specifies physical device to use
+ * @returns true on success, false otherwise
  */
-static void vkrenderer_configure_features(struct vkrenderer *rdr)
+static bool vkrenderer_setup_features(struct vkrenderer *rdr,
+				      const struct phy_device *dev)
 {
 	/* We are not enabling any features, so no need to check for them */
 	memset(&rdr->features, 0, sizeof(VkPhysicalDeviceFeatures));
+	return true;
 }
 
 /**
- * Configure device extensions
- * @param rdr Specifies renderer to configure
+ * Setup device extensions
+ * @param rdr Specifies renderer to setup
+ * @param dev Specifies physical device to use
+ * @returns true on success, false otherwise
  */
-static void vkrenderer_configure_extensions(struct vkrenderer *rdr)
+static bool vkrenderer_setup_extensions(struct vkrenderer *rdr,
+					const struct phy_device *dev)
 {
+	/* TODO: check that required extension is really supported */
 	static const char *const req_dev_extensions[] = {
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
-	/* TODO: check that required extension is really supported */
 	rdr->extensions = req_dev_extensions;
 	rdr->nextensions = ARRAY_SIZE(req_dev_extensions);
+	return true;
 }
 
 /**
- * Choose graphics and presentation families
- * @param rdr Specifies renderer to choose families for
- * @returns zero if indices are found, and non-zero otherwise
+ * Setup device queue family that supports both graphics and presentation
+ * @param rdr Specifies renderer to setup
+ * @param dev Specifies physical device to use
+ * @param srf Specifies surface will be used for presentation
+ * @returns true on success, false otherwise
  */
-static int vkrenderer_configure_families(struct vkrenderer *rdr)
+static bool vkrenderer_setup_universal_queue(struct vkrenderer *rdr,
+					     const struct phy_device *dev,
+					     VkSurfaceKHR srf)
 {
-	VkQueueFamilyProperties fams[32];
-	struct phy_device dev = {
-		.nfams = ARRAY_SIZE(fams),
-		.fams = fams,
-	};
-	phy_device_init(&dev, rdr->phy);
-
-	if (phy_find_universal_family(&dev, rdr->srf, &rdr->graphic)) {
-		rdr->present = rdr->graphic;
-		return 0;
+	uint32_t nfams = phy_family_count(dev);
+	for (uint32_t fidx = 0; fidx < nfams; ++fidx) {
+		if (phy_family_can_graphics(dev, fidx) &&
+		    phy_family_can_present(dev, fidx, srf)) {
+			rdr->present = rdr->graphic = fidx;
+			return true;
+		}
 	}
-	if (!phy_find_graphic_family(&dev, &rdr->graphic)) {
-		return -1;
-	}
-	if (!phy_find_present_family(&dev, rdr->srf, &rdr->present)) {
-		return -1;
-	}
-	return 0;
+	return false;
 }
 
 /**
- * Configure renderer on specific physical device
- * @param rdr Specifies renderer to configure
- * @returns zero on success, or non-zero otherwise
+ * Setup separate device queue families that supports graphics and presentation
+ * @param rdr Specifies renderer to setup
+ * @param dev Specifies physical device to use
+ * @param srf Specifies surface will be used for presentation
+ * @returns true on success, false otherwise
  */
-static int vkrenderer_configure_device(struct vkrenderer *rdr)
+static bool vkrenderer_setup_separate_queues(struct vkrenderer *rdr,
+					     const struct phy_device *dev,
+					     VkSurfaceKHR srf)
 {
-	vkrenderer_configure_features(rdr);
-	vkrenderer_configure_extensions(rdr);
-	if (vkrenderer_configure_families(rdr))
-		return -1;
+	uint32_t nfams = phy_family_count(dev);
+	rdr->graphic = rdr->present = nfams;
+	for (uint32_t fidx = 0; fidx < nfams; ++fidx) {
+		if (phy_family_can_graphics(dev, fidx)) {
+			rdr->graphic = fidx;
+			break;
+		}
+	}
+	for (uint32_t fidx = 0; fidx < nfams; ++fidx) {
+		if (phy_family_can_present(dev, fidx, srf)) {
+			rdr->present = fidx;
+			break;
+		}
+	}
+	return ((rdr->graphic < nfams) && (rdr->present < nfams));
+}
+
+/**
+ * Setup device queue families
+ * @param rdr Specifies renderer to setup
+ * @param dev Specifies physical device to use
+ * @param srf Specifies surface will be used for presentation
+ * @returns true on success, false otherwise
+ */
+static bool vkrenderer_setup_queues(struct vkrenderer *rdr,
+				    const struct phy_device *dev,
+				    VkSurfaceKHR srf)
+{
+	if (vkrenderer_setup_universal_queue(rdr, dev, srf)) {
+		return true;
+	}
+	return vkrenderer_setup_separate_queues(rdr, dev, srf);
+}
+
+/**
+ * Setup device queue families
+ * @param rdr Specifies renderer to setup
+ * @param dev Specifies physical device to use
+ * @returns true on success, false otherwise
+ */
+static bool vkrenderer_setup_device(struct vkrenderer *rdr,
+				    const struct phy_device *dev)
+{
+	if (!vkrenderer_setup_features(rdr, dev))
+		return false;
+	if (!vkrenderer_setup_extensions(rdr, dev))
+		return false;
+	if (!vkrenderer_setup_queues(rdr, dev, rdr->srf))
+		return false;
 	if (vkrenderer_configure_swapchain(rdr))
-		return -1;
-	return 0;
+		return false;
+	return true;
 }
 
 int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance)
@@ -87,9 +139,16 @@ int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance)
 	if (vkEnumeratePhysicalDevices(instance, &nphy, phy) != VK_SUCCESS) {
 		return -1;
 	}
+
+	VkQueueFamilyProperties fams[32];
+	struct phy_device dev = {
+		.nfams = ARRAY_SIZE(fams),
+		.fams = fams,
+	};
 	for (size_t i = 0; i < nphy; ++i) {
 		rdr->phy = phy[i];
-		if (!vkrenderer_configure_device(rdr))
+		phy_device_init(&dev, phy[i]);
+		if (vkrenderer_setup_device(rdr, &dev))
 			return 0;
 	}
 	return -1;

@@ -22,28 +22,6 @@ vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
 	return (VkResult)mock(instance, pPhysicalDeviceCount, pPhysicalDevices);
 }
 
-void phy_device_init(struct phy_device *dev, VkPhysicalDevice phy)
-{
-	mock(dev, phy);
-}
-
-bool phy_find_graphic_family(const struct phy_device *dev, uint32_t *index)
-{
-	return (bool)mock(dev, index);
-}
-
-bool phy_find_present_family(const struct phy_device *dev, VkSurfaceKHR srf,
-			     uint32_t *index)
-{
-	return (bool)mock(dev, srf, index);
-}
-
-bool phy_find_universal_family(const struct phy_device *dev, VkSurfaceKHR srf,
-			       uint32_t *index)
-{
-	return (bool)mock(dev, srf, index);
-}
-
 int vkrenderer_configure_swapchain(struct vkrenderer *rdr)
 {
 	return (int)mock(rdr);
@@ -51,32 +29,31 @@ int vkrenderer_configure_swapchain(struct vkrenderer *rdr)
 
 Ensure(configure_fails_when_not_enough_memory_for_devices_list)
 {
-	VkInstance instance = VK_NULL_HANDLE;
+	VkInstance instance = (VkInstance)!VK_NULL_HANDLE;
 	struct vkrenderer rdr = { 0 };
 	expect(vkEnumeratePhysicalDevices, will_return(VK_INCOMPLETE),
 	       when(instance, is_equal_to(instance)));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_not_equal_to(0));
+
+	assert_that(vkrenderer_configure(&rdr, instance), is_not_equal_to(0));
 }
 
 Ensure(configure_fails_when_no_devices_available)
 {
 	struct vkrenderer rdr = { 0 };
-	VkInstance instance = VK_NULL_HANDLE;
+	VkInstance instance = (VkInstance)!VK_NULL_HANDLE;
 	uint32_t nphy = 0;
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
 					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_not_equal_to(0));
+	assert_that(vkrenderer_configure(&rdr, instance), is_not_equal_to(0));
 }
 
-Ensure(configure_selects_suitable_device)
+Ensure(configure_selects_suitable_device_with_universal_queue)
 {
 	struct vkrenderer rdr = { 0 };
-	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1] = { VK_NULL_HANDLE };
+	VkInstance instance = (VkInstance)!VK_NULL_HANDLE;
+	VkPhysicalDevice phy[1] = { (VkPhysicalDevice)!VK_NULL_HANDLE };
 	uint32_t nphy = ARRAY_SIZE(phy);
 	expect(vkEnumeratePhysicalDevices,
 	       will_set_contents_of_parameter(pPhysicalDevices, phy,
@@ -85,11 +62,44 @@ Ensure(configure_selects_suitable_device)
 					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(phy_device_init);
-	expect(phy_find_universal_family, will_return(true));
+	expect(phy_family_count, will_return(1));
+	expect(phy_family_can_graphics, will_return(true));
+	expect(phy_family_can_present, will_return(true));
 	expect(vkrenderer_configure_swapchain, will_return(0));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_equal_to(0));
+
+	assert_that(vkrenderer_configure(&rdr, instance), is_equal_to(0));
 	assert_that(rdr.phy, is_equal_to(phy[0]));
+	assert_that(rdr.graphic, is_equal_to(0));
+	assert_that(rdr.present, is_equal_to(0));
+}
+
+Ensure(configure_selects_suitable_device_with_separate_queues)
+{
+	struct vkrenderer rdr = { 0 };
+	VkInstance instance = (VkInstance)!VK_NULL_HANDLE;
+	VkPhysicalDevice phy[1] = { (VkPhysicalDevice)!VK_NULL_HANDLE };
+	uint32_t nphy = ARRAY_SIZE(phy);
+	expect(vkEnumeratePhysicalDevices,
+	       will_set_contents_of_parameter(pPhysicalDevices, phy,
+					      sizeof(*phy) * nphy),
+	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
+					      sizeof(nphy)),
+	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
+	expect(phy_device_init);
+	expect(phy_family_count, will_return(2));
+	expect(phy_family_can_graphics, will_return(true));
+	expect(phy_family_can_present, will_return(false));
+	expect(phy_family_can_graphics, will_return(false));
+	expect(phy_family_count, will_return(2));
+	expect(phy_family_can_graphics, will_return(true));
+	expect(phy_family_can_present, will_return(false));
+	expect(phy_family_can_present, will_return(true));
+	expect(vkrenderer_configure_swapchain, will_return(0));
+
+	assert_that(vkrenderer_configure(&rdr, instance), is_equal_to(0));
+	assert_that(rdr.phy, is_equal_to(phy[0]));
+	assert_that(rdr.graphic, is_equal_to(0));
+	assert_that(rdr.present, is_equal_to(1));
 }
 
 Ensure(configure_fails_when_no_suitable_families_available)
@@ -105,9 +115,13 @@ Ensure(configure_fails_when_no_suitable_families_available)
 					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(phy_device_init);
-	expect(phy_find_universal_family, will_return(false));
-	expect(phy_find_graphic_family, will_return(false));
-	never_expect(vkrenderer_configure_swapchain, will_return(0));
+	expect(phy_family_count, will_return(1));
+	expect(phy_family_can_graphics, will_return(true));
+	expect(phy_family_can_present, will_return(false));
+	expect(phy_family_count, will_return(1));
+	expect(phy_family_can_graphics, will_return(true));
+	expect(phy_family_can_present, will_return(false));
+
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
 }
@@ -125,9 +139,9 @@ Ensure(configure_fails_when_no_suitable_swapchain_available)
 					      sizeof(nphy)),
 	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
 	expect(phy_device_init);
-	expect(phy_find_universal_family, will_return(false));
-	expect(phy_find_graphic_family, will_return(true));
-	expect(phy_find_present_family, will_return(true));
+	expect(phy_family_count, will_return(1));
+	expect(phy_family_can_graphics, will_return(true));
+	expect(phy_family_can_present, will_return(true));
 	expect(vkrenderer_configure_swapchain, will_return(-1));
 	int result = vkrenderer_configure(&rdr, instance);
 	assert_that(result, is_not_equal_to(0));
@@ -140,7 +154,8 @@ int main(int argc, char **argv)
 	TestSuite *vkr = create_named_test_suite("Device configuration");
 	add_test(vkr, configure_fails_when_not_enough_memory_for_devices_list);
 	add_test(vkr, configure_fails_when_no_devices_available);
-	add_test(vkr, configure_selects_suitable_device);
+	add_test(vkr, configure_selects_suitable_device_with_universal_queue);
+	add_test(vkr, configure_selects_suitable_device_with_separate_queues);
 	add_test(vkr, configure_fails_when_no_suitable_families_available);
 	add_test(vkr, configure_fails_when_no_suitable_swapchain_available);
 	TestReporter *reporter = create_text_reporter();

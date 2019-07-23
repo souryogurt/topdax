@@ -19,36 +19,37 @@ extern "C" {
 /* *INDENT-ON* */
 #endif
 
-/** Initialize physical device properties
+/**
+ * Initialize physical device properties
  * @param dev Specifies physical device to initialize
  */
 void phy_device_init(struct phy_device *dev, VkPhysicalDevice phy);
 
-/** Find queue family that supports graphic operations
- * @param dev Specifies physical device to choose family from
- * @param index Specifies pointer where store family index
- * @returns true if found, and false otherwise
+/**
+ * Query number of families supported by device
+ * @param dev Specifies physical device_to query
+ * @returns number of families supported
  */
-bool phy_find_graphic_family(const struct phy_device *dev, uint32_t *index);
-
-/** Find queue family that supports presentation operations
- * @param dev Specifies physical device to choose family from
- * @param srf Specifies surface the family must be compatible with
- * @param index Specifies pointer where store family index
- * @returns true if found, and false otherwise
- */
-bool phy_find_present_family(const struct phy_device *dev, VkSurfaceKHR srf,
-			     uint32_t *index);
+uint32_t phy_family_count(const struct phy_device *dev);
 
 /**
- * Find queue family that supports both graphics and presentation
- * @param dev Specifies physical device to choose family from
- * @param srf Specifies surface the family must be compatible with
- * @param index Specifies pointer where store family index
- * @returns true if found, and false otherwise
+ * Query whether a queue family in physical device supports graphics operations
+ * @param dev Specifies physical device to query
+ * @param fidx Specifies index of queue family to query
+ * @returns true if supports, or false otherwise
  */
-bool phy_find_universal_family(const struct phy_device *dev, VkSurfaceKHR srf,
-			       uint32_t *index);
+bool phy_family_can_graphics(const struct phy_device *dev, uint32_t fidx);
+
+/**
+ * Query whether a queue family in physical device supports presentation to a
+ * given surface.
+ * @param dev Specifies physical device to query
+ * @param fidx Specifies index of queue family to query
+ * @param srf Specifies surface to query
+ * @returns true if supports, or false otherwise
+ */
+bool phy_family_can_present(const struct phy_device *dev, uint32_t fidx,
+			    VkSurfaceKHR srf);
 
 #ifdef __cplusplus
 /* *INDENT-OFF* */
