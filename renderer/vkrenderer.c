@@ -159,13 +159,13 @@ int vkrenderer_init(struct vkrenderer *rdr, VkInstance instance,
 	if (vkrenderer_configure_swapchain(rdr)) {
 		return -1;
 	}
-	rdr->swc_index = 0;
-	if (vkswapchain_init(&rdr->swcs[rdr->swc_index], rdr, VK_NULL_HANDLE)) {
-		return -1;
-	}
 	const VkFormat fmt = rdr->srf_format.format;
 	const VkDevice dev = rdr->device;
 	if (vkrenderer_init_render_pass(&rdr->rpass, fmt, dev) != VK_SUCCESS) {
+		return -1;
+	}
+	rdr->swc_index = 0;
+	if (vkswapchain_init(&rdr->swcs[rdr->swc_index], rdr, VK_NULL_HANDLE)) {
 		return -1;
 	}
 	return 0;
