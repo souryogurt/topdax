@@ -24,8 +24,9 @@ Ensure(init_returns_zero_on_success)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
+	expect(vkrenderer_configure_swapchain, will_return(0));
 	expect(vkswapchain_init, will_return(0));
+	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_equal_to(0));
 }
@@ -65,7 +66,7 @@ Ensure(init_returns_non_zero_on_command_pool_fail)
 	assert_that(error, is_not_equal_to(0));
 }
 
-Ensure(init_returns_non_zero_on_renderpass_fail)
+Ensure(init_returns_non_zero_on_swapchain_configure_fail)
 {
 	VkInstance instance = (VkInstance)1;
 	VkSurfaceKHR surface = (VkSurfaceKHR)2;
@@ -75,7 +76,7 @@ Ensure(init_returns_non_zero_on_renderpass_fail)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_NOT_READY));
+	expect(vkrenderer_configure_swapchain, will_return(-1));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_not_equal_to(0));
 }
@@ -90,8 +91,25 @@ Ensure(init_returns_non_zero_on_swapchain_fail)
 	expect(vkGetDeviceQueue);
 	expect(vkGetDeviceQueue);
 	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
-	expect(vkCreateRenderPass, will_return(VK_SUCCESS));
+	expect(vkrenderer_configure_swapchain, will_return(0));
 	expect(vkswapchain_init, will_return(-1));
+	int error = vkrenderer_init(&vkr, instance, surface);
+	assert_that(error, is_not_equal_to(0));
+}
+
+Ensure(init_returns_non_zero_on_renderpass_fail)
+{
+	VkInstance instance = (VkInstance)1;
+	VkSurfaceKHR surface = (VkSurfaceKHR)2;
+	struct vkrenderer vkr = { 0 };
+	expect(vkrenderer_configure, will_return(0));
+	expect(vkCreateDevice, will_return(VK_SUCCESS));
+	expect(vkGetDeviceQueue);
+	expect(vkGetDeviceQueue);
+	expect(vkCreateCommandPool, will_return(VK_SUCCESS));
+	expect(vkrenderer_configure_swapchain, will_return(0));
+	expect(vkswapchain_init, will_return(0));
+	expect(vkCreateRenderPass, will_return(VK_NOT_READY));
 	int error = vkrenderer_init(&vkr, instance, surface);
 	assert_that(error, is_not_equal_to(0));
 }
@@ -175,6 +193,7 @@ int main(int argc, char **argv)
 	add_test(vkr, init_returns_non_zero_when_no_configs);
 	add_test(vkr, init_returns_non_zero_on_device_fail);
 	add_test(vkr, init_returns_non_zero_on_command_pool_fail);
+	add_test(vkr, init_returns_non_zero_on_swapchain_configure_fail);
 	add_test(vkr, init_returns_non_zero_on_renderpass_fail);
 	add_test(vkr, init_returns_non_zero_on_swapchain_fail);
 	add_test(vkr, render_returns_zero_on_success);

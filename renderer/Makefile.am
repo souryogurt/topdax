@@ -39,8 +39,7 @@ TESTS += renderer/config_test
 check_PROGRAMS += renderer/config_test
 renderer_config_test_SOURCES = renderer/config_test.c\
 			       renderer/phy_device_mock.c\
-			       renderer/libvulkan_mock.c\
-			       renderer/config_swapchain_mock.c
+			       renderer/libvulkan_mock.c
 renderer_config_test_LDADD = renderer/libvkrenderer.la -lcgreen $(CODE_COVERAGE_LIBS)
 
 TESTS += renderer/config_swapchain_test

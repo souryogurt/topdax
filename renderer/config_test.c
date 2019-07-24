@@ -55,7 +55,6 @@ Ensure(configure_selects_suitable_device_with_universal_queue)
 	expect(phy_family_count, will_return(1));
 	expect(phy_family_can_graphics, will_return(true));
 	expect(phy_family_can_present, will_return(true));
-	expect(vkrenderer_configure_swapchain, will_return(0));
 
 	assert_that(vkrenderer_configure(&rdr, instance), is_equal_to(0));
 	assert_that(rdr.phy, is_equal_to(phy[0]));
@@ -84,7 +83,6 @@ Ensure(configure_selects_suitable_device_with_separate_queues)
 	expect(phy_family_can_graphics, will_return(true));
 	expect(phy_family_can_present, will_return(false));
 	expect(phy_family_can_present, will_return(true));
-	expect(vkrenderer_configure_swapchain, will_return(0));
 
 	assert_that(vkrenderer_configure(&rdr, instance), is_equal_to(0));
 	assert_that(rdr.phy, is_equal_to(phy[0]));
@@ -116,27 +114,6 @@ Ensure(configure_fails_when_no_suitable_families_available)
 	assert_that(result, is_not_equal_to(0));
 }
 
-Ensure(configure_fails_when_no_suitable_swapchain_available)
-{
-	struct vkrenderer rdr = { 0 };
-	VkInstance instance = VK_NULL_HANDLE;
-	VkPhysicalDevice phy[1] = { VK_NULL_HANDLE };
-	uint32_t nphy = ARRAY_SIZE(phy);
-	expect(vkEnumeratePhysicalDevices,
-	       will_set_contents_of_parameter(pPhysicalDevices, phy,
-					      sizeof(*phy) * nphy),
-	       will_set_contents_of_parameter(pPhysicalDeviceCount, &nphy,
-					      sizeof(nphy)),
-	       will_return(VK_SUCCESS), when(instance, is_equal_to(instance)));
-	expect(phy_device_init);
-	expect(phy_family_count, will_return(1));
-	expect(phy_family_can_graphics, will_return(true));
-	expect(phy_family_can_present, will_return(true));
-	expect(vkrenderer_configure_swapchain, will_return(-1));
-	int result = vkrenderer_configure(&rdr, instance);
-	assert_that(result, is_not_equal_to(0));
-}
-
 int main(int argc, char **argv)
 {
 	(void)(argc);
@@ -147,7 +124,6 @@ int main(int argc, char **argv)
 	add_test(vkr, configure_selects_suitable_device_with_universal_queue);
 	add_test(vkr, configure_selects_suitable_device_with_separate_queues);
 	add_test(vkr, configure_fails_when_no_suitable_families_available);
-	add_test(vkr, configure_fails_when_no_suitable_swapchain_available);
 	TestReporter *reporter = create_text_reporter();
 	int exit_code = run_test_suite(vkr, reporter);
 	destroy_reporter(reporter);

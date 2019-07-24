@@ -128,8 +128,6 @@ static bool vkrenderer_setup_device(struct vkrenderer *rdr,
 		return false;
 	if (!vkrenderer_setup_queues(rdr, dev, rdr->srf))
 		return false;
-	if (vkrenderer_configure_swapchain(rdr))
-		return false;
 	return true;
 }
 
