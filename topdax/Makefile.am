@@ -3,11 +3,6 @@ topdax_topdax_SOURCES = topdax/entry.c
 topdax_topdax_LDADD = topdax/libtopdax.la\
 		      topdax/liblogger.la\
 		      renderer/libvkrenderer.la\
-		      renderer/libvkswapchain.la\
-		      renderer/libvkconfig.la\
-		      renderer/libphy_device.la\
-		      renderer/libvkconfig_swapchain.la\
-		      renderer/libvkframe.la\
 		      $(CODE_COVERAGE_LIBS) $(GLFW_LIBS) $(VULKAN_LIBS)
 
 noinst_LTLIBRARIES += topdax/libtopdax.la
