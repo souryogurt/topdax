@@ -14,21 +14,6 @@
 #include <vulkan/vulkan_core.h>
 #include "phy_device.h"
 
-VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties(
-	VkPhysicalDevice physicalDevice, uint32_t *pQueueFamilyCount,
-	VkQueueFamilyProperties *pQueueFamily)
-{
-	mock(physicalDevice, pQueueFamilyCount, pQueueFamily);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceSupportKHR(
-	VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex,
-	VkSurfaceKHR surface, VkBool32 *pSupported)
-{
-	return (VkResult)mock(physicalDevice, queueFamilyIndex, surface,
-			      pSupported);
-}
-
 Ensure(phy_device_init_fills_properties)
 {
 	VkQueueFamilyProperties fams[3];

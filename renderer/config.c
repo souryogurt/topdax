@@ -11,6 +11,7 @@
 
 #include <vulkan/vulkan_core.h>
 #include "vkrenderer.h"
+#include "config_swapchain.h"
 #include "phy_device.h"
 
 /**

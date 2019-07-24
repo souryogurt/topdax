@@ -29,14 +29,14 @@ AM_CONDITIONAL([HAVE_ASCIIDOCTOR_DIAGRAM], [test "x$have_asciidoctor_diagram" = 
 AC_CHECK_HEADER([GLFW/glfw3.h], [], [
   AC_MSG_ERROR([GLFW/glfw3.h not found])
 ])
-AC_CHECK_LIB([glfw], [glfwInit], [], [
+AC_CHECK_LIB([glfw], [glfwInit], [AC_SUBST([GLFW_LIBS], ["-lglfw"])], [
   AC_MSG_ERROR([libglfw not found])
 ])
 
 AC_CHECK_HEADER([vulkan/vulkan.h], [], [
   AC_MSG_ERROR([vulkan/vulkan.h not found])
 ])
-AC_CHECK_LIB([vulkan], [vkCreateInstance], [], [
+AC_CHECK_LIB([vulkan], [vkCreateInstance], [AC_SUBST([VULKAN_LIBS], ["-lvulkan"])], [
   AC_MSG_ERROR([libvulkan not found])
 ])
 

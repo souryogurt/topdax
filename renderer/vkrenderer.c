@@ -9,6 +9,8 @@
 #include <stddef.h>
 
 #include "vkrenderer.h"
+#include "config_swapchain.h"
+#include "config.h"
 #include "vkswapchain.h"
 
 /**

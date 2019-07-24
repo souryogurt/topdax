@@ -7,6 +7,7 @@ dist_doc_DATA = README.md
 bin_PROGRAMS =
 noinst_LTLIBRARIES =
 TESTS =
+check_LTLIBRARIES =
 check_PROGRAMS =
 
 AM_CFLAGS = $(CODE_COVERAGE_CFLAGS)

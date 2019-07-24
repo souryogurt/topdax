@@ -8,7 +8,7 @@ topdax_topdax_LDADD = topdax/libtopdax.la\
 		      renderer/libphy_device.la\
 		      renderer/libvkconfig_swapchain.la\
 		      renderer/libvkframe.la\
-		      $(CODE_COVERAGE_LIBS)
+		      $(CODE_COVERAGE_LIBS) $(GLFW_LIBS) $(VULKAN_LIBS)
 
 noinst_LTLIBRARIES += topdax/libtopdax.la
 topdax_libtopdax_la_SOURCES = topdax/topdax.c\

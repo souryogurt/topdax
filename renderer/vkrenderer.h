@@ -77,21 +77,6 @@ int vkrenderer_render(struct vkrenderer *rdr);
 void vkrenderer_terminate(const struct vkrenderer *rdr);
 
 /**
- * Configures renderer on Vulkan instance
- * @param rdr Specifies pointer to renderer to configure
- * @param instance Specifies Vulkan instance
- * @returns zero on success, or non-zero otherwise
- */
-int vkrenderer_configure(struct vkrenderer *rdr, VkInstance instance);
-
-/**
- * Choose swapchain parameters
- * @param rdr Specifies renderer to choose swapchain parameters for
- * @returns zero if parameters are found, and non-zero otherwise
- */
-int vkrenderer_configure_swapchain(struct vkrenderer *rdr);
-
-/**
  * Choose surface format
  * @param rdr Specifies renderer to choose surface format for
  * @returns zero if format is found, and non-zero otherwise

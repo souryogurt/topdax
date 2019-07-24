@@ -13,29 +13,7 @@
 
 #include <vulkan/vulkan_core.h>
 #include "vkrenderer.h"
-
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-	VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
-	VkSurfaceCapabilitiesKHR *caps)
-{
-	return (VkResult)mock(physicalDevice, surface, caps);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceFormatsKHR(
-	VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
-	uint32_t *pSurfaceFormatCount, VkSurfaceFormatKHR *pSurfaceFormats)
-{
-	return (VkResult)mock(physicalDevice, surface, pSurfaceFormatCount,
-			      pSurfaceFormats);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModesKHR(
-	VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
-	uint32_t *pPresentModeCount, VkPresentModeKHR *pPresentModes)
-{
-	return (VkResult)mock(physicalDevice, surface, pPresentModeCount,
-			      pPresentModes);
-}
+#include "config_swapchain.h"
 
 Ensure(configure_fails_when_no_memory_for_surface_capabilities)
 {

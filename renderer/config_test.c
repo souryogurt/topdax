@@ -13,19 +13,9 @@
 
 #include <vulkan/vulkan_core.h>
 #include "vkrenderer.h"
+#include "config_swapchain.h"
+#include "config.h"
 #include "phy_device.h"
-
-VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
-			   VkPhysicalDevice *pPhysicalDevices)
-{
-	return (VkResult)mock(instance, pPhysicalDeviceCount, pPhysicalDevices);
-}
-
-int vkrenderer_configure_swapchain(struct vkrenderer *rdr)
-{
-	return (int)mock(rdr);
-}
 
 Ensure(configure_fails_when_not_enough_memory_for_devices_list)
 {
