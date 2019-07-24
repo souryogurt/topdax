@@ -79,7 +79,7 @@ Ensure(configure_selects_suitable_device_with_separate_queues)
 	expect(phy_family_can_graphics, will_return(true));
 	expect(phy_family_can_present, will_return(false));
 	expect(phy_family_can_graphics, will_return(false));
-	expect(phy_family_count, will_return(2));
+
 	expect(phy_family_can_graphics, will_return(true));
 	expect(phy_family_can_present, will_return(false));
 	expect(phy_family_can_present, will_return(true));
@@ -106,7 +106,6 @@ Ensure(configure_fails_when_no_suitable_families_available)
 	expect(phy_family_count, will_return(1));
 	expect(phy_family_can_graphics, will_return(true));
 	expect(phy_family_can_present, will_return(false));
-	expect(phy_family_count, will_return(1));
 	expect(phy_family_can_graphics, will_return(true));
 	expect(phy_family_can_present, will_return(false));
 

@@ -47,53 +47,57 @@ static bool vkrenderer_setup_extensions(struct vkrenderer *rdr,
 }
 
 /**
- * Setup device queue family that supports both graphics and presentation
- * @param rdr Specifies renderer to setup
+ * Find device queue family that supports both graphics and presentation
  * @param dev Specifies physical device to use
+ * @param nfams Specifies number of queue families supported by device
  * @param srf Specifies surface will be used for presentation
- * @returns true on success, false otherwise
+ * @returns found family index, or nfams otherwise
  */
-static bool vkrenderer_setup_universal_queue(struct vkrenderer *rdr,
-					     const struct phy_device *dev,
-					     VkSurfaceKHR srf)
+static uint32_t find_universal_family(const struct phy_device *dev,
+				      uint32_t nfams, VkSurfaceKHR srf)
 {
-	uint32_t nfams = phy_family_count(dev);
 	for (uint32_t fidx = 0; fidx < nfams; ++fidx) {
 		if (phy_family_can_graphics(dev, fidx) &&
 		    phy_family_can_present(dev, fidx, srf)) {
-			rdr->present = rdr->graphic = fidx;
-			return true;
+			return fidx;
 		}
 	}
-	return false;
+	return nfams;
 }
 
 /**
- * Setup separate device queue families that supports graphics and presentation
- * @param rdr Specifies renderer to setup
+ * Find device queue family that supports graphics operations
  * @param dev Specifies physical device to use
- * @param srf Specifies surface will be used for presentation
- * @returns true on success, false otherwise
+ * @param nfams Specifies number of queue families supported by device
+ * @returns found family index, or nfams otherwise
  */
-static bool vkrenderer_setup_separate_queues(struct vkrenderer *rdr,
-					     const struct phy_device *dev,
-					     VkSurfaceKHR srf)
+static uint32_t find_graphic_family(const struct phy_device *dev,
+				    uint32_t nfams)
 {
-	uint32_t nfams = phy_family_count(dev);
-	rdr->graphic = rdr->present = nfams;
 	for (uint32_t fidx = 0; fidx < nfams; ++fidx) {
 		if (phy_family_can_graphics(dev, fidx)) {
-			rdr->graphic = fidx;
-			break;
+			return fidx;
 		}
 	}
+	return nfams;
+}
+
+/**
+ * Find device queue family that supports presentation to give surface
+ * @param dev Specifies physical device to use
+ * @param nfams Specifies number of queue families supported by device
+ * @param srf Specifies surface will be used for presentation
+ * @returns found family index, or nfams otherwise
+ */
+static uint32_t find_presentation_family(const struct phy_device *dev,
+					 uint32_t nfams, VkSurfaceKHR srf)
+{
 	for (uint32_t fidx = 0; fidx < nfams; ++fidx) {
 		if (phy_family_can_present(dev, fidx, srf)) {
-			rdr->present = fidx;
-			break;
+			return fidx;
 		}
 	}
-	return ((rdr->graphic < nfams) && (rdr->present < nfams));
+	return nfams;
 }
 
 /**
@@ -107,10 +111,18 @@ static bool vkrenderer_setup_queues(struct vkrenderer *rdr,
 				    const struct phy_device *dev,
 				    VkSurfaceKHR srf)
 {
-	if (vkrenderer_setup_universal_queue(rdr, dev, srf)) {
+	uint32_t fcount = phy_family_count(dev);
+	uint32_t fidx = find_universal_family(dev, fcount, srf);
+	if (fidx != fcount) {
+		rdr->graphic = rdr->present = fidx;
 		return true;
 	}
-	return vkrenderer_setup_separate_queues(rdr, dev, srf);
+	rdr->graphic = find_graphic_family(dev, fcount);
+	if (rdr->graphic == fcount) {
+		return false;
+	}
+	rdr->present = find_presentation_family(dev, fcount, srf);
+	return rdr->present != fcount;
 }
 
 /**
